@@ -1,0 +1,170 @@
+// pages.json - 页面路由配置 + tabBar配置
+{
+	"pages": [
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "智能洗宠机"
+			}
+		},
+		{
+			"path": "pages/store-list/store-list",
+			"style": {
+				"navigationBarTitleText": "门店列表"
+			}
+		},
+		{
+			"path": "pages/store-detail/store-detail",
+			"style": {
+				"navigationBarTitleText": "门店详情"
+			}
+		},
+		{
+			"path": "pages/coupon-redeem/coupon-redeem",
+			"style": {
+				"navigationBarTitleText": "团购核销"
+			}
+		},
+		{
+			"path": "pages/redeem-success/redeem-success",
+			"style": {
+				"navigationBarTitleText": "核销成功",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/wallet/wallet",
+			"style": {
+				"navigationBarTitleText": "我的钱包"
+			}
+		},
+		{
+			"path": "pages/pay-confirm/pay-confirm",
+			"style": {
+				"navigationBarTitleText": "确认付款"
+			}
+		},
+		{
+			"path": "pages/book-service/book-service",
+			"style": {
+				"navigationBarTitleText": "预约服务"
+			}
+		},
+		{
+			"path": "pages/book-confirm/book-confirm",
+			"style": {
+				"navigationBarTitleText": "确认预约"
+			}
+		},
+		{
+			"path": "pages/book-success/book-success",
+			"style": {
+				"navigationBarTitleText": "预约成功",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/wash-order-list/wash-order-list",
+			"style": {
+				"navigationBarTitleText": "洗宠订单"
+			}
+		},
+		{
+			"path": "pages/wash-order-detail/wash-order-detail",
+			"style": {
+				"navigationBarTitleText": "订单详情"
+			}
+		},
+		{
+			"path": "pages/book-order-list/book-order-list",
+			"style": {
+				"navigationBarTitleText": "预约订单"
+			}
+		},
+		{
+			"path": "pages/book-order-detail/book-order-detail",
+			"style": {
+				"navigationBarTitleText": "预约详情"
+			}
+		},
+		{
+			"path": "pages/mine/mine",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "我的"
+			}
+		},
+		{
+			"path": "pages/coupon-list/coupon-list",
+			"style": {
+				"navigationBarTitleText": "我的卡券"
+			}
+		},
+		{
+			"path": "pages/profit-center/profit-center",
+			"style": {
+				"navigationBarTitleText": "分账中心"
+			}
+		},
+		{
+			"path": "pages/withdraw/withdraw",
+			"style": {
+				"navigationBarTitleText": "提现"
+			}
+		},
+		{
+			"path": "pages/bank-info/bank-info",
+			"style": {
+				"navigationBarTitleText": "绑定收款信息"
+			}
+		},
+		{
+			"path": "pages/agreement/agreement",
+			"style": {
+				"navigationBarTitleText": "协议"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "white",
+		"navigationBarTitleText": "物沃PET",
+		"navigationBarBackgroundColor": "#07C160",
+		"backgroundColor": "#F5F5F5",
+		"app-plus": {
+			"titleNView": false
+		}
+	},
+	"tabBar": {
+		"color": "#999999",
+		"selectedColor": "#07C160",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"text": "首页",
+				"iconPath": "static/icons/home.png",
+				"selectedIconPath": "static/icons/home-active.png"
+			},
+			{
+				"pagePath": "pages/wash-order-list/wash-order-list",
+				"text": "订单",
+				"iconPath": "static/icons/order.png",
+				"selectedIconPath": "static/icons/order-active.png"
+			},
+			{
+				"pagePath": "pages/book-order-list/book-order-list",
+				"text": "预约",
+				"iconPath": "static/icons/book.png",
+				"selectedIconPath": "static/icons/book-active.png"
+			},
+			{
+				"pagePath": "pages/mine/mine",
+				"text": "我的",
+				"iconPath": "static/icons/mine.png",
+				"selectedIconPath": "static/icons/mine-active.png"
+			}
+		]
+	}
+}
