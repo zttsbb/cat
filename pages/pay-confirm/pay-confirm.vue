@@ -32,7 +32,8 @@
 				@click="selectPayMethod(index)"
 			>
 				<view class="method-left">
-					<text class="method-icon">{{ method.icon }}</text>
+					<image v-if="method.iconImage" class="method-icon-img" :src="method.iconImage" mode="aspectFit" />
+					<text v-else class="method-icon">{{ method.icon }}</text>
 					<view class="method-info">
 						<text class="method-name">{{ method.name }}</text>
 						<text class="method-desc" v-if="method.desc">{{ method.desc }}</text>
@@ -83,7 +84,7 @@ const selectedPayMethod = ref(0)
 const selectedCoupon = ref(null)
 
 const payMethods = ref([
-	{ icon: '💰', name: '余额支付', desc: '当前余额 ￥56.89', key: 'balance' },
+	{ iconImage: '/icon/qianbao.png', name: '余额支付', desc: '当前余额 ￥56.89', key: 'balance' },
 	{ icon: '🎫', name: '卡券支付', desc: '可用卡券 3张', key: 'coupon' },
 	{ icon: '💬', name: '微信支付', desc: '', key: 'wechat' }
 ])
@@ -177,6 +178,13 @@ const onConfirmPay = () => {
 .method-icon {
 	font-size: 40rpx;
 	margin-right: 20rpx;
+}
+
+.method-icon-img {
+	width: 48rpx;
+	height: 48rpx;
+	margin-right: 20rpx;
+	border-radius: 12rpx;
 }
 
 .method-info {

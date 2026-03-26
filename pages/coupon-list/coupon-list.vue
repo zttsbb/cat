@@ -14,7 +14,7 @@
 			<coupon-card
 				v-for="coupon in filteredCoupons"
 				:key="coupon.id"
-				:coupon="coupon"
+				:coupon="{ ...coupon, sourceIcon: getSourceIcon(coupon.source) }"
 			/>
 			<view class="empty-wrap" v-if="filteredCoupons.length === 0">
 				<text class="empty-icon">🎫</text>
@@ -45,6 +45,13 @@ const filteredCoupons = computed(() => {
 
 const switchTab = (key) => {
 	currentTab.value = key
+}
+
+// 根据来源获取对应图标
+const getSourceIcon = (source) => {
+	if (source === '抖音') return '/icon/douyin.png'
+	if (source === '美团') return '/icon/meituan.png'
+	return ''
 }
 
 onMounted(() => {

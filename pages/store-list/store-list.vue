@@ -41,19 +41,19 @@
 				<text class="tab-text">预约到店</text>
 			</view>
 			<view class="tab-item" @click="goPage('/pages/coupon-redeem/coupon-redeem')">
-				<text class="tab-icon">🎫</text>
+				<image class="tab-icon-img" src="/icon/saomahexiao.png" mode="aspectFit" />
 				<text class="tab-text">团购核销</text>
 			</view>
 			<view class="tab-item" @click="goPage('/pages/wash-order-list/wash-order-list')">
-				<text class="tab-icon">📋</text>
+				<image class="tab-icon-img" src="/icon/dingdan.png" mode="aspectFit" />
 				<text class="tab-text">我的订单</text>
 			</view>
 			<view class="tab-item" @click="goPage('/pages/wallet/wallet')">
-				<text class="tab-icon">💰</text>
+				<image class="tab-icon-img" src="/icon/youhuichognzhi.png" mode="aspectFit" />
 				<text class="tab-text">优惠充值</text>
 			</view>
 			<view class="tab-item" @click="sharePage">
-				<text class="tab-icon">🎁</text>
+				<image class="tab-icon-img" src="/icon/fenxiang.png" mode="aspectFit" />
 				<text class="tab-text">分享有礼</text>
 			</view>
 		</view>
@@ -163,6 +163,12 @@ const sharePage = () => {
 
 	.tab-icon {
 		font-size: 36rpx;
+		margin-bottom: 4rpx;
+	}
+
+	.tab-icon-img {
+		width: 40rpx;
+		height: 40rpx;
 		margin-bottom: 4rpx;
 	}
 

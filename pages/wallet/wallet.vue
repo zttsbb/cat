@@ -12,10 +12,13 @@
 		<!-- 快捷充值 -->
 		<view class="recharge-section">
 			<view class="section-title">快捷充值</view>
-			<view class="recharge-grid">
+			<view class="recharge-scroll">
 				<view class="recharge-card" v-for="(item, index) in rechargeAmounts" :key="index" @click="onRecharge(item)">
+					<view class="bonus-badge">
+						<image class="bonus-badge-img" src="/icon/ceng.png" mode="aspectFit" />
+					</view>
 					<view class="recharge-amount">￥{{ item.amount }}</view>
-					<view class="recharge-bonus" v-if="item.bonus">送￥{{ item.bonus }}</view>
+					<view class="recharge-bonus" v-if="item.bonus">赠￥{{ item.bonus }}</view>
 				</view>
 			</view>
 		</view>
@@ -54,9 +57,10 @@ const walletInfo = ref({
 
 const rechargeAmounts = ref([
 	{ amount: 50, label: '50元', bonus: 5 },
-	{ amount: 100, label: '100元', bonus: 15 },
-	{ amount: 200, label: '200元', bonus: 40 },
-	{ amount: 500, label: '500元', bonus: 120 }
+	{ amount: 50, label: '50元', bonus: 5 },
+	{ amount: 50, label: '50元', bonus: 5 },
+	{ amount: 50, label: '50元', bonus: 5 },
+	{ amount: 50, label: '50元', bonus: 5 }
 ])
 
 onMounted(() => {
@@ -126,19 +130,27 @@ const onRecharge = (item) => {
 	margin-bottom: 24rpx;
 }
 
-.recharge-grid {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 20rpx;
+.recharge-scroll {
+	display: flex;
+	overflow-x: auto;
+	white-space: nowrap;
 }
 
 .recharge-card {
+	min-width: 200rpx;
+	height: 180rpx;
 	border: 2rpx solid #e0e0e0;
 	border-radius: 20rpx;
-	padding: 32rpx;
+	padding: 32rpx 24rpx;
 	text-align: center;
 	position: relative;
 	overflow: hidden;
+	margin-right: 20rpx;
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 
 	&:active {
 		border-color: #07C160;
@@ -146,16 +158,48 @@ const onRecharge = (item) => {
 	}
 }
 
+.bonus-badge {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 64rpx;
+	height: 64rpx;
+	overflow: hidden;
+
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		right: 0;
+		width: 0;
+		height: 0;
+		border-style: solid;
+		border-width: 0 64rpx 64rpx 0;
+		border-color: transparent #ff6b35 transparent transparent;
+		z-index: 1;
+	}
+}
+
+.bonus-badge-img {
+	position: absolute;
+	top: 8rpx;
+	right: 4rpx;
+	width: 36rpx;
+	height: 36rpx;
+	z-index: 2;
+}
+
 .recharge-amount {
-	font-size: 40rpx;
+	font-size: 48rpx;
 	font-weight: 700;
 	color: #333;
 }
 
 .recharge-bonus {
 	font-size: 24rpx;
-	color: #ff4d4f;
+	color: #ff6b35;
 	margin-top: 8rpx;
+	font-weight: 600;
 }
 
 .recharge-notice {

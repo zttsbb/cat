@@ -31,6 +31,11 @@
 			</view>
 		</view>
 
+		<!-- 立即预约按钮 -->
+		<view class="book-btn" @click="goBook">
+			<text>立即预约</text>
+		</view>
+
 		<!-- 扫码下单入口 -->
 		<view class="scan-btn" @click="goScan">
 			<text class="scan-icon">📷</text>
@@ -43,17 +48,46 @@
 </template>
 
 <script setup>
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onUnload } from '@dcloudio/uni-app'
+
+let autoRedirectTimer = null
 
 onLoad((options) => {
 	// TODO: 根据couponId加载卡券详情
+	// 2秒后自动跳转到预约服务页面
+	autoRedirectTimer = setTimeout(() => {
+		uni.navigateTo({ url: '/pages/book-service/book-service' })
+	}, 2000)
 })
 
+onUnload(() => {
+	if (autoRedirectTimer) {
+		clearTimeout(autoRedirectTimer)
+		autoRedirectTimer = null
+	}
+})
+
+const goBook = () => {
+	if (autoRedirectTimer) {
+		clearTimeout(autoRedirectTimer)
+		autoRedirectTimer = null
+	}
+	uni.navigateTo({ url: '/pages/book-service/book-service' })
+}
+
 const goScan = () => {
+	if (autoRedirectTimer) {
+		clearTimeout(autoRedirectTimer)
+		autoRedirectTimer = null
+	}
 	uni.showToast({ title: '扫码功能开发中', icon: 'none' })
 }
 
 const goHome = () => {
+	if (autoRedirectTimer) {
+		clearTimeout(autoRedirectTimer)
+		autoRedirectTimer = null
+	}
 	uni.switchTab({ url: '/pages/index/index' })
 }
 </script>
@@ -141,7 +175,7 @@ const goHome = () => {
 	color: #333;
 }
 
-.scan-btn {
+.book-btn {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -152,6 +186,20 @@ const goHome = () => {
 	padding: 28rpx 0;
 	border-radius: 999rpx;
 	margin-bottom: 24rpx;
+}
+
+.scan-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: #fff;
+	color: #333;
+	font-size: 32rpx;
+	font-weight: 600;
+	padding: 28rpx 0;
+	border-radius: 999rpx;
+	margin-bottom: 24rpx;
+	border: 2rpx solid #07C160;
 
 	.scan-icon {
 		font-size: 36rpx;

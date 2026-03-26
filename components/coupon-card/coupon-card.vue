@@ -11,7 +11,10 @@
 		</view>
 		<view class="coupon-divider"></view>
 		<view class="coupon-right">
-			<view class="coupon-source">{{ coupon.source }}</view>
+			<view class="coupon-source">
+				<image v-if="coupon.sourceIcon" class="source-icon" :src="coupon.sourceIcon" mode="aspectFit" />
+				<text>{{ coupon.source }}</text>
+			</view>
 			<view class="coupon-scope ellipsis">{{ coupon.scope }}</view>
 			<view class="coupon-times">剩余{{ coupon.remainTimes }}/{{ coupon.totalTimes }}次</view>
 			<view class="coupon-expire">有效期至 {{ coupon.expireDate }}</view>
@@ -130,6 +133,14 @@ defineProps({
 	font-weight: 600;
 	color: #333;
 	margin-bottom: 8rpx;
+	display: flex;
+	align-items: center;
+}
+
+.source-icon {
+	width: 36rpx;
+	height: 36rpx;
+	margin-right: 8rpx;
 }
 
 .coupon-scope {

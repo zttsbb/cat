@@ -44,8 +44,11 @@
 		<view class="quick-entry">
 			<view class="entry-title">快捷服务</view>
 			<view class="entry-grid">
-				<view class="entry-item" v-for="(item, index) in quickEntries" :key="index" @click="navigateTo(item.url)">
-					<view class="entry-icon">{{ item.icon }}</view>
+				<view class="entry-item" v-for="(item, index) in quickEntries" :key="index" @click="onEntryClick(item)">
+					<view class="entry-icon">
+						<image v-if="item.iconImage" class="entry-icon-img" :src="item.iconImage" mode="aspectFit" />
+						<text v-else>{{ item.icon }}</text>
+					</view>
 					<text class="entry-text">{{ item.text }}</text>
 				</view>
 			</view>
@@ -78,6 +81,29 @@
 		<view class="tips-section">
 			<text class="tips-text">* 本设备需预支付{{ device.prepayAmount }}元，结算订单后原路退回</text>
 			<text class="tips-text">* 每分钟{{ device.pricePerMinute }}元，按量计费</text>
+		</view>
+
+		<!-- 团购核销底部弹窗 -->
+		<view class="redeem-overlay" v-if="showRedeemPopup" @click="closeRedeemPopup">
+			<view class="redeem-popup" @click.stop>
+				<view class="popup-header">
+					<text class="popup-title">团购核销</text>
+					<text class="popup-close" @click="closeRedeemPopup">✕</text>
+				</view>
+				<view class="popup-body">
+					<view class="popup-input-wrap">
+						<input
+							class="popup-input"
+							v-model="redeemCode"
+							placeholder="请输入核销码"
+							maxlength="20"
+							type="text"
+						/>
+					</view>
+					<view class="popup-btn" @click="onConfirmRedeem">确认核销</view>
+					<view class="popup-tips">*核销使用后结余金额不可退款</view>
+				</view>
+			</view>
 		</view>
 	</view>
 </template>
@@ -114,8 +140,8 @@ const bannerList = ref([
 const quickEntries = ref([
 	{ icon: '📅', text: '预约服务', url: '/pages/book-service/book-service' },
 	{ icon: '👁', text: '查看现场', url: '/pages/store-detail/store-detail?storeId=1' },
-	{ icon: '💰', text: '预充值', url: '/pages/wallet/wallet' },
-	{ icon: '🎫', text: '团购核销', url: '/pages/coupon-redeem/coupon-redeem' },
+	{ iconImage: '/icon/youhuichognzhi.png', text: '预充值', url: '/pages/wallet/wallet' },
+	{ iconImage: '/icon/saomahexiao.png', text: '团购核销', action: 'redeem' },
 	{ icon: '📱', text: '查看其它设备', url: '/pages/store-list/store-list' }
 ])
 
@@ -127,6 +153,10 @@ const rechargeAmounts = ref([
 	{ amount: 500, bonus: 120 }
 ])
 
+// 团购核销弹窗
+const showRedeemPopup = ref(false)
+const redeemCode = ref('')
+
 onMounted(() => {
 	// 获取状态栏高度
 	const sysInfo = uni.getSystemInfoSync()
@@ -137,9 +167,41 @@ onMounted(() => {
 	// getRechargeAmounts().then(res => { rechargeAmounts.value = res })
 })
 
+// 快捷入口点击
+const onEntryClick = (item) => {
+	if (item.action === 'redeem') {
+		showRedeemPopup.value = true
+		return
+	}
+	if (item.url) {
+		uni.navigateTo({ url: item.url })
+	}
+}
+
 // 跳转页面
 const navigateTo = (url) => {
 	uni.navigateTo({ url })
+}
+
+// 关闭核销弹窗
+const closeRedeemPopup = () => {
+	showRedeemPopup.value = false
+	redeemCode.value = ''
+}
+
+// 确认核销
+const onConfirmRedeem = () => {
+	if (!redeemCode.value.trim()) {
+		uni.showToast({ title: '请输入核销码', icon: 'none' })
+		return
+	}
+	// TODO: 调用核销接口校验核销码
+	// redeemCoupon({ code: redeemCode.value }).then(res => { ... })
+	uni.showToast({ title: '核销成功', icon: 'success' })
+	closeRedeemPopup()
+	setTimeout(() => {
+		uni.navigateTo({ url: '/pages/book-service/book-service' })
+	}, 500)
 }
 
 // 充值
@@ -292,10 +354,15 @@ const onBannerClick = (item) => {
 		border-radius: 24rpx;
 		background-color: #e8f8ee;
 		display: flex;
-	align-items: center;
-	justify-content: center;
+		align-items: center;
+		justify-content: center;
 		font-size: 44rpx;
 		margin-bottom: 12rpx;
+	}
+
+	.entry-icon-img {
+		width: 56rpx;
+		height: 56rpx;
 	}
 
 	.entry-text {
@@ -393,5 +460,98 @@ const onBannerClick = (item) => {
 	font-size: 22rpx;
 	color: #999;
 	margin-bottom: 8rpx;
+}
+
+/* 团购核销底部弹窗 */
+.redeem-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 999;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+}
+
+.redeem-popup {
+	width: 100%;
+	background-color: #fff;
+	border-radius: 32rpx 32rpx 0 0;
+	padding: 40rpx 32rpx;
+	padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
+	animation: slideUp 0.3s ease-out;
+	box-shadow: 0 -8rpx 40rpx rgba(0, 0, 0, 0.15);
+}
+
+@keyframes slideUp {
+	from {
+		transform: translateY(100%);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+
+.popup-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 40rpx;
+}
+
+.popup-title {
+	font-size: 36rpx;
+	font-weight: 700;
+	color: #333;
+}
+
+.popup-close {
+	width: 56rpx;
+	height: 56rpx;
+	border-radius: 50%;
+	background-color: #f5f5f5;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 32rpx;
+	color: #999;
+}
+
+.popup-body {
+	display: flex;
+	flex-direction: column;
+}
+
+.popup-input-wrap {
+	background-color: #f5f5f5;
+	border-radius: 16rpx;
+	padding: 24rpx 32rpx;
+	margin-bottom: 32rpx;
+}
+
+.popup-input {
+	font-size: 30rpx;
+	color: #333;
+	height: 48rpx;
+}
+
+.popup-btn {
+	background: linear-gradient(135deg, #07C160, #38d976);
+	color: #fff;
+	font-size: 32rpx;
+	font-weight: 600;
+	text-align: center;
+	padding: 28rpx 0;
+	border-radius: 999rpx;
+	margin-bottom: 24rpx;
+}
+
+.popup-tips {
+	text-align: center;
+	font-size: 22rpx;
+	color: #999;
 }
 </style>
