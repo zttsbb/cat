@@ -27,6 +27,19 @@
 			</view>
 		</view>
 
+		<!-- 轮播图 -->
+		<view class="swiper-section">
+			<swiper class="banner-swiper" :autoplay="true" :interval="4000" :circular="true"
+				:indicator-dots="true" indicator-color="rgba(255,255,255,0.5)"
+				indicator-active-color="#fff" @change="onSwiperChange">
+				<swiper-item v-for="(item, index) in bannerList" :key="index">
+					<view class="swiper-item" @click="onBannerClick(item)">
+						<image class="swiper-image" :src="item.image" mode="aspectFill" />
+					</view>
+				</swiper-item>
+			</swiper>
+		</view>
+
 		<!-- 快捷入口 -->
 		<view class="quick-entry">
 			<view class="entry-title">快捷服务</view>
@@ -90,6 +103,13 @@ const device = ref({
 	features: ['香波洗护', '护毛护理', '清水冲洗', '消毒烘干']
 })
 
+// 轮播图 Mock
+const bannerList = ref([
+	{ id: 1, image: '/static/images/banner1.png', link: '', title: '开业优惠' },
+	{ id: 2, image: '/static/images/banner2.png', link: '', title: '充100送30' },
+	{ id: 3, image: '/static/images/banner3.png', link: '', title: '新用户专享' }
+])
+
 // 快捷入口
 const quickEntries = ref([
 	{ icon: '📅', text: '预约服务', url: '/pages/book-service/book-service' },
@@ -125,6 +145,18 @@ const navigateTo = (url) => {
 // 充值
 const onRecharge = (item) => {
 	uni.navigateTo({ url: `/pages/wallet/wallet?amount=${item.amount}` })
+}
+
+// 轮播图切换
+const onSwiperChange = (e) => {
+	// TODO: 可上报轮播图曝光
+}
+
+// 轮播图点击
+const onBannerClick = (item) => {
+	if (item.link) {
+		uni.navigateTo({ url: item.link })
+	}
 }
 </script>
 
@@ -204,6 +236,29 @@ const onRecharge = (item) => {
 .detail-text {
 	font-size: 26rpx;
 	color: #666;
+}
+
+.swiper-section {
+	margin: 0 24rpx 24rpx;
+	border-radius: 24rpx;
+	overflow: hidden;
+}
+
+.banner-swiper {
+	width: 100%;
+	height: 320rpx;
+	border-radius: 24rpx;
+}
+
+.swiper-item {
+	width: 100%;
+	height: 100%;
+}
+
+.swiper-image {
+	width: 100%;
+	height: 100%;
+	border-radius: 24rpx;
 }
 
 .quick-entry {
