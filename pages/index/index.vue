@@ -131,9 +131,10 @@ const device = ref({
 
 // 轮播图 Mock
 const bannerList = ref([
-	{ id: 1, image: '/static/images/banner1.png', link: '', title: '开业优惠' },
-	{ id: 2, image: '/static/images/banner2.png', link: '', title: '充100送30' },
-	{ id: 3, image: '/static/images/banner3.png', link: '', title: '新用户专享' }
+	{ id: 1, image: '/banner/banner1.jpg', link: '', title: '轮播图1' },
+	{ id: 2, image: '/banner/banner2.jpg', link: '', title: '轮播图2' },
+	{ id: 3, image: '/banner/banner3.jpg', link: '', title: '轮播图3' },
+	{ id: 4, image: '/banner/banner4.jpg', link: '', title: '轮播图4' }
 ])
 
 // 快捷入口
