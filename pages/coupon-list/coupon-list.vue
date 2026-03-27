@@ -11,11 +11,43 @@
 
 		<!-- 卡券列表 -->
 		<view class="coupon-list">
-			<coupon-card
+			<view
 				v-for="coupon in filteredCoupons"
 				:key="coupon.id"
-				:coupon="{ ...coupon, sourceIcon: getSourceIcon(coupon.source) }"
-			/>
+				:class="['coupon-card', { 'coupon-expired': coupon.status !== 1 }]"
+			>
+				<!-- 卡片背景渐变 -->
+				<view class="coupon-bg"></view>
+				<!-- 卡片内容 -->
+				<view class="coupon-content">
+					<!-- 左侧金额 -->
+					<view class="coupon-left">
+						<text class="coupon-symbol">￥</text>
+						<text class="coupon-amount">{{ coupon.faceValue }}</text>
+						<text class="coupon-per">/单次</text>
+					</view>
+					<!-- 分割线 -->
+					<view class="coupon-divider"></view>
+					<!-- 右侧信息 -->
+					<view class="coupon-right">
+						<view class="coupon-source-row">
+							<image v-if="getSourceIcon(coupon.source)" class="source-icon" :src="getSourceIcon(coupon.source)" mode="aspectFit" />
+							<text class="coupon-source">{{ coupon.source }}</text>
+							<text class="coupon-type-badge">{{ coupon.type }}</text>
+						</view>
+						<text class="coupon-scope">{{ coupon.scope }}</text>
+						<view class="coupon-meta">
+							<text class="coupon-remain">可用{{ coupon.remainTimes }}次</text>
+							<text class="coupon-expire">{{ coupon.expireDate }}</text>
+						</view>
+					</view>
+				</view>
+				<!-- 状态标签 -->
+				<view :class="['coupon-status', coupon.status === 1 ? 'status-valid' : 'status-expired']">
+					{{ coupon.statusText }}
+				</view>
+			</view>
+
 			<view class="empty-wrap" v-if="filteredCoupons.length === 0">
 				<text class="empty-icon">🎫</text>
 				<text class="empty-text">暂无卡券</text>
@@ -27,7 +59,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { getCouponList } from '@/api/coupon.js'
-import CouponCard from '@/components/coupon-card/coupon-card.vue'
 
 const currentTab = ref('')
 const couponList = ref([])
@@ -47,10 +78,10 @@ const switchTab = (key) => {
 	currentTab.value = key
 }
 
-// 根据来源获取对应图标
 const getSourceIcon = (source) => {
 	if (source === '抖音') return '/icon/douyin.png'
 	if (source === '美团') return '/icon/meituan.png'
+	if (source === '系统') return '/icon/ceng.png'
 	return ''
 }
 
@@ -59,9 +90,13 @@ onMounted(() => {
 })
 
 const loadData = async () => {
-	// TODO: 调用实际接口
-	const res = await getCouponList({ page: 1, pageSize: 20 })
-	couponList.value = res.list || []
+	try {
+		const res = await getCouponList({ page: 1, pageSize: 20 })
+		couponList.value = res.list || []
+	} catch (e) {
+		console.error('加载卡券失败:', e)
+		couponList.value = []
+	}
 }
 </script>
 
@@ -106,6 +141,165 @@ const loadData = async () => {
 
 .coupon-list {
 	padding: 24rpx;
+}
+
+/* 卡券卡片 */
+.coupon-card {
+	position: relative;
+	border-radius: 24rpx;
+	margin-bottom: 24rpx;
+	overflow: hidden;
+	height: 220rpx;
+
+	&.coupon-expired {
+		.coupon-bg {
+			background: linear-gradient(135deg, rgba(180, 180, 180, 0.6), rgba(200, 200, 200, 0.3));
+		}
+		.coupon-amount {
+			color: #999;
+		}
+		.coupon-symbol,
+		.coupon-per {
+			color: #bbb;
+		}
+		.coupon-remain {
+			color: #999;
+		}
+	}
+}
+
+/* 渐变半透明背景 */
+.coupon-bg {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: linear-gradient(135deg, rgba(7, 193, 96, 0.65), rgba(56, 217, 118, 0.35));
+	backdrop-filter: blur(10px);
+}
+
+/* 卡片内容 */
+.coupon-content {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	height: 100%;
+	padding: 0 32rpx;
+}
+
+/* 左侧金额 */
+.coupon-left {
+	display: flex;
+	align-items: baseline;
+	margin-right: 28rpx;
+}
+
+.coupon-symbol {
+	font-size: 28rpx;
+	font-weight: 600;
+	color: #fff;
+}
+
+.coupon-amount {
+	font-size: 64rpx;
+	font-weight: 700;
+	color: #fff;
+	line-height: 1;
+}
+
+.coupon-per {
+	font-size: 22rpx;
+	color: rgba(255, 255, 255, 0.85);
+	margin-left: 4rpx;
+}
+
+/* 虚线分割 */
+.coupon-divider {
+	width: 2rpx;
+	height: 100rpx;
+	border-left: 2rpx dashed rgba(255, 255, 255, 0.5);
+	margin-right: 28rpx;
+	flex-shrink: 0;
+}
+
+/* 右侧信息 */
+.coupon-right {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.coupon-source-row {
+	display: flex;
+	align-items: center;
+	margin-bottom: 8rpx;
+}
+
+.source-icon {
+	width: 32rpx;
+	height: 32rpx;
+	margin-right: 8rpx;
+}
+
+.coupon-source {
+	font-size: 28rpx;
+	font-weight: 600;
+	color: #fff;
+}
+
+.coupon-type-badge {
+	font-size: 20rpx;
+	color: #fff;
+	background-color: rgba(255, 255, 255, 0.3);
+	padding: 2rpx 12rpx;
+	border-radius: 999rpx;
+	margin-left: 12rpx;
+}
+
+.coupon-scope {
+	font-size: 24rpx;
+	color: rgba(255, 255, 255, 0.8);
+	margin-bottom: 12rpx;
+}
+
+.coupon-meta {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.coupon-remain {
+	font-size: 22rpx;
+	color: #fff;
+	font-weight: 500;
+}
+
+.coupon-expire {
+	font-size: 22rpx;
+	color: rgba(255, 255, 255, 0.7);
+}
+
+/* 状态标签 */
+.coupon-status {
+	position: absolute;
+	top: 16rpx;
+	right: 16rpx;
+	z-index: 2;
+	font-size: 20rpx;
+	padding: 4rpx 16rpx;
+	border-radius: 999rpx;
+}
+
+.status-valid {
+	background-color: rgba(255, 255, 255, 0.3);
+	color: #fff;
+}
+
+.status-expired {
+	background-color: rgba(0, 0, 0, 0.15);
+	color: rgba(255, 255, 255, 0.6);
 }
 
 .empty-wrap {
