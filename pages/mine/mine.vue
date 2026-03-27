@@ -84,6 +84,9 @@
 				<text class="agreement-divider">|</text>
 				<text class="agreement-link" @click="goAgreement('user')">用户协议</text>
 			</view>
+			<view class="footer-logo">
+				<text class="footer-logo-text">物沃科技</text>
+			</view>
 		</view>
 	</view>
 </template>
@@ -306,5 +309,16 @@ const goAgreement = (type) => {
 	margin: 0 20rpx;
 	color: #ddd;
 	font-size: 24rpx;
+}
+
+.footer-logo {
+	margin-top: 32rpx;
+	padding: 20rpx 0;
+}
+
+.footer-logo-text {
+	font-size: 26rpx;
+	color: #bbb;
+	letter-spacing: 4rpx;
 }
 </style>

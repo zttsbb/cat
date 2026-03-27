@@ -153,7 +153,7 @@ const loadData = async () => {
 
 	&.coupon-expired {
 		.coupon-bg {
-			background: linear-gradient(135deg, rgba(180, 180, 180, 0.6), rgba(200, 200, 200, 0.3));
+			filter: grayscale(1) opacity(0.5);
 		}
 		.coupon-amount {
 			color: #999;
@@ -168,15 +168,21 @@ const loadData = async () => {
 	}
 }
 
-/* 渐变半透明背景 */
+/* 渐变半透明背景图 */
 .coupon-bg {
 	position: absolute;
 	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: linear-gradient(135deg, rgba(7, 193, 96, 0.65), rgba(56, 217, 118, 0.35));
-	backdrop-filter: blur(10px);
+	background-image: url('/bg/bg1.jpg');
+	background-size: cover;
+	background-position: center;
+}
+
+/* 第二种背景色用于区分 */
+.coupon-card:nth-child(even) .coupon-bg {
+	background-image: url('/bg/bg2.jpg');
 }
 
 /* 卡片内容 */
