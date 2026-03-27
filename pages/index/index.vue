@@ -141,7 +141,7 @@ const bannerList = ref([
 const quickEntries = ref([
 	{ iconImage: '/icon/qiandao.png', text: '预约服务', url: '/pages/book-service/book-service' },
 	{ iconImage: '/icon/saomahexiao.png', text: '团购核销', action: 'redeem' },
-	{ iconImage: '/icon/qianbao.png', text: '优惠充值', url: '/pages/wallet/wallet' },
+	{ iconImage: '/icon/youhuichognzhi.png', text: '优惠充值', url: '/pages/wallet/wallet' },
 	{ iconImage: '/icon/qianbao.png', text: '我的订单', url: '/pages/wash-order-list/wash-order-list' },
 	{ iconImage: '/icon/fenxiang.png', text: '分享有礼', action: 'share' }
 ])
