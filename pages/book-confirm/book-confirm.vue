@@ -37,25 +37,6 @@
 			</view>
 		</view>
 
-		<!-- 支付方式 -->
-		<view class="pay-method-section">
-			<view class="section-title">选择支付方式</view>
-			<view
-				class="pay-method-item"
-				v-for="(method, index) in payMethods"
-				:key="index"
-				@click="selectPayMethod(index)"
-			>
-				<view class="method-left">
-					<text class="method-icon">{{ method.icon }}</text>
-					<text class="method-name">{{ method.name }}</text>
-				</view>
-				<view :class="['radio-circle', { active: selectedPayMethod === index }]">
-					<view class="radio-inner" v-if="selectedPayMethod === index"></view>
-				</view>
-			</view>
-		</view>
-
 		<!-- 选取优惠券 -->
 		<view class="coupon-section" @click="pickCoupon">
 			<text class="coupon-label">选取优惠券</text>
@@ -82,8 +63,28 @@
 			</view>
 		</view>
 
-		<!-- 确认下单 -->
-		<view class="submit-btn" @click="onSubmit">确认下单</view>
+		<!-- 底部固定：支付方式 + 确认下单 -->
+		<view class="bottom-bar safe-bottom">
+			<!-- 支付方式选择 -->
+			<view class="pay-method-row">
+				<view
+					class="pay-method-item"
+					v-for="(method, index) in payMethods"
+					:key="index"
+					@click="selectPayMethod(index)"
+				>
+					<view :class="['method-radio', { active: selectedPayMethod === index }]">
+						<view class="method-radio-inner" v-if="selectedPayMethod === index"></view>
+					</view>
+					<text class="method-name">{{ method.name }}</text>
+				</view>
+			</view>
+			<!-- 确认按钮 -->
+			<view class="submit-btn" @click="onSubmit">
+				<text class="submit-amount">￥{{ finalAmount }}</text>
+				<text class="submit-text">确认下单</text>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -135,16 +136,23 @@ const pickCoupon = () => {
 }
 
 const onSubmit = async () => {
-	// TODO: 调用创建预约接口
-	const res = await createBookOrder({
-		serviceType: '洗澡美容',
-		bookDate: bookDate.value,
-		bookTime: bookTime.value,
-		payMethod: payMethods[selectedPayMethod.value].name,
-		couponId: selectedCoupon.value?.id
-	})
-	if (res) {
-		uni.redirectTo({ url: '/pages/book-success/book-success' })
+	try {
+		uni.showLoading({ title: '下单中...', mask: true })
+		const res = await createBookOrder({
+			serviceType: '洗澡美容',
+			bookDate: bookDate.value,
+			bookTime: bookTime.value,
+			payMethod: payMethods[selectedPayMethod.value].name,
+			couponId: selectedCoupon.value?.id
+		})
+		uni.hideLoading()
+		if (res) {
+			uni.redirectTo({ url: '/pages/book-success/book-success' })
+		}
+	} catch (e) {
+		uni.hideLoading()
+		console.error('下单失败:', e)
+		uni.showToast({ title: '下单失败，请重试', icon: 'none' })
 	}
 }
 </script>
@@ -154,12 +162,11 @@ const onSubmit = async () => {
 	min-height: 100vh;
 	background-color: #f5f5f5;
 	padding: 24rpx;
-	padding-bottom: 140rpx;
+	padding-bottom: 260rpx;
 }
 
 .book-info,
 .account-info,
-.pay-method-section,
 .coupon-section,
 .amount-section {
 	background-color: #fff;
@@ -206,59 +213,59 @@ const onSubmit = async () => {
 	margin-left: 8rpx;
 }
 
-.section-title {
-	font-size: 32rpx;
-	font-weight: 600;
-	color: #333;
-	margin-bottom: 24rpx;
+/* 底部固定支付栏 */
+.bottom-bar {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: #fff;
+	box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.08);
+	padding: 20rpx 24rpx;
+	padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+	display: flex;
+	flex-direction: column;
+	gap: 16rpx;
+	z-index: 100;
+}
+
+.pay-method-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
 }
 
 .pay-method-item {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
-	padding: 24rpx 0;
-	border-bottom: 1rpx solid #f5f5f5;
-
-	&:last-child {
-		border-bottom: none;
-	}
+	padding: 8rpx 16rpx;
 }
 
-.method-left {
-	display: flex;
-	align-items: center;
-}
-
-.method-icon {
-	font-size: 40rpx;
-	margin-right: 20rpx;
-}
-
-.method-name {
-	font-size: 28rpx;
-	color: #333;
-}
-
-.radio-circle {
-	width: 40rpx;
-	height: 40rpx;
+.method-radio {
+	width: 36rpx;
+	height: 36rpx;
 	border-radius: 50%;
-	border: 2rpx solid #ddd;
+	border: 3rpx solid #ddd;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	margin-right: 12rpx;
 
 	&.active {
 		border-color: #07C160;
 	}
 }
 
-.radio-inner {
-	width: 24rpx;
-	height: 24rpx;
+.method-radio-inner {
+	width: 20rpx;
+	height: 20rpx;
 	border-radius: 50%;
 	background-color: #07C160;
+}
+
+.method-name {
+	font-size: 26rpx;
+	color: #333;
 }
 
 .coupon-section {
@@ -326,16 +333,26 @@ const onSubmit = async () => {
 }
 
 .submit-btn {
-	position: fixed;
-	bottom: 40rpx;
-	left: 24rpx;
-	right: 24rpx;
+	flex: 1;
 	background: linear-gradient(135deg, #07C160, #38d976);
 	color: #fff;
 	font-size: 32rpx;
 	font-weight: 600;
 	text-align: center;
-	padding: 28rpx 0;
+	padding: 24rpx 0;
 	border-radius: 999rpx;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.submit-amount {
+	font-size: 36rpx;
+	font-weight: 700;
+	margin-right: 12rpx;
+}
+
+.submit-text {
+	font-size: 30rpx;
 }
 </style>
