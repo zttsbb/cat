@@ -124,6 +124,12 @@
 			"style": {
 				"navigationBarTitleText": "协议"
 			}
+		},
+		{
+			"path": "pages/scan/scan",
+			"style": {
+				"navigationBarTitleText": "扫一扫"
+			}
 		}
 	],
 	"globalStyle": {
@@ -152,6 +158,12 @@
 				"text": "订单",
 				"iconPath": "static/icons/order.png",
 				"selectedIconPath": "static/icons/order-active.png"
+			},
+			{
+				"pagePath": "pages/scan/scan",
+				"text": "扫一扫",
+				"iconPath": "static/icons/scan.png",
+				"selectedIconPath": "static/icons/scan-active.png"
 			},
 			{
 				"pagePath": "pages/book-order-list/book-order-list",

@@ -139,11 +139,11 @@ const bannerList = ref([
 
 // 快捷入口
 const quickEntries = ref([
-	{ icon: '📅', text: '预约服务', url: '/pages/book-service/book-service' },
-	{ icon: '👁', text: '查看现场', url: '/pages/store-detail/store-detail?storeId=1' },
-	{ iconImage: '/icon/youhuichognzhi.png', text: '预充值', url: '/pages/wallet/wallet' },
+	{ iconImage: '/icon/qiandao.png', text: '预约服务', url: '/pages/book-service/book-service' },
 	{ iconImage: '/icon/saomahexiao.png', text: '团购核销', action: 'redeem' },
-	{ icon: '📱', text: '查看其它设备', url: '/pages/store-list/store-list' }
+	{ iconImage: '/icon/qianbao.png', text: '优惠充值', url: '/pages/wallet/wallet' },
+	{ iconImage: '/icon/qianbao.png', text: '我的订单', url: '/pages/wash-order-list/wash-order-list' },
+	{ iconImage: '/icon/fenxiang.png', text: '分享有礼', action: 'share' }
 ])
 
 // 充值金额
@@ -172,6 +172,11 @@ onMounted(() => {
 const onEntryClick = (item) => {
 	if (item.action === 'redeem') {
 		showRedeemPopup.value = true
+		return
+	}
+	if (item.action === 'share') {
+		// TODO: 分享有礼逻辑
+		uni.showToast({ title: '分享有礼功能开发中', icon: 'none' })
 		return
 	}
 	if (item.url) {
