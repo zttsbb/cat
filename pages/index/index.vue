@@ -56,7 +56,9 @@
 
 		<!-- 充值快捷金额 -->
 		<view class="recharge-section">
-			<view class="section-title">预充值</view>
+			<view class="section-title">
+				<image class="section-title-icon" src="/icon/youhuichognzhi.png" mode="aspectFit" />
+			</view>
 			<view class="recharge-list">
 				<view class="recharge-card" v-for="(item, index) in rechargeAmounts" :key="index" @click="onRecharge(item)">
 					<view class="recharge-amount">￥{{ item.amount }}</view>
@@ -342,6 +344,13 @@ const onBannerClick = (item) => {
 	font-weight: 600;
 	color: #333;
 	margin-bottom: 24rpx;
+	display: flex;
+	align-items: center;
+}
+
+.section-title-icon {
+	width: 36rpx;
+	height: 36rpx;
 }
 
 .entry-grid {
