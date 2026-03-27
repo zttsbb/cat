@@ -7,6 +7,19 @@
 			<view class="nav-content">智能洗宠机</view>
 		</view>
 
+		<!-- 轮播图 -->
+		<view class="swiper-section">
+			<swiper class="banner-swiper" :autoplay="true" :interval="4000" :circular="true"
+				:indicator-dots="true" indicator-color="rgba(255,255,255,0.5)"
+				indicator-active-color="#fff" @change="onSwiperChange">
+				<swiper-item v-for="(item, index) in bannerList" :key="index">
+					<view class="swiper-item" @click="onBannerClick(item)">
+						<image class="swiper-image" :src="item.image" mode="aspectFill" />
+					</view>
+				</swiper-item>
+			</swiper>
+		</view>
+
 		<!-- 设备信息区域 -->
 		<view class="device-info-card">
 			<view class="device-top">
@@ -25,19 +38,15 @@
 					<text class="detail-text">{{ device.address }}</text>
 				</view>
 			</view>
-		</view>
-
-		<!-- 轮播图 -->
-		<view class="swiper-section">
-			<swiper class="banner-swiper" :autoplay="true" :interval="4000" :circular="true"
-				:indicator-dots="true" indicator-color="rgba(255,255,255,0.5)"
-				indicator-active-color="#fff" @change="onSwiperChange">
-				<swiper-item v-for="(item, index) in bannerList" :key="index">
-					<view class="swiper-item" @click="onBannerClick(item)">
-						<image class="swiper-image" :src="item.image" mode="aspectFill" />
-					</view>
-				</swiper-item>
-			</swiper>
+			<!-- 底部操作按钮 -->
+			<view class="device-actions">
+				<view class="action-btn action-left" @click="goStoreLive">
+					<text class="action-btn-text">查看现场</text>
+				</view>
+				<view class="action-btn action-right" @click="goStoreOpen">
+					<text class="action-btn-text">到店开门</text>
+				</view>
+			</view>
 		</view>
 
 		<!-- 快捷入口 -->
@@ -227,6 +236,17 @@ const navigateTo = (url) => {
 	uni.navigateTo({ url })
 }
 
+// 查看现场
+const goStoreLive = () => {
+	uni.navigateTo({ url: '/pages/store-detail/store-detail?storeId=1' })
+}
+
+// 到店开门
+const goStoreOpen = () => {
+	// TODO: 调用开门接口
+	uni.showToast({ title: '开门功能开发中', icon: 'none' })
+}
+
 // 关闭核销弹窗
 const closeRedeemPopup = () => {
 	showRedeemPopup.value = false
@@ -289,7 +309,7 @@ const onBannerClick = (item) => {
 
 .device-info-card {
 	background-color: #fff;
-	margin: -20rpx 24rpx 24rpx;
+	margin: 24rpx;
 	border-radius: 24rpx;
 	padding: 32rpx;
 	box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
@@ -345,8 +365,51 @@ const onBannerClick = (item) => {
 	color: #666;
 }
 
+.device-actions {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-top: 28rpx;
+	padding-top: 24rpx;
+	border-top: 1rpx solid #f0f0f0;
+}
+
+.action-btn {
+	flex: 1;
+	text-align: center;
+	padding: 20rpx 0;
+	border-radius: 999rpx;
+}
+
+.action-left {
+	background-color: #f5f5f5;
+	margin-right: 20rpx;
+
+	&:active {
+		background-color: #ebebeb;
+	}
+}
+
+.action-right {
+	background: linear-gradient(135deg, #07C160, #38d976);
+
+	&:active {
+		opacity: 0.9;
+	}
+}
+
+.action-btn-text {
+	font-size: 28rpx;
+	font-weight: 600;
+	color: #333;
+}
+
+.action-right .action-btn-text {
+	color: #fff;
+}
+
 .swiper-section {
-	margin: 0 24rpx 24rpx;
+	margin: 0 24rpx;
 	border-radius: 24rpx;
 	overflow: hidden;
 }
