@@ -36,9 +36,13 @@ onMounted(() => {
 })
 
 const loadOrders = async () => {
-	// TODO: 调用实际接口
-	const res = await getWashOrderList({ page: 1, pageSize: 20 })
-	orderList.value = res.list || []
+	try {
+		const res = await getWashOrderList({ page: 1, pageSize: 20 })
+		orderList.value = res.list || []
+	} catch (e) {
+		console.error('加载洗宠订单失败:', e)
+		orderList.value = []
+	}
 }
 
 const goDetail = (id) => {

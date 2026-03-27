@@ -69,9 +69,13 @@ onMounted(() => {
 })
 
 const loadOrders = async () => {
-	// TODO: 调用实际接口
-	const res = await getBookOrderList({ page: 1, pageSize: 20 })
-	orderList.value = res.list || []
+	try {
+		const res = await getBookOrderList({ page: 1, pageSize: 20 })
+		orderList.value = res.list || []
+	} catch (e) {
+		console.error('加载预约订单失败:', e)
+		orderList.value = []
+	}
 }
 
 const goDetail = (id) => {

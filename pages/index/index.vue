@@ -92,7 +92,20 @@
 					<text class="popup-title">团购核销</text>
 					<text class="popup-close" @click="closeRedeemPopup">✕</text>
 				</view>
-				<view class="popup-body">
+				<!-- 平台选择 -->
+				<view class="platform-grid" v-if="!selectedPlatform">
+					<view class="platform-item" v-for="(item, index) in platforms" :key="index" @click="selectPlatform(item)">
+						<image class="platform-icon" :src="item.icon" mode="aspectFit" />
+						<text class="platform-name">{{ item.label }}</text>
+					</view>
+				</view>
+				<!-- 核销码输入 -->
+				<view class="popup-body" v-if="selectedPlatform">
+					<view class="platform-selected" @click="selectedPlatform = null">
+						<image class="platform-selected-icon" :src="currentPlatformIcon" mode="aspectFit" />
+						<text class="platform-selected-name">{{ currentPlatformLabel }}</text>
+						<text class="platform-change">切换 ›</text>
+					</view>
 					<view class="popup-input-wrap">
 						<input
 							class="popup-input"
@@ -111,7 +124,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { getDeviceDetail, getRechargeAmounts } from '@/api/pay.js'
 import { getDeviceDetail as fetchDeviceDetail } from '@/api/store.js'
 
@@ -159,6 +172,29 @@ const rechargeAmounts = ref([
 // 团购核销弹窗
 const showRedeemPopup = ref(false)
 const redeemCode = ref('')
+const selectedPlatform = ref(null)
+
+const platforms = [
+	{ label: '抖音', icon: '/icon/douyin.png', value: 'douyin' },
+	{ label: '美团', icon: '/icon/meituan.png', value: 'meituan' },
+	{ label: '系统', icon: '/icon/ceng.png', value: 'system' }
+]
+
+const currentPlatformIcon = computed(() => {
+	if (!selectedPlatform.value) return ''
+	const p = platforms.find(item => item.value === selectedPlatform.value)
+	return p ? p.icon : ''
+})
+
+const currentPlatformLabel = computed(() => {
+	if (!selectedPlatform.value) return ''
+	const p = platforms.find(item => item.value === selectedPlatform.value)
+	return p ? p.label : ''
+})
+
+const selectPlatform = (item) => {
+	selectedPlatform.value = item.value
+}
 
 onMounted(() => {
 	// 获取状态栏高度
@@ -195,6 +231,7 @@ const navigateTo = (url) => {
 const closeRedeemPopup = () => {
 	showRedeemPopup.value = false
 	redeemCode.value = ''
+	selectedPlatform.value = null
 }
 
 // 确认核销
@@ -568,5 +605,64 @@ const onBannerClick = (item) => {
 	text-align: center;
 	font-size: 22rpx;
 	color: #999;
+}
+
+/* 平台选择 */
+.platform-grid {
+	display: flex;
+	justify-content: space-around;
+	padding: 24rpx 0 40rpx;
+}
+
+.platform-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 24rpx;
+	border-radius: 20rpx;
+	transition: background-color 0.2s;
+
+	&:active {
+		background-color: #f5f5f5;
+	}
+}
+
+.platform-icon {
+	width: 96rpx;
+	height: 96rpx;
+	margin-bottom: 12rpx;
+}
+
+.platform-name {
+	font-size: 26rpx;
+	color: #333;
+}
+
+/* 已选平台展示 */
+.platform-selected {
+	display: flex;
+	align-items: center;
+	padding: 20rpx 24rpx;
+	background-color: #f5f5f5;
+	border-radius: 16rpx;
+	margin-bottom: 24rpx;
+}
+
+.platform-selected-icon {
+	width: 48rpx;
+	height: 48rpx;
+	margin-right: 16rpx;
+}
+
+.platform-selected-name {
+	flex: 1;
+	font-size: 30rpx;
+	font-weight: 600;
+	color: #333;
+}
+
+.platform-change {
+	font-size: 26rpx;
+	color: #07C160;
 }
 </style>

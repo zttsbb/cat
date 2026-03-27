@@ -40,6 +40,30 @@
 				</view>
 			</view>
 		</view>
+
+		<!-- 支付方式底部弹窗 -->
+		<view class="pay-overlay" v-if="showPayPopup" @click="closePayPopup">
+			<view class="pay-popup" @click.stop>
+				<view class="popup-header">
+					<text class="popup-title">选择支付方式</text>
+					<text class="popup-close" @click="closePayPopup">✕</text>
+				</view>
+				<view class="popup-amount">
+					<text class="popup-amount-label">充值金额</text>
+					<text class="popup-amount-value">￥{{ selectedAmount }}</text>
+				</view>
+				<view class="popup-body">
+					<view class="pay-option" v-for="(item, index) in payMethods" :key="index" @click="onPaySelect(item)">
+						<view class="pay-option-icon">
+							<text v-if="item.emoji">{{ item.emoji }}</text>
+							<image v-if="item.iconImage" class="pay-option-icon-img" :src="item.iconImage" mode="aspectFit" />
+						</view>
+						<text class="pay-option-text">{{ item.label }}</text>
+						<text class="pay-option-arrow">›</text>
+					</view>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -79,9 +103,29 @@ const viewStores = () => {
 	uni.navigateTo({ url: '/pages/store-list/store-list' })
 }
 
+// 支付弹窗相关
+const showPayPopup = ref(false)
+const selectedAmount = ref(0)
+
+const payMethods = [
+	{ emoji: '💰', label: '账户余额', value: 'balance' },
+	{ emoji: '🎫', label: '我的卡券', value: 'coupon' },
+	{ emoji: '🟢', label: '微信支付', value: 'wechat' }
+]
+
 const onRecharge = (item) => {
-	// TODO: 调用充值接口
-	uni.showToast({ title: `充值￥${item.amount}功能开发中`, icon: 'none' })
+	selectedAmount.value = item.amount
+	showPayPopup.value = true
+}
+
+const closePayPopup = () => {
+	showPayPopup.value = false
+}
+
+const onPaySelect = (method) => {
+	showPayPopup.value = false
+	// TODO: 根据支付方式调用实际支付接口
+	uni.showToast({ title: `使用${method.label}充值￥${selectedAmount.value}`, icon: 'none' })
 }
 </script>
 
@@ -255,5 +299,121 @@ const onRecharge = (item) => {
 	font-size: 32rpx;
 	font-weight: 700;
 	color: #ff4d4f;
+}
+
+/* 支付方式底部弹窗 */
+.pay-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 999;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+}
+
+.pay-popup {
+	width: 100%;
+	background-color: #fff;
+	border-radius: 32rpx 32rpx 0 0;
+	padding: 40rpx 32rpx;
+	padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
+	animation: slideUp 0.3s ease-out;
+	box-shadow: 0 -8rpx 40rpx rgba(0, 0, 0, 0.15);
+}
+
+@keyframes slideUp {
+	from { transform: translateY(100%); }
+	to { transform: translateY(0); }
+}
+
+.popup-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 32rpx;
+}
+
+.popup-title {
+	font-size: 36rpx;
+	font-weight: 700;
+	color: #333;
+}
+
+.popup-close {
+	width: 56rpx;
+	height: 56rpx;
+	border-radius: 50%;
+	background-color: #f5f5f5;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 32rpx;
+	color: #999;
+}
+
+.popup-amount {
+	display: flex;
+	align-items: baseline;
+	justify-content: center;
+	margin-bottom: 32rpx;
+}
+
+.popup-amount-label {
+	font-size: 28rpx;
+	color: #999;
+	margin-right: 12rpx;
+}
+
+.popup-amount-value {
+	font-size: 56rpx;
+	font-weight: 700;
+	color: #333;
+}
+
+.popup-body {
+	border-top: 1rpx solid #f0f0f0;
+}
+
+.pay-option {
+	display: flex;
+	align-items: center;
+	padding: 32rpx 0;
+	border-bottom: 1rpx solid #f5f5f5;
+
+	&:last-child {
+		border-bottom: none;
+	}
+}
+
+.pay-option-icon {
+	width: 72rpx;
+	height: 72rpx;
+	border-radius: 16rpx;
+	background-color: #f5f5f5;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-right: 24rpx;
+	font-size: 36rpx;
+}
+
+.pay-option-icon-img {
+	width: 48rpx;
+	height: 48rpx;
+}
+
+.pay-option-text {
+	flex: 1;
+	font-size: 30rpx;
+	color: #333;
+}
+
+.pay-option-arrow {
+	font-size: 36rpx;
+	color: #ccc;
 }
 </style>
