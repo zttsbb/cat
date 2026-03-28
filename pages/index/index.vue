@@ -182,7 +182,7 @@ const selectedPlatform = ref(null)
 const platforms = [
 	{ label: '抖音', icon: '/static/icon/douyin.png', value: 'douyin' },
 	{ label: '美团', icon: '/static/icon/meituan.png', value: 'meituan' },
-	{ label: '系统', icon: '/static/icon/ceng.png', value: 'system' }
+	{ label: '系统', icon: '/static/icon/xitong.png', value: 'system' }
 ]
 
 const currentPlatformIcon = computed(() => {

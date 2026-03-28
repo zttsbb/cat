@@ -81,7 +81,7 @@ const switchTab = (key) => {
 const getSourceIcon = (source) => {
 	if (source === '抖音') return '/static/icon/douyin.png'
 	if (source === '美团') return '/static/icon/meituan.png'
-	if (source === '系统') return '/static/icon/ceng.png'
+	if (source === '系统') return '/static/icon/xitong.png'
 	return ''
 }
 

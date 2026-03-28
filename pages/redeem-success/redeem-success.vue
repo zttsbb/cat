@@ -70,7 +70,7 @@ onLoad((options) => {
 		} else if (platformName.value === '美团') {
 			platformIcon.value = '/static/icon/meituan.png'
 		} else {
-			platformIcon.value = '/static/icon/ceng.png'
+			platformIcon.value = '/static/icon/xitong.png'
 		}
 	} else {
 		platformIcon.value = '/static/icon/meituan.png'
