@@ -205,12 +205,12 @@
 						<view
 							class="pay-method-item"
 							:class="{ active: selectedPayMethod === 'coupon' }"
-							@click="selectedPayMethod = 'coupon'"
+							@click="showCouponPicker = true"
 						>
 							<text class="pm-icon">🎫</text>
 							<view class="pm-info">
 								<text class="pm-name">我的卡券</text>
-								<text class="pm-desc">可用{{ couponCount }}张</text>
+								<text class="pm-desc">{{ selectedCoupon ? selectedCoupon.name + ' -￥' + selectedCoupon.amount : '可用' + couponCount + '张' }}</text>
 							</view>
 							<view class="pm-radio"><view class="pm-radio-inner" v-if="selectedPayMethod === 'coupon'"></view></view>
 						</view>
@@ -266,6 +266,46 @@
 					<view class="popup-btn" @click="onConfirmRedeem">确认核销</view>
 					<view class="popup-tips">*核销使用后结余金额不可退款</view>
 				</view>
+			</view>
+		</view>
+
+		<!-- 卡券选择弹窗（选我的卡券时弹出） -->
+		<view class="coupon-picker-overlay" v-if="showCouponPicker" @click="showCouponPicker = false">
+			<view class="coupon-picker-popup" @click.stop>
+				<view class="coupon-picker-header">
+					<text class="coupon-picker-title">选择卡券</text>
+					<text class="coupon-picker-close" @click="showCouponPicker = false">✕</text>
+				</view>
+				<scroll-view scroll-y class="coupon-picker-list">
+					<view
+						:class="['coupon-picker-item', { active: selectedCoupon && selectedCoupon.id === item.id, expired: item.expired }]"
+						v-for="(item, index) in couponList"
+						:key="index"
+						@click="!item.expired && onSelectCoupon(item)"
+					>
+						<view class="cp-left">
+							<text class="cp-symbol">￥</text>
+							<text class="cp-amount">{{ item.amount }}</text>
+						</view>
+						<view class="cp-right">
+							<text class="cp-name">{{ item.name }}</text>
+							<text class="cp-scope">适用于:{{ item.scope }}</text>
+							<text class="cp-times">剩余:{{ item.remainTimes }}次</text>
+							<text class="cp-expire">{{ item.expired ? '已到期' : '有效期:' + item.expireText }}</text>
+						</view>
+						<view class="cp-check" v-if="selectedCoupon && selectedCoupon.id === item.id">✓</view>
+					</view>
+					<!-- 不使用卡券 -->
+					<view
+						class="coupon-picker-item no-coupon"
+						:class="{ active: !selectedCoupon }"
+						@click="onSelectCoupon(null)"
+					>
+						<view class="cp-right" style="flex:1;display:flex;align-items:center;justify-content:center;">
+							<text class="cp-name">不使用卡券</text>
+						</view>
+					</view>
+				</scroll-view>
 			</view>
 		</view>
 
@@ -337,6 +377,14 @@ const selectedPayMethod = ref('wechat')
 const remark = ref('')
 const balance = ref(5.6)
 const couponCount = ref(3)
+const showCouponPicker = ref(false)
+const selectedCoupon = ref(null)
+const couponList = ref([
+	{ id: 1, name: '美团·次卡', amount: 20, scope: '洗宠机', remainTimes: 3, expireText: '60天', expired: false, platform: '美团' },
+	{ id: 2, name: '洗宠优惠券', amount: 10, scope: '洗澡美容', remainTimes: 1, expireText: '30天', expired: false, platform: '系统' },
+	{ id: 3, name: '系统·余额卷', amount: 30, scope: '全部服务', remainTimes: 5, expireText: '90天', expired: false, platform: '系统' },
+	{ id: 4, name: '过期次卡', amount: 15, scope: '洗宠机', remainTimes: 0, expireText: '已到期', expired: true, platform: '抖音' }
+])
 
 const serviceList = ref([
 	{ name: '洗澡美容', price: 30.00, desc: '人工洗澡+修毛' },
@@ -360,6 +408,12 @@ const initDateList = () => {
 	dateList.value = list
 }
 initDateList()
+
+const onSelectCoupon = (item) => {
+	selectedCoupon.value = item
+	selectedPayMethod.value = item ? 'coupon' : 'wechat'
+	showCouponPicker.value = false
+}
 
 const openBookPopup = () => {
 	bookStep.value = 1
@@ -612,4 +666,21 @@ const goStoreList = () => { uni.navigateTo({ url: '/pages/store-list/store-list'
 .rs-detail-row { display: block; font-size: 24rpx; color: #666; line-height: 1.8; }
 .rs-btn { width: 100%; background: linear-gradient(135deg, #07C160, #38d976); border-radius: 999rpx; padding: 24rpx 0; text-align: center; &:active { opacity: 0.9; } }
 .rs-btn-text { font-size: 30rpx; font-weight: 600; color: #fff; }
+
+/* ===== 卡券选择弹窗 ===== */
+.coupon-picker-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 1002; display: flex; align-items: flex-end; justify-content: center; }
+.coupon-picker-popup { width: 100%; max-height: 70vh; background-color: #fff; border-radius: 32rpx 32rpx 0 0; padding-bottom: calc(20rpx + env(safe-area-inset-bottom)); animation: slideUp 0.3s ease-out; display: flex; flex-direction: column; }
+.coupon-picker-header { display: flex; align-items: center; justify-content: space-between; padding: 32rpx 32rpx 16rpx; }
+.coupon-picker-title { font-size: 34rpx; font-weight: 700; color: #333; }
+.coupon-picker-close { width: 56rpx; height: 56rpx; border-radius: 50%; background-color: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 32rpx; color: #999; }
+.coupon-picker-list { flex: 1; padding: 0 24rpx; max-height: 60vh; }
+.coupon-picker-item { display: flex; align-items: center; padding: 20rpx; margin-bottom: 16rpx; border-radius: 16rpx; border: 2rpx solid #e0e0e0; background-color: #fff; position: relative; &.active { border-color: #07C160; background-color: #f8fff9; } &.expired { opacity: 0.5; border-color: #eee; } }
+.cp-left { display: flex; align-items: baseline; padding-right: 20rpx; margin-right: 16rpx; border-right: 2rpx dashed #e0e0e0; min-width: 120rpx; text-align: center; justify-content: center; }
+.cp-symbol { font-size: 24rpx; color: #ff4d4f; font-weight: 600; }
+.cp-amount { font-size: 44rpx; color: #ff4d4f; font-weight: 700; }
+.cp-right { flex: 1; display: flex; flex-direction: column; }
+.cp-name { font-size: 26rpx; font-weight: 600; color: #333; margin-bottom: 4rpx; }
+.cp-scope, .cp-times, .cp-expire { font-size: 22rpx; color: #999; line-height: 1.6; }
+.cp-check { width: 36rpx; height: 36rpx; border-radius: 50%; background-color: #07C160; color: #fff; font-size: 22rpx; display: flex; align-items: center; justify-content: center; margin-left: 16rpx; }
+.no-coupon { justify-content: center; padding: 28rpx; border-style: dashed; }
 </style>
