@@ -52,7 +52,6 @@
 			}
 		},
 		{
-			"path": "pages/book-confirm/book-confirm",
 			"style": {
 				"navigationBarTitleText": "确认预约"
 			}

@@ -4,7 +4,10 @@
 	<view class="page-store-list">
 		<!-- 搜索栏 -->
 		<view class="search-bar">
-			<view class="search-input">
+			<view class="search-header">
+				<text class="search-title">切换门店</text>
+			</view>
+			<view class="search-input" @click="searchStore">
 				<text class="search-icon">🔍</text>
 				<text class="search-placeholder">搜索门店</text>
 			</view>
@@ -86,6 +89,16 @@ const goStoreDetail = (id) => {
 	uni.navigateTo({ url: `/pages/store-detail/store-detail?storeId=${id}` })
 }
 
+// 选择门店并返回
+const selectStore = (store) => {
+	// TODO: 保存选择的门店到本地/全局状态
+	// uni.setStorageSync('currentStoreId', store.id)
+	uni.showToast({ title: `已切换到${store.name}`, icon: 'success' })
+	setTimeout(() => {
+		uni.navigateBack({ delta: 1 })
+	}, 800)
+}
+
 const goDeviceDetail = (id) => {
 	uni.navigateTo({ url: `/pages/device-detail/device-detail?deviceId=${id}` })
 }
@@ -101,6 +114,11 @@ const goPage = (url) => {
 const sharePage = () => {
 	uni.showToast({ title: '分享有礼功能开发中', icon: 'none' })
 }
+
+const searchStore = () => {
+	// TODO: 搜索功能
+	uni.showToast({ title: '搜索功能开发中', icon: 'none' })
+}
 </script>
 
 <style lang="scss" scoped>
@@ -113,6 +131,16 @@ const sharePage = () => {
 .search-bar {
 	padding: 24rpx;
 	background-color: #fff;
+}
+
+.search-header {
+	margin-bottom: 16rpx;
+}
+
+.search-title {
+	font-size: 34rpx;
+	font-weight: 700;
+	color: #333;
 }
 
 .search-input {
