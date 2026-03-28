@@ -59,6 +59,10 @@
 						:key="index"
 						@click="selectDate(index)"
 					>
+						<!-- 时间轴圆点 -->
+						<view :class="['timeline-dot', { 'dot-active': selectedDate === index }]"></view>
+						<!-- 时间轴连接线 -->
+						<view class="timeline-line" v-if="index < dateList.length - 1" :class="{ 'line-active': selectedDate >= index }"></view>
 						<text class="date-week">{{ item.week }}</text>
 						<text class="date-day">{{ item.day }}</text>
 						<text class="date-month">{{ item.month }}</text>
@@ -67,22 +71,18 @@
 			</scroll-view>
 		</view>
 
-		<!-- 服务项目（横向滚动） -->
+		<!-- 服务项目（2列2行网格） -->
 		<view class="service-section">
-			<scroll-view scroll-x class="service-scroll">
-				<view class="service-list">
-					<view
-						:class="['service-card', { active: selectedService === index }]"
-						v-for="(item, index) in serviceList"
-						:key="index"
-						@click="selectService(index)"
-					>
-						<text class="service-name">{{ item.name }}</text>
-						<text class="service-price">￥{{ item.price.toFixed(2) }}</text>
-						<text class="service-desc">{{ item.desc }}</text>
-					</view>
-				</view>
-			</scroll-view>
+			<view
+				:class="['service-card', { active: selectedService === index }]"
+				v-for="(item, index) in serviceList"
+				:key="index"
+				@click="selectService(index)"
+			>
+				<text class="service-name">{{ item.name }}</text>
+				<text class="service-price">￥{{ item.price.toFixed(2) }}</text>
+				<text class="service-desc">{{ item.desc }}</text>
+			</view>
 		</view>
 
 		<!-- 时段选择 -->
@@ -458,12 +458,12 @@ const onSubmit = () => {
 	color: #333;
 }
 
-/* 日期选择 */
+/* 日期选择（时间轴形式） */
 .date-section {
 	background-color: #fff;
 	margin: 8rpx 24rpx;
 	border-radius: 16rpx;
-	padding: 20rpx;
+	padding: 24rpx;
 }
 
 .date-scroll {
@@ -472,34 +472,60 @@ const onSubmit = () => {
 
 .date-list {
 	display: inline-flex;
-	gap: 12rpx;
+	gap: 0;
 }
 
 .date-item {
-	width: 110rpx;
+	width: 120rpx;
 	padding: 16rpx 0;
 	text-align: center;
 	border-radius: 12rpx;
-	border: 2rpx solid #e0e0e0;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	flex-shrink: 0;
+	position: relative;
 
 	&.active {
-		border-color: #07C160;
-		background-color: #e8f8ee;
+		.date-week { color: #07C160; }
+		.date-day { color: #07C160; }
 	}
+}
+
+/* 时间轴圆点 */
+.timeline-dot {
+	width: 16rpx;
+	height: 16rpx;
+	border-radius: 50%;
+	background-color: #ddd;
+	margin-bottom: 8rpx;
+	position: relative;
+	z-index: 1;
+}
+
+.dot-active {
+	background-color: #07C160;
+}
+
+/* 时间轴连接线 */
+.timeline-line {
+	position: absolute;
+	top: 24rpx;
+	left: calc(100% - 8rpx);
+	width: calc(100% - 104rpx);
+	height: 4rpx;
+	background-color: #e0e0e0;
+	z-index: 0;
+}
+
+.line-active {
+	background-color: #07C160;
 }
 
 .date-week {
 	font-size: 22rpx;
 	color: #999;
 	margin-bottom: 4rpx;
-}
-
-.active .date-week {
-	color: #07C160;
 }
 
 .date-day {
@@ -514,26 +540,22 @@ const onSubmit = () => {
 	color: #999;
 }
 
-/* 服务项目（横向滚动） */
+/* 服务项目（2列2行网格） */
 .service-section {
-	padding: 8rpx 24rpx;
-}
-
-.service-scroll {
-	white-space: nowrap;
-}
-
-.service-list {
-	display: inline-flex;
-	gap: 12rpx;
+	background-color: #fff;
+	margin: 8rpx 24rpx;
+	border-radius: 16rpx;
+	padding: 24rpx;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16rpx;
 }
 
 .service-card {
-	min-width: 240rpx;
-	padding: 20rpx;
+	width: calc(50% - 8rpx);
+	padding: 24rpx;
 	border-radius: 16rpx;
 	border: 2rpx solid #e0e0e0;
-	flex-shrink: 0;
 
 	&.active {
 		border-color: #07C160;
