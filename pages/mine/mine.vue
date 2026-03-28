@@ -17,11 +17,11 @@
 				</view>
 				<!-- 已登录 -->
 				<view class="user-info" v-else>
-					<view class="avatar-wrap">
+					<view class="avatar-wrap" @click="goProfile">
 						<image v-if="userInfo.avatarUrl" class="avatar-img" :src="userInfo.avatarUrl" mode="aspectFill" />
 						<text v-else class="avatar-placeholder">{{ userInfo.nickName?.charAt(0) || '👤' }}</text>
 					</view>
-					<view class="login-area">
+					<view class="login-area" @click="goProfile">
 						<text class="user-name">{{ userInfo.nickName || '宠物达人' }}</text>
 						<text class="user-phone">{{ userInfo.phone || '' }}</text>
 					</view>
@@ -76,6 +76,13 @@
 			</view>
 		</view>
 
+		<!-- 退出登录 -->
+		<view class="logout-section" v-if="isLoggedIn">
+			<view class="logout-btn" @click="onLogout">
+				<text class="logout-text">退出登录</text>
+			</view>
+		</view>
+
 		<!-- 底部信息 -->
 		<view class="footer-section">
 			<text class="user-id" v-if="isLoggedIn">用户ID: {{ userInfo.id }}</text>
@@ -122,6 +129,27 @@ const goWallet = () => {
 
 const goCouponList = () => {
 	uni.navigateTo({ url: '/pages/coupon-list/coupon-list' })
+}
+
+// 点击头像/昵称 → 编辑个人信息
+const goProfile = () => {
+	uni.showToast({ title: '个人信息编辑功能开发中', icon: 'none' })
+	// TODO: 跳转个人信息编辑页
+	// uni.navigateTo({ url: '/pages/profile/profile' })
+}
+
+// 退出登录
+const onLogout = () => {
+	uni.showModal({
+		title: '确认退出',
+		content: '确定要退出登录吗？',
+		success: (res) => {
+			if (res.confirm) {
+				userStore.logout()
+				uni.showToast({ title: '已退出登录', icon: 'success' })
+			}
+		}
+	})
 }
 
 // tabBar 页面列表
@@ -334,5 +362,28 @@ const goAgreement = (type) => {
 	font-size: 26rpx;
 	color: #bbb;
 	letter-spacing: 4rpx;
+}
+
+/* 退出登录 */
+.logout-section {
+	padding: 0 24rpx 24rpx;
+}
+
+.logout-btn {
+	background-color: #fff;
+	text-align: center;
+	padding: 28rpx 0;
+	border-radius: 24rpx;
+	border: 2rpx solid #ff4d4f;
+
+	&:active {
+		background-color: #fff5f5;
+	}
+}
+
+.logout-text {
+	font-size: 30rpx;
+	color: #ff4d4f;
+	font-weight: 500;
 }
 </style>
