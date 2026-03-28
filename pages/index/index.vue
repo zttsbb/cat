@@ -16,14 +16,12 @@
 					<text class="switch-arrow">›</text>
 				</view>
 			</view>
-			<!-- 门店标签 -->
 			<view class="store-tags">
 				<view class="store-tag" v-for="(tag, idx) in store.tags" :key="idx">
 					<text class="tag-icon">{{ tag.icon }}</text>
 					<text class="tag-text">{{ tag.text }}</text>
 				</view>
 			</view>
-			<!-- 地址信息 -->
 			<view class="store-address">
 				<text class="address-text">距我 {{ store.distance }} | {{ store.address }}</text>
 			</view>
@@ -33,9 +31,9 @@
 		<view class="swiper-section">
 			<swiper class="banner-swiper" :autoplay="true" :interval="4000" :circular="true"
 				:indicator-dots="true" indicator-color="rgba(255,255,255,0.5)"
-				indicator-active-color="#fff" @change="onSwiperChange">
+				indicator-active-color="#fff">
 				<swiper-item v-for="(item, index) in bannerList" :key="index">
-					<view class="swiper-item" @click="onBannerClick(item)">
+					<view class="swiper-item">
 						<image class="swiper-image" :src="item.image" mode="aspectFill" />
 					</view>
 				</swiper-item>
@@ -45,11 +43,35 @@
 		<!-- 快捷入口 -->
 		<view class="quick-entry">
 			<view class="entry-grid">
-				<view class="entry-item" v-for="(item, index) in quickEntries" :key="index" @click="onEntryClick(item)">
+				<view class="entry-item" @click="openBookPopup">
 					<view class="entry-icon-wrap">
-						<image v-if="item.iconImage" class="entry-icon-img" :src="item.iconImage" mode="aspectFit" />
+						<image class="entry-icon-img" src="/static/icon/qiandao.png" mode="aspectFit" />
 					</view>
-					<text class="entry-text">{{ item.text }}</text>
+					<text class="entry-text">预约到店</text>
+				</view>
+				<view class="entry-item" @click="onEntryClick('redeem')">
+					<view class="entry-icon-wrap">
+						<image class="entry-icon-img" src="/static/icon/saomahexiao.png" mode="aspectFit" />
+					</view>
+					<text class="entry-text">团购核销</text>
+				</view>
+				<view class="entry-item" @click="onEntryClick('/pages/wash-order-list/wash-order-list')">
+					<view class="entry-icon-wrap">
+						<image class="entry-icon-img" src="/static/icon/qianbao.png" mode="aspectFit" />
+					</view>
+					<text class="entry-text">我的订单</text>
+				</view>
+				<view class="entry-item" @click="onEntryClick('/pages/wallet/wallet')">
+					<view class="entry-icon-wrap">
+						<image class="entry-icon-img" src="/static/icon/youhuichognzhi.png" mode="aspectFit" />
+					</view>
+					<text class="entry-text">优惠充值</text>
+				</view>
+				<view class="entry-item" @click="onEntryClick('share')">
+					<view class="entry-icon-wrap">
+						<image class="entry-icon-img" src="/static/icon/fenxiang.png" mode="aspectFit" />
+					</view>
+					<text class="entry-text">分享有礼</text>
 				</view>
 			</view>
 		</view>
@@ -61,7 +83,6 @@
 			</view>
 			<view class="device-list">
 				<view class="device-card" v-for="(item, index) in deviceList" :key="index" @click="goDeviceDetail(item)">
-					<!-- 设备顶部信息 -->
 					<view class="device-card-top">
 						<view class="device-card-name">{{ item.name }}</view>
 						<view :class="['device-status', item.status === 1 ? 'status-green' : 'status-gray']">
@@ -71,13 +92,11 @@
 					<view class="device-card-addr">
 						<text class="addr-text">{{ item.address }}</text>
 					</view>
-					<!-- 价格信息 -->
 					<view class="device-card-price">
 						<text class="price-label">每分钟</text>
 						<text class="price-value">{{ item.priceRange }}</text>
 						<text class="price-unit">元</text>
 					</view>
-					<!-- 操作按钮 -->
 					<view class="device-card-actions">
 						<view class="device-card-btn btn-recharge" @click.stop="goRecharge(item)">
 							<text class="btn-text">预充值</text>
@@ -87,15 +106,150 @@
 			</view>
 		</view>
 
-		<!-- 团购核销底部弹窗 -->
-		<view class="redeem-overlay" v-if="showRedeemPopup" @click="closeRedeemPopup">
+		<!-- ========== 预约服务弹窗（从底部弹出） ========== -->
+		<view class="book-overlay" v-if="showBookPopup" @click="closeBookPopup">
+			<view class="book-popup" @click.stop>
+				<!-- 弹窗头部 -->
+				<view class="book-popup-header">
+					<text class="book-popup-title">预约服务</text>
+					<text class="book-popup-close" @click="closeBookPopup">✕</text>
+				</view>
+
+				<!-- 步骤1：选择日期时间 -->
+				<view class="popup-section" v-if="bookStep === 1">
+					<text class="popup-section-title">预约时间</text>
+					<!-- 日期选择 -->
+					<scroll-view scroll-x class="date-scroll">
+						<view class="date-list">
+							<view
+								:class="['date-item', { active: selectedDate === index }]"
+								v-for="(item, index) in dateList"
+								:key="index"
+								@click="selectedDate = index"
+							>
+								<text class="date-week">{{ item.week }}</text>
+								<text class="date-day">{{ item.day }}</text>
+								<text class="date-month">{{ item.month }}</text>
+							</view>
+						</view>
+					</scroll-view>
+					<!-- 时段选择 -->
+					<view class="time-grid">
+						<view
+							:class="['time-item', { active: selectedTime === item }]"
+							v-for="(item, idx) in timeSlots"
+							:key="idx"
+							@click="selectedTime = item"
+						>
+							<text>{{ item.label }}</text>
+						</view>
+					</view>
+					<!-- 备注 -->
+					<input class="remark-input" v-model="remark" placeholder="请输入备注内容" maxlength="200" />
+					<!-- 下一步 -->
+					<view class="popup-btn" :class="{ disabled: !selectedTime }" @click="bookStep = 2">
+						<text class="popup-btn-text">下一步</text>
+					</view>
+				</view>
+
+				<!-- 步骤2：选择服务项目（2x2） -->
+				<view class="popup-section" v-if="bookStep === 2">
+					<text class="popup-section-title">选择服务项目</text>
+					<view class="service-grid">
+						<view
+							:class="['service-card', { active: selectedService === index }]"
+							v-for="(item, index) in serviceList"
+							:key="index"
+							@click="selectedService = index"
+						>
+							<text class="service-name">{{ item.name }}</text>
+							<text class="service-price">￥{{ item.price.toFixed(2) }}</text>
+							<text class="service-desc">{{ item.desc }}</text>
+						</view>
+					</view>
+					<view class="popup-btn-row">
+						<view class="popup-btn-back" @click="bookStep = 1">
+							<text class="popup-btn-text">上一步</text>
+						</view>
+						<view class="popup-btn" :class="{ disabled: selectedService === null }" @click="bookStep = 3">
+							<text class="popup-btn-text">确认</text>
+						</view>
+					</view>
+				</view>
+
+				<!-- 步骤3：选择支付方式 -->
+				<view class="popup-section" v-if="bookStep === 3">
+					<text class="popup-section-title">选择支付方式</text>
+					<view class="pay-method-list">
+						<view
+							class="pay-method-item"
+							:class="{ active: selectedPayMethod === 'wechat' }"
+							@click="selectedPayMethod = 'wechat'"
+						>
+							<text class="pm-icon">🟢</text>
+							<text class="pm-name">微信支付</text>
+							<view class="pm-radio"><view class="pm-radio-inner" v-if="selectedPayMethod === 'wechat'"></view></view>
+						</view>
+						<view
+							class="pay-method-item"
+							:class="{ active: selectedPayMethod === 'balance' }"
+							@click="selectedPayMethod = 'balance'"
+						>
+							<text class="pm-icon">💰</text>
+							<view class="pm-info">
+								<text class="pm-name">账户余额</text>
+								<text class="pm-desc">￥{{ balance }}</text>
+							</view>
+							<view class="pm-radio"><view class="pm-radio-inner" v-if="selectedPayMethod === 'balance'"></view></view>
+						</view>
+						<view
+							class="pay-method-item"
+							:class="{ active: selectedPayMethod === 'coupon' }"
+							@click="selectedPayMethod = 'coupon'"
+						>
+							<text class="pm-icon">🎫</text>
+							<view class="pm-info">
+								<text class="pm-name">我的卡券</text>
+								<text class="pm-desc">可用{{ couponCount }}张</text>
+							</view>
+							<view class="pm-radio"><view class="pm-radio-inner" v-if="selectedPayMethod === 'coupon'"></view></view>
+						</view>
+					</view>
+					<view class="popup-btn-row">
+						<view class="popup-btn-back" @click="bookStep = 2">
+							<text class="popup-btn-text">上一步</text>
+						</view>
+						<view class="popup-btn" @click="onPay">
+							<text class="popup-btn-text">确认下单</text>
+						</view>
+					</view>
+				</view>
+			</view>
+		</view>
+
+		<!-- 预约成功弹窗（弹在预约页上） -->
+		<view class="success-overlay" v-if="showBookSuccess" @click="showBookSuccess = false">
+			<view class="success-popup" @click.stop>
+				<view class="success-icon-wrap">
+					<image class="success-icon-img" src="/static/icon/yuyuechenggong.png" mode="aspectFit" />
+				</view>
+				<text class="success-title">预约成功</text>
+				<text class="success-desc">您的预约已提交成功，请按时到店</text>
+				<view class="success-btn" @click="closeAll">
+					<text class="success-btn-text">返回首页</text>
+				</view>
+			</view>
+		</view>
+
+		<!-- 团购核销弹窗 -->
+		<view class="redeem-overlay" v-if="showRedeemPopup" @click="showRedeemPopup = false">
 			<view class="redeem-popup" @click.stop>
 				<view class="popup-header">
 					<text class="popup-title">团购核销</text>
-					<text class="popup-close" @click="closeRedeemPopup">✕</text>
+					<text class="popup-close" @click="showRedeemPopup = false">✕</text>
 				</view>
 				<view class="platform-grid" v-if="!selectedPlatform">
-					<view class="platform-item" v-for="(item, index) in platforms" :key="index" @click="selectPlatform(item)">
+					<view class="platform-item" v-for="(item, index) in platforms" :key="index" @click="selectedPlatform = item.value">
 						<image class="platform-icon" :src="item.icon" mode="aspectFit" />
 						<text class="platform-name">{{ item.label }}</text>
 					</view>
@@ -118,617 +272,253 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { getStoreDetail } from '@/api/store.js'
-import { getDeviceList } from '@/api/store.js'
-import { getBannerList } from '@/api/store.js'
-import { redeemCoupon } from '@/api/coupon.js'
-import { getCouponList } from '@/api/coupon.js'
+import { ref, onMounted } from 'vue'
 
 const statusBarHeight = ref(0)
 
 // 门店信息 Mock
 const store = ref({
-	id: 1,
-	name: '我是门店名称',
-	address: '合肥市新海大道5号',
-	distance: '1.45KM',
-	tags: [
-		{ icon: '🅿️', text: '有车位' },
-		{ icon: '📸', text: '门店图' },
-		{ icon: '✂️', text: '有技师' },
-		{ icon: '📶', text: 'WIFI覆盖' }
-	]
+	id: 1, name: '我是门店名称', address: '合肥市新海大道5号', distance: '1.45KM',
+	tags: [{ icon: '🅿️', text: '有车位' }, { icon: '📸', text: '门店图' }, { icon: '✂️', text: '有技师' }, { icon: '📶', text: 'WIFI覆盖' }]
 })
 
-// 轮播图 Mock（接口返回）
 const bannerList = ref([
 	{ id: 1, image: '/banner/banner1.jpg', link: '', title: '轮播图1' },
 	{ id: 2, image: '/banner/banner2.jpg', link: '', title: '轮播图2' },
 	{ id: 3, image: '/banner/banner3.jpg', link: '', title: '轮播图3' }
 ])
 
-// 快捷入口（对齐原型图：预约到店、团购核销、我的订单、优惠充值、分享有礼）
-const quickEntries = ref([
-	{ iconImage: '/static/icon/qiandao.png', text: '预约到店', url: '/pages/book-service/book-service' },
-	{ iconImage: '/static/icon/saomahexiao.png', text: '团购核销', action: 'redeem' },
-	{ iconImage: '/static/icon/qianbao.png', text: '我的订单', url: '/pages/wash-order-list/wash-order-list' },
-	{ iconImage: '/static/icon/youhuichognzhi.png', text: '优惠充值', url: '/pages/wallet/wallet' },
-	{ iconImage: '/static/icon/fenxiang.png', text: '分享有礼', action: 'share' }
-])
-
-// 设备列表 Mock
 const deviceList = ref([
-	{
-		id: 101,
-		name: '智能洗宠机A1',
-		address: '合肥市新站区新海大道5号...',
-		status: 1,
-		statusText: '可使用',
-		priceRange: '0.8-1.2',
-		storeId: 1
-	},
-	{
-		id: 102,
-		name: '智能洗宠机A2',
-		address: '合肥市新站区新海大道5号...',
-		status: 1,
-		statusText: '可使用',
-		priceRange: '0.8-1.2',
-		storeId: 1
-	}
+	{ id: 101, name: '智能洗宠机A1', address: '合肥市新站区新海大道5号...', status: 1, statusText: '可使用', priceRange: '0.8-1.2', storeId: 1 },
+	{ id: 102, name: '智能洗宠机A2', address: '合肥市新站区新海大道5号...', status: 1, statusText: '可使用', priceRange: '0.8-1.2', storeId: 1 }
 ])
 
-// 团购核销弹窗
+// ===== 预约服务弹窗 =====
+const showBookPopup = ref(false)
+const showBookSuccess = ref(false)
+const bookStep = ref(1)
+const selectedDate = ref(0)
+const selectedTime = ref(null)
+const selectedService = ref(null)
+const selectedPayMethod = ref('wechat')
+const remark = ref('')
+const balance = ref(5.6)
+const couponCount = ref(3)
+
+const serviceList = ref([
+	{ name: '洗澡美容', price: 30.00, desc: '人工洗澡+修毛' },
+	{ name: '洗澡美容', price: 30.00, desc: '人工洗澡+修毛' },
+	{ name: '洗澡美容', price: 30.00, desc: '人工洗澡+修毛' },
+	{ name: '洗澡美容', price: 30.00, desc: '人工洗澡+修毛' }
+])
+
+const dateList = ref([])
+const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+const timeSlots = ref([
+	{ label: '08:00' }, { label: '10:00' }, { label: '12:00' }, { label: '14:00' }, { label: '16:00' }
+])
+
+const initDateList = () => {
+	const list = []
+	for (let i = 0; i < 5; i++) {
+		const d = new Date(); d.setDate(d.getDate() + i)
+		list.push({ week: i === 0 ? '今天' : weekDays[d.getDay()], day: String(d.getDate()).padStart(2, '0'), month: (d.getMonth() + 1) + '月', dateStr: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` })
+	}
+	dateList.value = list
+}
+initDateList()
+
+const openBookPopup = () => {
+	bookStep.value = 1
+	selectedDate.value = 0
+	selectedTime.value = null
+	selectedService.value = null
+	selectedPayMethod.value = 'wechat'
+	remark.value = ''
+	showBookPopup.value = true
+}
+
+const closeBookPopup = () => { showBookPopup.value = false }
+
+const onPay = () => {
+	// TODO: 调用支付接口
+	// createBookOrder({ ... }).then(res => { ... })
+	showBookPopup.value = false
+	showBookSuccess.value = true
+}
+
+const closeAll = () => {
+	showBookSuccess.value = false
+	showBookPopup.value = false
+	bookStep.value = 1
+}
+
+// ===== 团购核销 =====
 const showRedeemPopup = ref(false)
 const redeemCode = ref('')
 const selectedPlatform = ref(null)
-
 const platforms = [
 	{ label: '抖音', icon: '/static/icon/douyin.png', value: 'douyin' },
 	{ label: '美团', icon: '/static/icon/meituan.png', value: 'meituan' },
 	{ label: '系统', icon: '/static/icon/xitong.png', value: 'system' }
 ]
+const currentPlatformIcon = ref('')
+const currentPlatformLabel = ref('')
 
-const currentPlatformIcon = computed(() => {
-	if (!selectedPlatform.value) return ''
-	const p = platforms.find(item => item.value === selectedPlatform.value)
-	return p ? p.icon : ''
-})
-
-const currentPlatformLabel = computed(() => {
-	if (!selectedPlatform.value) return ''
-	const p = platforms.find(item => item.value === selectedPlatform.value)
-	return p ? p.label : ''
-})
-
-const selectPlatform = (item) => {
-	selectedPlatform.value = item.value
-}
+// tabBar 页面
+const tabBarPages = ['pages/index/index', 'pages/wash-order-list/wash-order-list', 'pages/scan/scan', 'pages/book-order-list/book-order-list', 'pages/mine/mine']
 
 onMounted(() => {
 	const sysInfo = uni.getSystemInfoSync()
 	statusBarHeight.value = sysInfo.statusBarHeight || 0
-
-	// TODO: 加载门店信息和设备列表
-	// getStoreDetail(storeId).then(res => { store.value = res })
-	// getDeviceList({ storeId }).then(res => { deviceList.value = res })
-	// getBannerList({ storeId }).then(res => { bannerList.value = res })
 })
 
-// tabBar 页面列表
-const tabBarPages = [
-	'pages/index/index',
-	'pages/wash-order-list/wash-order-list',
-	'pages/scan/scan',
-	'pages/book-order-list/book-order-list',
-	'pages/mine/mine'
-]
-
-// 快捷入口点击
-const onEntryClick = (item) => {
-	if (item.action === 'redeem') {
-		showRedeemPopup.value = true
-		return
-	}
-	if (item.action === 'share') {
-		// TODO: 分享有礼逻辑
-		uni.showToast({ title: '分享有礼功能开发中', icon: 'none' })
-		return
-	}
-	if (item.url) {
-		// tabBar 页面用 switchTab，普通页面用 navigateTo
-		const pagePath = item.url.replace(/^\//, '')
-		if (tabBarPages.includes(pagePath)) {
-			uni.switchTab({ url: item.url })
-		} else {
-			uni.navigateTo({ url: item.url })
-		}
-	}
+const onEntryClick = (action) => {
+	if (action === 'redeem') { showRedeemPopup.value = true; return }
+	if (action === 'share') { uni.showToast({ title: '分享有礼功能开发中', icon: 'none' }); return }
+	const pagePath = action.replace(/^\//, '')
+	if (tabBarPages.includes(pagePath)) { uni.switchTab({ url: action }) }
+	else { uni.navigateTo({ url: action }) }
 }
 
-// 跳转设备详情
-const goDeviceDetail = (item) => {
-	uni.navigateTo({ url: `/pages/device-detail/device-detail?deviceId=${item.id}` })
-}
+const goDeviceDetail = (item) => { uni.navigateTo({ url: `/pages/device-detail/device-detail?deviceId=${item.id}` }) }
+const goRecharge = (item) => { uni.navigateTo({ url: `/pages/wallet/wallet?deviceId=${item.id}` }) }
+const goStoreList = () => { uni.navigateTo({ url: '/pages/store-list/store-list' }) }
 
-// 预充值
-const goRecharge = (item) => {
-	uni.navigateTo({ url: `/pages/wallet/wallet?deviceId=${item.id}` })
-}
-
-// 切换门店
-const goStoreList = () => {
-	uni.navigateTo({ url: '/pages/store-list/store-list' })
-}
-
-// 关闭核销弹窗
-const closeRedeemPopup = () => {
+const onConfirmRedeem = () => {
+	if (!redeemCode.value.trim()) { uni.showToast({ title: '请输入核销码', icon: 'none' }); return }
+	uni.showToast({ title: '核销成功', icon: 'success' })
 	showRedeemPopup.value = false
 	redeemCode.value = ''
 	selectedPlatform.value = null
 }
-
-// 确认核销
-const onConfirmRedeem = () => {
-	if (!redeemCode.value.trim()) {
-		uni.showToast({ title: '请输入核销码', icon: 'none' })
-		return
-	}
-	// TODO: 调用核销接口
-	// redeemCoupon({ platform: selectedPlatform.value, code: redeemCode.value }).then(res => { ... })
-	const platform = currentPlatformLabel.value
-	const code = redeemCode.value
-	closeRedeemPopup()
-	// 跳转到核销成功页面，携带平台和卡券信息
-	setTimeout(() => {
-		uni.navigateTo({
-			url: `/pages/redeem-success/redeem-success?platform=${platform}&code=${code}`
-		})
-	}, 300)
-}
-
-// 轮播图
-const onSwiperChange = (e) => {}
-
-const onBannerClick = (item) => {
-	if (item.link) {
-		uni.navigateTo({ url: item.link })
-	}
-}
 </script>
 
 <style lang="scss" scoped>
-.page-home {
-	min-height: 100vh;
-	background-color: #f5f5f5;
-	padding-bottom: 140rpx;
-}
-
-/* 导航栏 */
-.nav-bar {
-	background: linear-gradient(135deg, #07C160, #38d976);
-	padding: 20rpx 32rpx;
-
-	.nav-content {
-		font-size: 36rpx;
-		font-weight: 600;
-		color: #fff;
-		text-align: center;
-		padding: 20rpx 0;
-	}
-}
-
-/* 门店信息卡片 */
-.store-info-card {
-	background: #fff;
-	margin: 24rpx;
-	border-radius: 24rpx;
-	padding: 32rpx;
-	box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
-}
-
-.store-top {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 20rpx;
-}
-
-.store-name {
-	font-size: 36rpx;
-	font-weight: 700;
-	color: #333;
-}
-
-.store-switch {
-	display: flex;
-	align-items: center;
-	padding: 8rpx 20rpx;
-	background-color: #f5f5f5;
-	border-radius: 999rpx;
-
-	&:active {
-		background-color: #ebebeb;
-	}
-}
-
-.switch-text {
-	font-size: 24rpx;
-	color: #666;
-}
-
-.switch-arrow {
-	font-size: 28rpx;
-	color: #666;
-	margin-left: 4rpx;
-}
-
-.store-tags {
-	display: flex;
-	flex-wrap: wrap;
-	margin-bottom: 20rpx;
-}
-
-.store-tag {
-	display: flex;
-	align-items: center;
-	margin-right: 20rpx;
-	margin-bottom: 12rpx;
-}
-
-.tag-icon {
-	font-size: 24rpx;
-	margin-right: 6rpx;
-}
-
-.tag-text {
-	font-size: 24rpx;
-	color: #666;
-}
-
-.store-address {
-	padding-top: 16rpx;
-	border-top: 1rpx solid #f0f0f0;
-}
-
-.address-text {
-	font-size: 26rpx;
-	color: #999;
-}
-
-/* 轮播图 */
-.swiper-section {
-	margin: 0 24rpx 24rpx;
-	border-radius: 24rpx;
-	overflow: hidden;
-}
-
-.banner-swiper {
-	width: 100%;
-	height: 300rpx;
-	border-radius: 24rpx;
-}
-
-.swiper-item {
-	width: 100%;
-	height: 100%;
-}
-
-.swiper-image {
-	width: 100%;
-	height: 100%;
-	border-radius: 24rpx;
-}
-
-/* 快捷入口 */
-.quick-entry {
-	background-color: #fff;
-	margin: 0 24rpx 24rpx;
-	border-radius: 24rpx;
-	padding: 32rpx 16rpx;
-}
-
-.entry-grid {
-	display: flex;
-	justify-content: space-around;
-}
-
-.entry-item {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-
-	.entry-icon-wrap {
-		width: 96rpx;
-		height: 96rpx;
-		border-radius: 24rpx;
-		background-color: #e8f8ee;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		margin-bottom: 12rpx;
-	}
-
-	.entry-icon-img {
-		width: 56rpx;
-		height: 56rpx;
-	}
-
-	.entry-text {
-		font-size: 24rpx;
-		color: #333;
-	}
-}
-
-/* 设备列表 */
-.device-section {
-	margin: 0 24rpx 24rpx;
-}
-
-.section-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 20rpx;
-}
-
-.section-title {
-	font-size: 32rpx;
-	font-weight: 600;
-	color: #333;
-}
-
-.device-list {
-	display: flex;
-	flex-direction: column;
-}
-
-.device-card {
-	background-color: #fff;
-	border-radius: 24rpx;
-	padding: 32rpx;
-	margin-bottom: 20rpx;
-	box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
-
-	&:active {
-		background-color: #fafafa;
-	}
-}
-
-.device-card-top {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 12rpx;
-}
-
-.device-card-name {
-	font-size: 32rpx;
-	font-weight: 600;
-	color: #333;
-}
-
-.device-status {
-	font-size: 22rpx;
-	padding: 4rpx 16rpx;
-	border-radius: 999rpx;
-}
-
-.status-green {
-	background-color: #e8f8ee;
-	color: #07C160;
-}
-
-.status-gray {
-	background-color: #f0f0f0;
-	color: #999;
-}
-
-.device-card-addr {
-	margin-bottom: 16rpx;
-}
-
-.addr-text {
-	font-size: 24rpx;
-	color: #999;
-}
-
-.device-card-price {
-	display: flex;
-	align-items: baseline;
-	margin-bottom: 20rpx;
-}
-
-.price-label {
-	font-size: 24rpx;
-	color: #666;
-	margin-right: 8rpx;
-}
-
-.price-value {
-	font-size: 32rpx;
-	font-weight: 700;
-	color: #333;
-}
-
-.price-unit {
-	font-size: 22rpx;
-	color: #666;
-	margin-left: 4rpx;
-}
-
-.device-card-actions {
-	display: flex;
-	justify-content: flex-end;
-}
-
-.device-card-btn {
-	padding: 14rpx 40rpx;
-	border-radius: 999rpx;
-}
-
-.btn-recharge {
-	background: linear-gradient(135deg, #07C160, #38d976);
-
-	&:active {
-		opacity: 0.9;
-	}
-}
-
-.btn-text {
-	font-size: 26rpx;
-	font-weight: 600;
-	color: #fff;
-}
-
-/* 团购核销弹窗 */
-.redeem-overlay {
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: rgba(0, 0, 0, 0.5);
-	z-index: 999;
-	display: flex;
-	align-items: flex-end;
-	justify-content: center;
-}
-
-.redeem-popup {
-	width: 100%;
-	background-color: #fff;
-	border-radius: 32rpx 32rpx 0 0;
-	padding: 40rpx 32rpx;
-	padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
-	animation: slideUp 0.3s ease-out;
-	box-shadow: 0 -8rpx 40rpx rgba(0, 0, 0, 0.15);
-}
-
-@keyframes slideUp {
-	from {
-		transform: translateY(100%);
-	}
-	to {
-		transform: translateY(0);
-	}
-}
-
-.popup-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 40rpx;
-}
-
-.popup-title {
-	font-size: 36rpx;
-	font-weight: 700;
-	color: #333;
-}
-
-.popup-close {
-	width: 56rpx;
-	height: 56rpx;
-	border-radius: 50%;
-	background-color: #f5f5f5;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 32rpx;
-	color: #999;
-}
-
-.popup-body {
-	display: flex;
-	flex-direction: column;
-}
-
-.popup-input-wrap {
-	background-color: #f5f5f5;
-	border-radius: 16rpx;
-	padding: 24rpx 32rpx;
-	margin-bottom: 32rpx;
-}
-
-.popup-input {
-	font-size: 30rpx;
-	color: #333;
-	height: 48rpx;
-}
-
-.popup-btn {
-	background: linear-gradient(135deg, #07C160, #38d976);
-	color: #fff;
-	font-size: 32rpx;
-	font-weight: 600;
-	text-align: center;
-	padding: 28rpx 0;
-	border-radius: 999rpx;
-	margin-bottom: 24rpx;
-}
-
-.popup-tips {
-	text-align: center;
-	font-size: 22rpx;
-	color: #999;
-}
-
-.platform-grid {
-	display: flex;
-	justify-content: space-around;
-	padding: 24rpx 0 40rpx;
-}
-
-.platform-item {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	padding: 24rpx;
-	border-radius: 20rpx;
-	transition: background-color 0.2s;
-
-	&:active {
-		background-color: #f5f5f5;
-	}
-}
-
-.platform-icon {
-	width: 96rpx;
-	height: 96rpx;
-	margin-bottom: 12rpx;
-}
-
-.platform-name {
-	font-size: 26rpx;
-	color: #333;
-}
-
-.platform-selected {
-	display: flex;
-	align-items: center;
-	padding: 20rpx 24rpx;
-	background-color: #f5f5f5;
-	border-radius: 16rpx;
-	margin-bottom: 24rpx;
-}
-
-.platform-selected-icon {
-	width: 48rpx;
-	height: 48rpx;
-	margin-right: 16rpx;
-}
-
-.platform-selected-name {
-	flex: 1;
-	font-size: 30rpx;
-	font-weight: 600;
-	color: #333;
-}
-
-.platform-change {
-	font-size: 26rpx;
-	color: #07C160;
-}
+.page-home { min-height: 100vh; background-color: #f5f5f5; padding-bottom: 40rpx; }
+
+.nav-bar { background: linear-gradient(135deg, #07C160, #38d976); padding: 20rpx 32rpx; .nav-content { font-size: 36rpx; font-weight: 600; color: #fff; text-align: center; padding: 20rpx 0; } }
+
+.store-info-card { background-color: #fff; margin: 24rpx; border-radius: 24rpx; padding: 32rpx; box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.08); }
+.store-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20rpx; }
+.store-name { font-size: 36rpx; font-weight: 700; color: #333; }
+.store-switch { display: flex; align-items: center; padding: 8rpx 20rpx; background-color: #f5f5f5; border-radius: 999rpx; &:active { background-color: #ebebeb; } }
+.switch-text { font-size: 24rpx; color: #666; }
+.switch-arrow { font-size: 28rpx; color: #666; margin-left: 4rpx; }
+.store-tags { display: flex; flex-wrap: wrap; margin-bottom: 20rpx; }
+.store-tag { display: flex; align-items: center; margin-right: 20rpx; margin-bottom: 12rpx; }
+.tag-icon { font-size: 24rpx; margin-right: 6rpx; }
+.tag-text { font-size: 24rpx; color: #666; }
+.store-address { padding-top: 16rpx; border-top: 1rpx solid #f0f0f0; }
+.address-text { font-size: 26rpx; color: #999; }
+
+.swiper-section { margin: 0 24rpx 24rpx; border-radius: 24rpx; overflow: hidden; }
+.banner-swiper { width: 100%; height: 300rpx; border-radius: 24rpx; }
+.swiper-item { width: 100%; height: 100%; }
+.swiper-image { width: 100%; height: 100%; border-radius: 24rpx; }
+
+.quick-entry { background-color: #fff; margin: 0 24rpx 24rpx; border-radius: 24rpx; padding: 32rpx 16rpx; }
+.entry-grid { display: flex; justify-content: space-around; }
+.entry-item { display: flex; flex-direction: column; align-items: center; .entry-icon-wrap { width: 96rpx; height: 96rpx; border-radius: 24rpx; background-color: #e8f8ee; display: flex; align-items: center; justify-content: center; margin-bottom: 12rpx; } .entry-icon-img { width: 56rpx; height: 56rpx; } .entry-text { font-size: 24rpx; color: #333; } }
+
+.device-section { margin: 0 24rpx 24rpx; }
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20rpx; }
+.section-title { font-size: 32rpx; font-weight: 600; color: #333; }
+.device-list { display: flex; flex-direction: column; }
+.device-card { background-color: #fff; border-radius: 24rpx; padding: 32rpx; margin-bottom: 20rpx; box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.06); &:active { background-color: #fafafa; } }
+.device-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12rpx; }
+.device-card-name { font-size: 32rpx; font-weight: 600; color: #333; }
+.device-status { font-size: 22rpx; padding: 4rpx 16rpx; border-radius: 999rpx; }
+.status-green { background-color: #e8f8ee; color: #07C160; }
+.status-gray { background-color: #f0f0f0; color: #999; }
+.device-card-addr { margin-bottom: 16rpx; }
+.addr-text { font-size: 24rpx; color: #999; }
+.device-card-price { display: flex; align-items: baseline; margin-bottom: 20rpx; }
+.price-label { font-size: 24rpx; color: #666; margin-right: 8rpx; }
+.price-value { font-size: 32rpx; font-weight: 700; color: #333; }
+.price-unit { font-size: 22rpx; color: #666; margin-left: 4rpx; }
+.device-card-actions { display: flex; justify-content: flex-end; }
+.device-card-btn { padding: 14rpx 40rpx; border-radius: 999rpx; }
+.btn-recharge { background: linear-gradient(135deg, #07C160, #38d976); &:active { opacity: 0.9; } }
+.btn-text { font-size: 26rpx; font-weight: 600; color: #fff; }
+
+/* ===== 预约服务底部弹窗 ===== */
+.book-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 999; display: flex; align-items: flex-end; justify-content: center; }
+.book-popup { width: 100%; max-height: 80vh; background-color: #fff; border-radius: 32rpx 32rpx 0 0; padding: 0 32rpx 40rpx; padding-bottom: calc(40rpx + env(safe-area-inset-bottom)); animation: slideUp 0.3s ease-out; display: flex; flex-direction: column; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.book-popup-header { display: flex; align-items: center; justify-content: space-between; padding: 32rpx 0 20rpx; }
+.book-popup-title { font-size: 36rpx; font-weight: 700; color: #333; }
+.book-popup-close { width: 56rpx; height: 56rpx; border-radius: 50%; background-color: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 32rpx; color: #999; }
+
+.popup-section { flex: 1; overflow-y: auto; }
+.popup-section-title { font-size: 28rpx; font-weight: 600; color: #333; margin-bottom: 20rpx; display: block; }
+
+/* 日期 */
+.date-scroll { white-space: nowrap; margin-bottom: 20rpx; }
+.date-list { display: inline-flex; gap: 12rpx; }
+.date-item { width: 120rpx; padding: 16rpx 0; text-align: center; border-radius: 12rpx; border: 2rpx solid #e0e0e0; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; &.active { border-color: #07C160; background-color: #e8f8ee; } }
+.date-week { font-size: 22rpx; color: #999; margin-bottom: 4rpx; }
+.active .date-week { color: #07C160; }
+.date-day { font-size: 30rpx; font-weight: 700; color: #333; margin-bottom: 2rpx; }
+.date-month { font-size: 20rpx; color: #999; }
+
+/* 时段 */
+.time-grid { display: flex; flex-wrap: wrap; gap: 12rpx; margin-bottom: 20rpx; }
+.time-item { width: calc(33.33% - 8rpx); text-align: center; padding: 16rpx 0; border-radius: 12rpx; border: 2rpx solid #e0e0e0; font-size: 28rpx; color: #333; &.active { border-color: #07C160; background-color: #e8f8ee; color: #07C160; font-weight: 600; } }
+
+/* 备注 */
+.remark-input { width: 100%; font-size: 28rpx; color: #333; background-color: #f5f5f5; border-radius: 12rpx; padding: 16rpx 20rpx; box-sizing: border-box; margin-bottom: 24rpx; }
+
+/* 服务项目 2x2 */
+.service-grid { display: flex; flex-wrap: wrap; gap: 16rpx; margin-bottom: 24rpx; }
+.service-card { width: calc(50% - 8rpx); padding: 24rpx; border-radius: 16rpx; border: 2rpx solid #e0e0e0; &.active { border-color: #07C160; background-color: #e8f8ee; } }
+.service-name { font-size: 28rpx; font-weight: 600; color: #333; display: block; margin-bottom: 4rpx; }
+.service-price { font-size: 32rpx; font-weight: 700; color: #ff4d4f; display: block; margin-bottom: 4rpx; }
+.service-desc { font-size: 22rpx; color: #999; display: block; }
+
+/* 支付方式 */
+.pay-method-list { margin-bottom: 24rpx; }
+.pay-method-item { display: flex; align-items: center; padding: 24rpx 0; border-bottom: 1rpx solid #f5f5f5; &:last-child { border-bottom: none; } &.active { background-color: #f8fff9; } }
+.pm-icon { width: 72rpx; height: 72rpx; border-radius: 16rpx; background-color: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 36rpx; margin-right: 20rpx; }
+.pm-name { font-size: 28rpx; color: #333; }
+.pm-desc { font-size: 22rpx; color: #999; }
+.pm-info { flex: 1; display: flex; flex-direction: column; }
+.pm-radio { width: 36rpx; height: 36rpx; border-radius: 50%; border: 2rpx solid #ddd; display: flex; align-items: center; justify-content: center; margin-left: auto; .active & { border-color: #07C160; } }
+.pm-radio-inner { width: 20rpx; height: 20rpx; border-radius: 50%; background-color: #07C160; }
+
+/* 按钮 */
+.popup-btn { background: linear-gradient(135deg, #07C160, #38d976); border-radius: 999rpx; padding: 24rpx 0; text-align: center; &:active { opacity: 0.9; } &.disabled { opacity: 0.5; } }
+.popup-btn-text { font-size: 32rpx; font-weight: 600; color: #fff; }
+.popup-btn-row { display: flex; gap: 16rpx; }
+.popup-btn-back { flex: 1; background-color: #f5f5f5; border-radius: 999rpx; padding: 24rpx 0; text-align: center; }
+.popup-btn-back .popup-btn-text { color: #666; font-weight: 500; }
+
+/* ===== 预约成功弹窗 ===== */
+.success-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 1001; display: flex; align-items: center; justify-content: center; }
+.success-popup { width: 560rpx; background-color: #fff; border-radius: 32rpx; padding: 60rpx 40rpx 40rpx; display: flex; flex-direction: column; align-items: center; animation: popIn 0.3s ease-out; }
+@keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.success-icon-wrap { margin-bottom: 20rpx; }
+.success-icon-img { width: 160rpx; height: 160rpx; }
+.success-title { font-size: 36rpx; font-weight: 700; color: #333; margin-bottom: 12rpx; }
+.success-desc { font-size: 26rpx; color: #999; margin-bottom: 32rpx; }
+.success-btn { width: 100%; background: linear-gradient(135deg, #07C160, #38d976); border-radius: 999rpx; padding: 24rpx 0; text-align: center; &:active { opacity: 0.9; } }
+.success-btn-text { font-size: 30rpx; font-weight: 600; color: #fff; }
+
+/* ===== 团购核销弹窗 ===== */
+.redeem-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 999; display: flex; align-items: flex-end; justify-content: center; }
+.redeem-popup { width: 100%; background-color: #fff; border-radius: 32rpx 32rpx 0 0; padding: 40rpx 32rpx; padding-bottom: calc(40rpx + env(safe-area-inset-bottom)); animation: slideUp 0.3s ease-out; box-shadow: 0 -8rpx 40rpx rgba(0,0,0,0.15); }
+.popup-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 40rpx; }
+.popup-title { font-size: 36rpx; font-weight: 700; color: #333; }
+.popup-body { display: flex; flex-direction: column; }
+.popup-input-wrap { background-color: #f5f5f5; border-radius: 16rpx; padding: 24rpx 32rpx; margin-bottom: 32rpx; }
+.popup-input { font-size: 30rpx; color: #333; height: 48rpx; }
+.popup-tips { text-align: center; font-size: 22rpx; color: #999; }
+.platform-grid { display: flex; justify-content: space-around; padding: 24rpx 0 40rpx; }
+.platform-item { display: flex; flex-direction: column; align-items: center; padding: 24rpx; border-radius: 20rpx; &:active { background-color: #f5f5f5; } }
+.platform-icon { width: 96rpx; height: 96rpx; margin-bottom: 12rpx; }
+.platform-name { font-size: 26rpx; color: #333; }
+.platform-selected { display: flex; align-items: center; padding: 20rpx 24rpx; background-color: #f5f5f5; border-radius: 16rpx; margin-bottom: 24rpx; }
+.platform-selected-icon { width: 48rpx; height: 48rpx; margin-right: 16rpx; }
+.platform-selected-name { flex: 1; font-size: 30rpx; font-weight: 600; color: #333; }
+.platform-change { font-size: 26rpx; color: #07C160; }
 </style>
