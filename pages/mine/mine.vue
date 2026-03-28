@@ -133,9 +133,7 @@ const goCouponList = () => {
 
 // 点击头像/昵称 → 编辑个人信息
 const goProfile = () => {
-	uni.showToast({ title: '个人信息编辑功能开发中', icon: 'none' })
-	// TODO: 跳转个人信息编辑页
-	// uni.navigateTo({ url: '/pages/profile/profile' })
+	uni.navigateTo({ url: '/pages/profile/profile' })
 }
 
 // 退出登录

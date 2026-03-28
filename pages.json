@@ -137,6 +137,12 @@
 				"navigationStyle": "custom",
 				"navigationBarTitleText": "设备详情"
 			}
+		},
+		{
+			"path": "pages/profile/profile",
+			"style": {
+				"navigationBarTitleText": "个人信息"
+			}
 		}
 	],
 	"globalStyle": {

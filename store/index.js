@@ -61,6 +61,14 @@ export const useUserStore = defineStore('user', () => {
 		}
 	}
 
+	// 更新个人信息
+	const updateUserInfoAction = (info) => {
+		if (userInfo.value) {
+			userInfo.value = { ...userInfo.value, ...info }
+			uni.setStorageSync('userInfo', userInfo.value)
+		}
+	}
+
 	return {
 		token,
 		userInfo,
@@ -71,7 +79,8 @@ export const useUserStore = defineStore('user', () => {
 		login,
 		logoutAction,
 		updateBalance,
-		updateCouponCount
+		updateCouponCount,
+		updateUserInfo: updateUserInfoAction
 	}
 })
 
