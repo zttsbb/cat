@@ -152,6 +152,57 @@
 			</view>
 		</view>
 
+		<!-- 选择优惠卷弹窗（对齐原型图-选择优惠卷） -->
+		<view class="coupon-overlay" v-if="showCouponPicker" @click="closeCouponPicker">
+			<view class="coupon-picker-popup" @click.stop>
+				<view class="cp-header">
+					<text class="cp-title">选择优惠卷</text>
+					<text class="cp-close" @click="closeCouponPicker">✕</text>
+				</view>
+				<view class="cp-list">
+					<view
+						:class="['cp-item', { active: selectedCoupon && selectedCoupon.id === c.id, disabled: c.disabled }]"
+						v-for="c in availableCoupons"
+						:key="c.id"
+						@click="pickCouponItem(c)"
+					>
+						<view class="cp-item-left">
+							<text class="cp-symbol">￥</text>
+							<text class="cp-amount">{{ c.amount }}</text>
+						</view>
+						<view class="cp-item-divider"></view>
+						<view class="cp-item-right">
+							<view class="cp-item-info">
+								<text class="cp-item-name">{{ c.name }}</text>
+								<text class="cp-item-desc">{{ c.scope }}</text>
+								<text class="cp-item-remain" v-if="c.type === '次卡'">剩余{{ c.remain }}次</text>
+								<text class="cp-item-remain" v-else-if="c.type === '余额卷'">余额￥{{ c.balance }}</text>
+							</view>
+							<view class="cp-item-expire">
+								<text class="cp-expire-text">{{ c.expire }}</text>
+							</view>
+						</view>
+						<view class="cp-item-check" v-if="selectedCoupon && selectedCoupon.id === c.id">
+							<text class="cp-check-icon">✓</text>
+						</view>
+						<view class="cp-item-tag" v-if="c.disabled">
+							<text class="cp-tag-text">已到期</text>
+						</view>
+					</view>
+					<!-- 不使用优惠卷 -->
+					<view class="cp-no-use" @click="pickCouponItem(null)">
+						<text class="cp-no-use-text">不使用优惠卷</text>
+						<view class="cp-no-use-check" v-if="!selectedCoupon">
+							<text class="cp-check-icon">✓</text>
+						</view>
+					</view>
+					<view class="cp-empty" v-if="availableCoupons.length === 0">
+						<text class="cp-empty-text">暂无可用优惠券</text>
+					</view>
+				</view>
+			</view>
+		</view>
+
 		<!-- 核销成功弹窗（对齐原型图-核销成功） -->
 		<view class="redeem-success-overlay" v-if="showRedeemSuccess" @click="closeRedeemSuccess">
 			<view class="redeem-success-popup" @click.stop>
@@ -250,6 +301,15 @@ const redeemResult = ref({
 	expire: '60天'
 })
 
+// 优惠券选择弹窗
+const showCouponPicker = ref(false)
+const availableCoupons = ref([
+	{ id: 1, name: '美团·次卡', scope: '适用于:洗宠机', amount: 20, type: '次卡', remain: 3, expire: '剩余有效期3天', disabled: false },
+	{ id: 2, name: '洗宠优惠券', scope: '适用于:洗宠机', amount: 10, type: '优惠券', remain: null, expire: '剩余有效期15天', disabled: false },
+	{ id: 3, name: '新用户专享', scope: '适用于:洗宠机', amount: 5, type: '优惠券', remain: null, expire: '已到期', disabled: true },
+	{ id: 4, name: '系统·余额卷', scope: '适用于:洗宠机', amount: 30, type: '余额卷', balance: 56.80, remain: null, expire: '剩余有效期60天', disabled: false }
+])
+
 const payMethods = [
 	{ name: '余额支付' },
 	{ name: '卡券' },
@@ -342,7 +402,19 @@ const goCouponList = () => {
 }
 
 const pickCoupon = () => {
-	uni.showToast({ title: '优惠券选择功能开发中', icon: 'none' })
+	showCouponPicker.value = true
+	// TODO: 加载可用优惠券
+	// getAvailableCoupons({ serviceType: 'wash' }).then(res => { availableCoupons.value = res })
+}
+
+const pickCouponItem = (coupon) => {
+	if (coupon && coupon.disabled) return
+	selectedCoupon.value = coupon
+	showCouponPicker.value = false
+}
+
+const closeCouponPicker = () => {
+	showCouponPicker.value = false
 }
 
 const onSubmit = () => {
@@ -958,5 +1030,227 @@ const onSubmit = () => {
 	font-size: 30rpx;
 	font-weight: 600;
 	color: #fff;
+}
+
+/* ===== 选择优惠卷弹窗 ===== */
+.coupon-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 1001;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+}
+
+.coupon-picker-popup {
+	width: 100%;
+	max-height: 75vh;
+	background-color: #f5f5f5;
+	border-radius: 32rpx 32rpx 0 0;
+	display: flex;
+	flex-direction: column;
+	animation: popSlideUp 0.3s ease-out;
+}
+
+@keyframes popSlideUp {
+	from { transform: translateY(100%); }
+	to { transform: translateY(0); }
+}
+
+.cp-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 32rpx 32rpx 0;
+	background-color: #fff;
+	border-radius: 32rpx 32rpx 0 0;
+}
+
+.cp-title {
+	font-size: 36rpx;
+	font-weight: 700;
+	color: #333;
+}
+
+.cp-close {
+	width: 56rpx;
+	height: 56rpx;
+	border-radius: 50%;
+	background-color: #f5f5f5;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 32rpx;
+	color: #999;
+}
+
+.cp-list {
+	flex: 1;
+	overflow-y: auto;
+	padding: 20rpx 24rpx 0;
+	padding-bottom: env(safe-area-inset-bottom);
+}
+
+.cp-item {
+	display: flex;
+	align-items: center;
+	background-color: #fff;
+	border-radius: 20rpx;
+	margin-bottom: 20rpx;
+	padding: 28rpx 24rpx;
+	position: relative;
+	overflow: hidden;
+
+	&.active {
+		border: 2rpx solid #07C160;
+	}
+
+	&.disabled {
+		opacity: 0.5;
+	}
+}
+
+.cp-item-left {
+	display: flex;
+	align-items: baseline;
+	padding-right: 24rpx;
+	border-right: 2rpx dashed #ff6b35;
+	margin-right: 24rpx;
+	min-width: 130rpx;
+	justify-content: center;
+}
+
+.cp-symbol {
+	font-size: 24rpx;
+	color: #ff6b35;
+	font-weight: 600;
+}
+
+.cp-amount {
+	font-size: 52rpx;
+	font-weight: 700;
+	color: #ff6b35;
+}
+
+.cp-item-divider {
+	display: none;
+}
+
+.cp-item-right {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.cp-item-info {
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 4rpx;
+}
+
+.cp-item-name {
+	font-size: 28rpx;
+	font-weight: 600;
+	color: #333;
+	margin-bottom: 2rpx;
+}
+
+.cp-item-desc {
+	font-size: 22rpx;
+	color: #999;
+	margin-bottom: 2rpx;
+}
+
+.cp-item-remain {
+	font-size: 22rpx;
+	color: #07C160;
+}
+
+.cp-item-expire {
+	margin-top: 4rpx;
+}
+
+.cp-expire-text {
+	font-size: 20rpx;
+	color: #ccc;
+}
+
+.cp-item-check {
+	position: absolute;
+	top: 20rpx;
+	right: 20rpx;
+	width: 44rpx;
+	height: 44rpx;
+	border-radius: 50%;
+	background-color: #07C160;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.cp-check-icon {
+	font-size: 28rpx;
+	color: #fff;
+	font-weight: 700;
+}
+
+.cp-item-tag {
+	position: absolute;
+	top: 20rpx;
+	right: 20rpx;
+	padding: 4rpx 16rpx;
+	border-radius: 999rpx;
+	background-color: #f0f0f0;
+}
+
+.cp-tag-text {
+	font-size: 20rpx;
+	color: #999;
+}
+
+.cp-no-use {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 32rpx;
+	background-color: #fff;
+	border-radius: 20rpx;
+	margin-bottom: 20rpx;
+
+	&:active {
+		background-color: #f9f9f9;
+	}
+}
+
+.cp-no-use-text {
+	font-size: 30rpx;
+	color: #333;
+}
+
+.cp-no-use-check {
+	width: 44rpx;
+	height: 44rpx;
+	border-radius: 50%;
+	background-color: #07C160;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-left: 16rpx;
+}
+
+.cp-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 80rpx 0;
+}
+
+.cp-empty-text {
+	font-size: 28rpx;
+	color: #999;
 }
 </style>
