@@ -62,7 +62,7 @@ const goDetail = (id) => {
 }
 
 const goBack = () => {
-	uni.navigateBack({ delta: 1 })
+	uni.switchTab({ url: '/pages/index/index' })
 }
 </script>
 
