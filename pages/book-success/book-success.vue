@@ -2,6 +2,15 @@
 <!-- 预约成功 -->
 <template>
 	<view class="page-book-success">
+		<!-- 导航栏 -->
+		<view class="nav-bar" :style="{ paddingTop: statusBarHeight + 'px' }">
+			<view class="nav-back" @click="goHome">
+				<text class="nav-back-icon">‹</text>
+			</view>
+			<view class="nav-title">预约成功</view>
+			<view class="nav-placeholder"></view>
+		</view>
+
 		<!-- 成功图标 -->
 		<view class="success-wrap">
 			<image class="success-icon-img" src="/static/icon/yuyuechenggong.png" mode="aspectFit" />
@@ -31,10 +40,15 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { getBookOrderDetail } from '@/api/order.js'
 
+const statusBarHeight = ref(0)
+
 onLoad((options) => {
+	const sysInfo = uni.getSystemInfoSync()
+	statusBarHeight.value = sysInfo.statusBarHeight || 0
 	// TODO: 根据订单ID获取预约结果
 	// const orderId = options?.orderId
 	// if (orderId) {
@@ -59,7 +73,40 @@ const shareBtn = () => {
 .page-book-success {
 	min-height: 100vh;
 	background-color: #f5f5f5;
-	padding: 120rpx 32rpx;
+}
+
+.nav-bar {
+	background: linear-gradient(135deg, #07C160, #38d976);
+	padding: 0 24rpx;
+	display: flex;
+	align-items: center;
+}
+
+.nav-back {
+	width: 60rpx;
+	height: 80rpx;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+}
+
+.nav-back-icon {
+	font-size: 48rpx;
+	color: #fff;
+	font-weight: 300;
+}
+
+.nav-title {
+	flex: 1;
+	text-align: center;
+	font-size: 34rpx;
+	font-weight: 600;
+	color: #fff;
+	padding: 16rpx 0;
+}
+
+.nav-placeholder {
+	width: 60rpx;
 }
 
 .success-wrap {

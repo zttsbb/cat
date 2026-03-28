@@ -425,9 +425,11 @@ const onSubmit = () => {
 	const dateInfo = dateList.value[selectedDate.value]
 	const service = serviceList.value[selectedService.value]
 	// TODO: 调用创建预约订单接口
+	// createBookOrder({ date: dateInfo.dateStr, time: selectedTime.value.label, service: service }).then(...)
 	uni.showToast({ title: '下单成功', icon: 'success' })
 	setTimeout(() => {
-		uni.navigateTo({
+		// 用 redirectTo 跳转预约成功页，替换当前页
+		uni.redirectTo({
 			url: `/pages/book-success/book-success?date=${dateInfo.dateStr}&time=${selectedTime.value.label}&service=${service.name}`
 		})
 	}, 500)
