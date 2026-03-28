@@ -186,6 +186,11 @@
 <script setup>
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
+import { getDeviceDetail, getDeviceList } from '@/api/store.js'
+import { createBookOrder } from '@/api/order.js'
+import { getWalletInfo, getAvailableCoupons } from '@/api/pay.js'
+import { getCouponList } from '@/api/coupon.js'
+import { redeemCoupon } from '@/api/coupon.js'
 
 // 设备信息 Mock
 const device = ref({

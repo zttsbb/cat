@@ -84,3 +84,29 @@ export const getAgreement = (params = {}) => {
 	}
 	return Promise.resolve(agreements[params.type] || agreements.privacy)
 }
+
+/**
+ * 更新用户信息
+ * POST /api/user/update
+ * @param {Object} data - { nickName, phone, avatarUrl }
+ * @returns {Promise}
+ */
+export const updateUserInfo = (data = {}) => {
+	// TODO: 替换为实际接口调用
+	// return request({ url: '/api/user/update', method: 'POST', data })
+
+	return Promise.resolve({ success: true, message: '更新成功' })
+}
+
+/**
+ * 上传头像
+ * POST /api/user/upload-avatar
+ * @param {String} filePath - 本地图片路径
+ * @returns {Promise} { url: 'https://...avatar.jpg' }
+ */
+export const uploadAvatar = (filePath) => {
+	// TODO: 替换为实际接口调用
+	// return uni.uploadFile({ url: '/api/user/upload-avatar', filePath, name: 'avatar' })
+
+	return Promise.resolve({ url: filePath })
+}

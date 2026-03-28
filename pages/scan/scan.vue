@@ -11,6 +11,7 @@
 
 <script setup>
 import { onMounted } from 'vue'
+import { scanQRCode } from '@/api/store.js'
 
 onMounted(() => {
 	// 进入页面自动调起扫码

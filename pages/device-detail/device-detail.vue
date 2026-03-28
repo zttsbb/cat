@@ -121,6 +121,10 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { getDeviceDetail } from '@/api/store.js'
+import { recharge } from '@/api/pay.js'
+import { redeemCoupon } from '@/api/coupon.js'
 
 const statusBarHeight = ref(0)
 
@@ -182,14 +186,15 @@ const selectPlatform = (item) => {
 	selectedPlatform.value = item.value
 }
 
-onMounted(() => {
+onLoad((options) => {
 	const sysInfo = uni.getSystemInfoSync()
 	statusBarHeight.value = sysInfo.statusBarHeight || 0
 
 	// TODO: 根据传入的 deviceId 加载设备详情
-	// const pages = getCurrentPages()
-	// const page = pages[pages.length - 1]
-	// const deviceId = page.$page.options?.id || page.$page.options?.deviceId
+	// const deviceId = options?.deviceId || options?.id
+	// if (deviceId) {
+	// 	getDeviceDetail(deviceId).then(res => { device.value = res })
+	// }
 })
 
 // tabBar 页面列表

@@ -119,6 +119,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { getStoreDetail } from '@/api/store.js'
+import { getDeviceList } from '@/api/store.js'
+import { getBannerList } from '@/api/store.js'
+import { redeemCoupon } from '@/api/coupon.js'
+import { getCouponList } from '@/api/coupon.js'
 
 const statusBarHeight = ref(0)
 

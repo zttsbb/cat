@@ -48,6 +48,7 @@
 <script setup>
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
+import { redeemCoupon } from '@/api/coupon.js'
 
 const platformName = ref('美团')
 const platformIcon = ref('')

@@ -31,6 +31,17 @@
 </template>
 
 <script setup>
+import { onLoad } from '@dcloudio/uni-app'
+import { getBookOrderDetail } from '@/api/order.js'
+
+onLoad((options) => {
+	// TODO: 根据订单ID获取预约结果
+	// const orderId = options?.orderId
+	// if (orderId) {
+	// 	getBookOrderDetail(orderId).then(res => { /* 更新页面状态 */ })
+	// }
+})
+
 const goOrderList = () => {
 	uni.redirectTo({ url: '/pages/book-order-list/book-order-list' })
 }

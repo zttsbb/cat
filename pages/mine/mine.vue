@@ -101,6 +101,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useUserStore } from '@/store/index.js'
+import { getUserInfo, updateUserInfo } from '@/api/user.js'
+import { getCouponList } from '@/api/coupon.js'
+import { getWalletInfo } from '@/api/pay.js'
 
 const userStore = useUserStore()
 const statusBarHeight = ref(0)

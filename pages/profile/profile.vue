@@ -39,6 +39,7 @@
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { useUserStore } from '@/store/index.js'
+import { updateUserInfo, uploadAvatar } from '@/api/user.js'
 
 const userStore = useUserStore()
 

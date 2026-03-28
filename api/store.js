@@ -185,3 +185,71 @@ export const getNearbyDevices = (params = {}) => {
 		}
 	])
 }
+
+/**
+ * 获取设备列表（按门店）
+ * GET /api/device/list
+ * @param {Object} params - { storeId, status }
+ * @returns {Promise} 设备列表
+ */
+export const getDeviceList = (params = {}) => {
+	// TODO: 替换为实际接口调用
+	// return request({ url: '/api/device/list', method: 'GET', data: params })
+
+	return Promise.resolve([
+		{
+			id: 101,
+			name: '智能洗宠机A1',
+			address: '合肥市新站区新海大道5号...',
+			status: 1,
+			statusText: '可使用',
+			priceRange: '0.8-1.2',
+			storeId: params.storeId || 1
+		},
+		{
+			id: 102,
+			name: '智能洗宠机A2',
+			address: '合肥市新站区新海大道5号...',
+			status: 1,
+			statusText: '可使用',
+			priceRange: '0.8-1.2',
+			storeId: params.storeId || 1
+		}
+	])
+}
+
+/**
+ * 获取轮播图列表
+ * GET /api/store/banners
+ * @param {Object} params - { storeId }
+ * @returns {Promise} 轮播图列表
+ */
+export const getBannerList = (params = {}) => {
+	// TODO: 替换为实际接口调用
+	// return request({ url: '/api/store/banners', method: 'GET', data: params })
+
+	return Promise.resolve([
+		{ id: 1, image: '/banner/banner1.jpg', link: '', title: '轮播图1' },
+		{ id: 2, image: '/banner/banner2.jpg', link: '', title: '轮播图2' },
+		{ id: 3, image: '/banner/banner3.jpg', link: '', title: '轮播图3' }
+	])
+}
+
+/**
+ * 扫码获取设备/订单信息
+ * GET /api/scan/parse
+ * @param {String} code - 扫码结果
+ * @returns {Promise} 扫码解析结果
+ */
+export const scanQRCode = (code) => {
+	// TODO: 替换为实际接口调用
+	// return request({ url: '/api/scan/parse', method: 'GET', data: { code } })
+
+	return Promise.resolve({
+		type: 'device',
+		deviceId: 101,
+		deviceName: '智能洗宠机A1',
+		storeId: 1,
+		storeName: '物沃宠物洗护中心（南山店）'
+	})
+}
