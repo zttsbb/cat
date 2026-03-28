@@ -176,11 +176,14 @@ onLoad((options) => {
 })
 
 const loadData = async () => {
-	// TODO: 调用实际接口
-	// const wallet = await getWalletInfo()
-	// walletInfo.value = wallet
-	// const amounts = await getRechargeAmounts()
-	// rechargeAmounts.value = amounts
+	try {
+		const wallet = await getWalletInfo()
+		if (wallet) walletInfo.value = wallet
+	} catch (e) {}
+	try {
+		const amounts = await getRechargeAmounts()
+		if (amounts) rechargeAmounts.value = amounts
+	} catch (e) {}
 }
 
 const goBack = () => {

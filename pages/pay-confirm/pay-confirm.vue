@@ -69,7 +69,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { getDeviceDetail } from '@/api/store.js'
-import { getAvailableCoupons, prepayConfirm } from '@/api/pay.js'
+import { getAvailableCoupons } from '@/api/pay.js'
 import { redeemCoupon } from '@/api/coupon.js'
 
 const device = ref({

@@ -166,43 +166,21 @@ onMounted(() => {
 })
 
 const loadData = async () => {
-	// TODO: 调用实际接口
-	// const info = await getProfitInfo()
-	// if (info) profitInfo.value = info
-	// const records = await getProfitRecords({ page: 1, pageSize: 20 })
-	// recordList.value = records.list || []
+	try {
+		const info = await getProfitInfo()
+		if (info) profitInfo.value = info
+	} catch (e) {}
 
-	// Mock - 多设备分账记录
-	recordList.value = [
-		{
-			id: 1, deviceId: 1, deviceName: '物沃科技展厅设备',
-			orderId: 'W20260326001', amount: 3.56, ratio: '10%', ratioNum: 10, date: '2026-10-02 01:38'
-		},
-		{
-			id: 2, deviceId: 1, deviceName: '物沃科技展厅设备',
-			orderId: 'W20260326002', amount: 3.56, ratio: '10%', ratioNum: 10, date: '2026-10-02 02:00'
-		},
-		{
-			id: 3, deviceId: 2, deviceName: '智能洗宠机A1',
-			orderId: 'W20260327001', amount: 8.52, ratio: '15%', ratioNum: 15, date: '2026-10-03 09:15'
-		},
-		{
-			id: 4, deviceId: 2, deviceName: '智能洗宠机A1',
-			orderId: 'W20260327002', amount: 12.80, ratio: '15%', ratioNum: 15, date: '2026-10-03 14:22'
-		},
-		{
-			id: 5, deviceId: 2, deviceName: '智能洗宠机A1',
-			orderId: 'W20260327003', amount: 6.40, ratio: '15%', ratioNum: 15, date: '2026-10-04 10:05'
-		},
-		{
-			id: 6, deviceId: 3, deviceName: '智能洗宠机A2',
-			orderId: 'W20260328001', amount: 5.36, ratio: '12%', ratioNum: 12, date: '2026-10-05 16:30'
-		},
-		{
-			id: 7, deviceId: 3, deviceName: '智能洗宠机A2',
-			orderId: 'W20260328002', amount: 4.56, ratio: '12%', ratioNum: 12, date: '2026-10-06 11:45'
+	try {
+		const records = await getProfitRecords({ page: 1, pageSize: 20 })
+		if (records && records.list) {
+			recordList.value = records.list.map(r => ({
+				...r,
+				deviceId: r.deviceName === '物沃科技展厅设备' ? 1 : r.deviceName === '智能洗宠机A1' ? 2 : 3,
+				ratioNum: parseInt(r.ratio) || 10
+			}))
 		}
-	]
+	} catch (e) {}
 }
 
 const goWithdraw = () => {

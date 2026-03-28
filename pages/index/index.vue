@@ -346,10 +346,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { getStoreDetail, getDeviceList, getBannerList } from '@/api/store.js'
+import { getWalletInfo, getAvailableCoupons } from '@/api/pay.js'
+import { createBookOrder } from '@/api/order.js'
 
 const statusBarHeight = ref(0)
 
-// 门店信息 Mock
+// 门店信息
 const store = ref({
 	id: 1, name: '我是门店名称', address: '合肥市新海大道5号', distance: '1.45KM',
 	tags: [{ icon: '🅿️', text: '有车位' }, { icon: '📸', text: '门店图' }, { icon: '✂️', text: '有技师' }, { icon: '📶', text: 'WIFI覆盖' }]
@@ -505,7 +508,67 @@ const tabBarPages = ['pages/index/index', 'pages/wash-order-list/wash-order-list
 onMounted(() => {
 	const sysInfo = uni.getSystemInfoSync()
 	statusBarHeight.value = sysInfo.statusBarHeight || 0
+	loadData()
 })
+
+const loadData = async () => {
+	// TODO: 替换为实际接口调用，去掉本地 mock 兜底
+	try {
+		const storeRes = await getStoreDetail(1)
+		if (storeRes && storeRes.id) {
+			store.value = {
+				id: storeRes.id,
+				name: storeRes.name,
+				address: storeRes.address,
+				distance: storeRes.distance,
+				tags: (storeRes.tags || []).map(t => ({ icon: '✂️', text: t }))
+			}
+		}
+	} catch (e) {}
+
+	try {
+		const bannerRes = await getBannerList()
+		if (Array.isArray(bannerRes) && bannerRes.length > 0) {
+			bannerList.value = bannerRes
+		}
+	} catch (e) {}
+
+	try {
+		const deviceRes = await getDeviceList({ storeId: 1 })
+		if (Array.isArray(deviceRes) && deviceRes.length > 0) {
+			deviceList.value = deviceRes.map(d => ({
+				id: d.id,
+				name: d.name,
+				address: d.address,
+				status: d.status,
+				statusText: d.statusText,
+				priceRange: d.priceRange || d.pricePerMinute + '-' + (d.pricePerMinute * 1.5).toFixed(1),
+				storeId: d.storeId
+			}))
+		}
+	} catch (e) {}
+
+	try {
+		const walletRes = await getWalletInfo()
+		if (walletRes) balance.value = walletRes.balance || 0
+	} catch (e) {}
+
+	try {
+		const couponRes = await getAvailableCoupons({ type: 'book' })
+		if (Array.isArray(couponRes)) {
+			couponCount.value = couponRes.length
+			couponList.value = couponRes.map(c => ({
+				id: c.id,
+				name: c.name,
+				amount: c.amount,
+				scope: c.type === 'wash' ? '洗宠机' : '全部服务',
+				remainTimes: 1,
+				expireText: c.expireDate ? Math.ceil((new Date(c.expireDate) - new Date()) / 86400000) + '天' : '30天',
+				expired: false
+			}))
+		}
+	} catch (e) {}
+}
 
 const onEntryClick = (action) => {
 	if (action === 'redeem') { showRedeemPopup.value = true; return }
