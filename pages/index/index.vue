@@ -271,8 +271,16 @@ const onConfirmRedeem = () => {
 		return
 	}
 	// TODO: 调用核销接口
-	uni.showToast({ title: '核销成功', icon: 'success' })
+	// redeemCoupon({ platform: selectedPlatform.value, code: redeemCode.value }).then(res => { ... })
+	const platform = currentPlatformLabel.value
+	const code = redeemCode.value
 	closeRedeemPopup()
+	// 跳转到核销成功页面，携带平台和卡券信息
+	setTimeout(() => {
+		uni.navigateTo({
+			url: `/pages/redeem-success/redeem-success?platform=${platform}&code=${code}`
+		})
+	}, 300)
 }
 
 // 轮播图

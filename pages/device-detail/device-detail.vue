@@ -244,11 +244,14 @@ const onConfirmRedeem = () => {
 		uni.showToast({ title: '请输入核销码', icon: 'none' })
 		return
 	}
-	uni.showToast({ title: '核销成功', icon: 'success' })
+	const platform = currentPlatformLabel.value
+	const code = redeemCode.value
 	closeRedeemPopup()
 	setTimeout(() => {
-		uni.navigateTo({ url: '/pages/book-service/book-service' })
-	}, 500)
+		uni.navigateTo({
+			url: `/pages/redeem-success/redeem-success?platform=${platform}&code=${code}`
+		})
+	}, 300)
 }
 
 // 充值
