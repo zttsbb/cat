@@ -4,7 +4,7 @@
 	<view class="page-book-success">
 		<!-- 成功图标 -->
 		<view class="success-wrap">
-			<text class="success-icon">🎉</text>
+			<image class="success-icon-img" src="/static/icon/yuyuechenggong.png" mode="aspectFit" />
 			<view class="success-title">预约成功</view>
 			<view class="success-desc">您的预约已提交成功，请按时到店</view>
 		</view>
@@ -58,8 +58,9 @@ const shareBtn = () => {
 	margin-bottom: 80rpx;
 }
 
-.success-icon {
-	font-size: 140rpx;
+.success-icon-img {
+	width: 200rpx;
+	height: 200rpx;
 	margin-bottom: 32rpx;
 }
 
