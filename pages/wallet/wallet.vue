@@ -1,42 +1,64 @@
 <!-- pages/wallet/wallet.vue -->
-<!-- 预充值/钱包页 -->
+<!-- 预充值/钱包页（对齐原型图-门店列表11） -->
 <template>
 	<view class="page-wallet">
-		<!-- 余额展示 -->
-		<view class="balance-card">
-			<view class="balance-label">账户余额</view>
-			<view class="balance-amount">￥{{ walletInfo.balance }}</view>
-			<view class="balance-action" @click="viewStores">查看可用门店 →</view>
+		<!-- 返回导航 + 门店信息 -->
+		<view class="store-header">
+			<view class="store-nav" @click="goBack">
+				<text class="nav-back">‹</text>
+				<text class="nav-title">返回</text>
+			</view>
+			<view class="store-info">
+				<view class="store-name">{{ store.name }}</view>
+				<view class="store-tags">
+					<view class="store-tag" v-for="(tag, idx) in store.tags" :key="idx">
+						<text class="tag-text">{{ tag }}</text>
+					</view>
+				</view>
+				<view class="store-addr-row">
+					<text class="store-addr">{{ store.address }}</text>
+					<view class="store-switch" @click="goStoreList">
+						<text class="switch-text">切换门店</text>
+					</view>
+				</view>
+			</view>
 		</view>
 
-		<!-- 快捷充值 -->
+		<!-- 充值金额卡片 -->
 		<view class="recharge-section">
-			<view class="section-title">快捷充值</view>
 			<view class="recharge-scroll">
 				<view class="recharge-card" v-for="(item, index) in rechargeAmounts" :key="index" @click="onRecharge(item)">
-					<view class="bonus-badge">
-						<image class="bonus-badge-img" src="/static/icon/ceng.png" mode="aspectFit" />
-					</view>
 					<view class="recharge-amount">￥{{ item.amount }}</view>
 					<view class="recharge-bonus" v-if="item.bonus">赠￥{{ item.bonus }}</view>
 				</view>
 			</view>
 		</view>
 
+		<!-- 余额信息 -->
+		<view class="balance-section">
+			<view class="balance-row">
+				<text class="balance-label">我的余额</text>
+				<text class="balance-value">￥{{ walletInfo.balance }}</text>
+			</view>
+			<view class="balance-action" @click="viewStores">
+				<text class="action-text">查看可用门店></text>
+			</view>
+		</view>
+
 		<!-- 充值说明 -->
 		<view class="recharge-notice">
 			<view class="notice-title">充值说明</view>
-			<view class="notice-item">1. 充值金额仅限该商家使用</view>
+			<view class="notice-item">1. 充值金额仅限该商家使用，充值后不退款</view>
 			<view class="notice-item">2. 充值金额永久有效</view>
 		</view>
 
-		<!-- 门店余额 -->
+		<!-- 门店余额列表 -->
 		<view class="store-balance-section">
 			<view class="section-title">门店余额</view>
 			<view class="store-balance-list">
 				<view class="store-balance-item" v-for="(item, index) in walletInfo.storeBalances" :key="index">
 					<view class="store-name ellipsis">{{ item.storeName }}</view>
-					<view class="store-amount">￥{{ item.balance.toFixed(2) }}</view>
+					<view class="store-amount">余额￥{{ item.balance.toFixed(2) }}</view>
 				</view>
 			</view>
 		</view>
@@ -107,7 +129,6 @@
 						<text class="coupon-empty-text">暂无可用优惠券</text>
 					</view>
 				</view>
-				<!-- 确认按钮 -->
 				<view class="coupon-confirm-btn" @click="confirmCoupon">
 					确认使用
 				</view>
@@ -118,26 +139,40 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import { getWalletInfo, getRechargeAmounts } from '@/api/pay.js'
+
+// 门店信息 Mock
+const store = ref({
+	id: 1,
+	name: '我是门店名称',
+	address: '合肥市新海大道5号',
+	tags: ['有车位', '有技师', 'WIFI覆盖']
+})
 
 const walletInfo = ref({
 	balance: 56.89,
 	storeBalances: [
-		{ storeId: 1, storeName: '物沃宠物洗护中心（南山店）', balance: 30.00 },
-		{ storeId: 2, storeName: '物沃宠物洗护中心（福田店）', balance: 26.89 }
+		{ storeId: 1, storeName: '物沃门店', balance: 56.80 },
+		{ storeId: 2, storeName: '物沃门店', balance: 56.80 }
 	]
 })
 
 const rechargeAmounts = ref([
-	{ amount: 50, label: '50元', bonus: 5 },
-	{ amount: 50, label: '50元', bonus: 5 },
-	{ amount: 50, label: '50元', bonus: 5 },
-	{ amount: 50, label: '50元', bonus: 5 },
-	{ amount: 50, label: '50元', bonus: 5 }
+	{ amount: 50, bonus: 5 },
+	{ amount: 50, bonus: 5 },
+	{ amount: 50, bonus: 5 },
+	{ amount: 50, bonus: 5 },
+	{ amount: 50, bonus: 5 }
 ])
 
 onMounted(() => {
 	loadData()
+})
+
+onLoad((options) => {
+	// TODO: 根据传入参数加载门店信息
+	// if (options.storeId) { loadStoreDetail(options.storeId) }
 })
 
 const loadData = async () => {
@@ -146,6 +181,14 @@ const loadData = async () => {
 	// walletInfo.value = wallet
 	// const amounts = await getRechargeAmounts()
 	// rechargeAmounts.value = amounts
+}
+
+const goBack = () => {
+	uni.navigateBack({ delta: 1 })
+}
+
+const goStoreList = () => {
+	uni.navigateTo({ url: '/pages/store-list/store-list' })
 }
 
 const viewStores = () => {
@@ -183,7 +226,6 @@ const closePayPopup = () => {
 
 const onPaySelect = (method) => {
 	if (method.value === 'coupon') {
-		// 弹出优惠券选择面板
 		showCouponPopup.value = true
 		return
 	}
@@ -206,7 +248,6 @@ const closeCouponPopup = () => {
 const confirmCoupon = () => {
 	showCouponPopup.value = false
 	if (selectedCoupon.value) {
-		// TODO: 使用优惠券支付
 		uni.showToast({
 			title: `使用优惠券-￥${selectedCoupon.value.amount}充值￥${selectedAmount.value}`,
 			icon: 'none'
@@ -223,43 +264,90 @@ const confirmCoupon = () => {
 	background-color: #f5f5f5;
 }
 
-.balance-card {
-	background: linear-gradient(135deg, #07C160, #38d976);
-	margin: 24rpx;
-	border-radius: 24rpx;
-	padding: 48rpx 32rpx;
+/* 门店信息头部 */
+.store-header {
+	background-color: #fff;
+	padding: 24rpx 32rpx;
 }
 
-.balance-label {
-	font-size: 28rpx;
-	color: rgba(255, 255, 255, 0.8);
-	margin-bottom: 16rpx;
+.store-nav {
+	display: flex;
+	align-items: center;
+	margin-bottom: 20rpx;
 }
 
-.balance-amount {
-	font-size: 64rpx;
+.nav-back {
+	font-size: 48rpx;
+	color: #333;
+	font-weight: 300;
+	margin-right: 12rpx;
+}
+
+.nav-title {
+	font-size: 30rpx;
+	color: #333;
+}
+
+.store-info {
+	padding-top: 16rpx;
+	border-top: 1rpx solid #f0f0f0;
+}
+
+.store-name {
+	font-size: 34rpx;
 	font-weight: 700;
-	color: #fff;
+	color: #333;
 	margin-bottom: 16rpx;
 }
 
-.balance-action {
-	font-size: 24rpx;
-	color: rgba(255, 255, 255, 0.9);
+.store-tags {
+	display: flex;
+	flex-wrap: wrap;
+	margin-bottom: 16rpx;
 }
 
+.store-tag {
+	margin-right: 16rpx;
+	margin-bottom: 8rpx;
+}
+
+.tag-text {
+	font-size: 24rpx;
+	color: #666;
+}
+
+.store-addr-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.store-addr {
+	font-size: 26rpx;
+	color: #999;
+}
+
+.store-switch {
+	padding: 6rpx 20rpx;
+	background-color: #f5f5f5;
+	border-radius: 999rpx;
+
+	&:active {
+		background-color: #ebebeb;
+	}
+}
+
+.switch-text {
+	font-size: 24rpx;
+	color: #666;
+}
+
+/* 充值金额卡片 */
 .recharge-section {
 	background-color: #fff;
-	margin: 24rpx;
-	border-radius: 24rpx;
-	padding: 32rpx;
-}
-
-.section-title {
-	font-size: 32rpx;
-	font-weight: 600;
-	color: #333;
-	margin-bottom: 24rpx;
+	margin: 0;
+	padding: 24rpx 32rpx;
+	border-top: 16rpx solid #f5f5f5;
 }
 
 .recharge-scroll {
@@ -270,13 +358,11 @@ const confirmCoupon = () => {
 
 .recharge-card {
 	min-width: 200rpx;
-	height: 180rpx;
+	height: 160rpx;
 	border: 2rpx solid #e0e0e0;
 	border-radius: 20rpx;
-	padding: 32rpx 24rpx;
+	padding: 24rpx;
 	text-align: center;
-	position: relative;
-	overflow: hidden;
 	margin-right: 20rpx;
 	flex-shrink: 0;
 	display: flex;
@@ -290,39 +376,8 @@ const confirmCoupon = () => {
 	}
 }
 
-.bonus-badge {
-	position: absolute;
-	top: 0;
-	right: 0;
-	width: 64rpx;
-	height: 64rpx;
-	overflow: hidden;
-
-	&::before {
-		content: '';
-		position: absolute;
-		top: 0;
-		right: 0;
-		width: 0;
-		height: 0;
-		border-style: solid;
-		border-width: 0 64rpx 64rpx 0;
-		border-color: transparent #ff6b35 transparent transparent;
-		z-index: 1;
-	}
-}
-
-.bonus-badge-img {
-	position: absolute;
-	top: 8rpx;
-	right: 4rpx;
-	width: 36rpx;
-	height: 36rpx;
-	z-index: 2;
-}
-
 .recharge-amount {
-	font-size: 48rpx;
+	font-size: 44rpx;
 	font-weight: 700;
 	color: #333;
 }
@@ -330,15 +385,51 @@ const confirmCoupon = () => {
 .recharge-bonus {
 	font-size: 24rpx;
 	color: #ff6b35;
-	margin-top: 8rpx;
+	margin-top: 4rpx;
 	font-weight: 600;
 }
 
+/* 余额信息 */
+.balance-section {
+	background-color: #fff;
+	margin: 0;
+	padding: 24rpx 32rpx;
+	border-top: 16rpx solid #f5f5f5;
+}
+
+.balance-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 12rpx;
+}
+
+.balance-label {
+	font-size: 28rpx;
+	color: #666;
+}
+
+.balance-value {
+	font-size: 48rpx;
+	font-weight: 700;
+	color: #333;
+}
+
+.balance-action {
+	text-align: right;
+}
+
+.action-text {
+	font-size: 26rpx;
+	color: #07C160;
+}
+
+/* 充值说明 */
 .recharge-notice {
 	background-color: #fff;
-	margin: 0 24rpx 24rpx;
-	border-radius: 24rpx;
-	padding: 32rpx;
+	margin: 16rpx 0 0;
+	padding: 24rpx 32rpx;
+	border-top: 16rpx solid #f5f5f5;
 }
 
 .notice-title {
@@ -354,11 +445,19 @@ const confirmCoupon = () => {
 	margin-bottom: 8rpx;
 }
 
+/* 门店余额列表 */
 .store-balance-section {
 	background-color: #fff;
-	margin: 0 24rpx 24rpx;
-	border-radius: 24rpx;
-	padding: 32rpx;
+	margin: 0;
+	padding: 24rpx 32rpx;
+	border-top: 16rpx solid #f5f5f5;
+}
+
+.section-title {
+	font-size: 28rpx;
+	font-weight: 600;
+	color: #333;
+	margin-bottom: 20rpx;
 }
 
 .store-balance-list {
@@ -384,9 +483,8 @@ const confirmCoupon = () => {
 }
 
 .store-amount {
-	font-size: 32rpx;
-	font-weight: 700;
-	color: #ff4d4f;
+	font-size: 28rpx;
+	color: #333;
 }
 
 /* 支付方式底部弹窗 */
@@ -704,6 +802,5 @@ const confirmCoupon = () => {
 	text-align: center;
 	padding: 28rpx 0;
 	padding-bottom: calc(28rpx + env(safe-area-inset-bottom));
-	border-radius: 0 0 0 0;
 }
 </style>

@@ -19,8 +19,11 @@
 				<view class="order-desc">{{ order.description }}</view>
 				<view class="order-time">📅 {{ order.bookDate }} {{ order.bookTime }}</view>
 				<view class="order-footer">
-					<view class="order-amount">￥{{ order.amount.toFixed(2) }}</view>
-					<view class="order-pay-method">{{ order.payMethod }}</view>
+					<view class="order-amount">￥{{ order.amount.toFixed(2) }} ·{{ order.payMethod }}</view>
+					<!-- 待使用状态显示取消预约按钮 -->
+					<view class="cancel-btn" v-if="order.status === 1" @click.stop="onCancel(order)">
+						<text class="cancel-text">取消预约</text>
+					</view>
 				</view>
 			</view>
 			<view class="empty-wrap" v-if="filteredOrders.length === 0">
@@ -31,14 +34,15 @@
 
 		<!-- 底部提示 -->
 		<view class="bottom-tips safe-bottom">
-			<text class="tips-text">*仅显示近3个月订单</text>
+			<text class="tips-text">*微信支付订单会在订单结束后12小时内原路退回</text>
+			<text class="tips-text">仅显示3个月内订单</text>
 		</view>
 	</view>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { getBookOrderList } from '@/api/order.js'
+import { getBookOrderList, cancelBookOrder } from '@/api/order.js'
 
 const currentTab = ref('')
 const orderList = ref([])
@@ -56,7 +60,7 @@ const filteredOrders = computed(() => {
 })
 
 const statusClass = (status) => {
-	const map = { 1: 'status-pending', 2: 'status-done', 3: 'status-cancel' }
+	const map = { 1: 'status-pending', 2: 'status-done', 3: 'status-cancel', 4: 'status-refund' }
 	return map[status] || ''
 }
 
@@ -80,6 +84,27 @@ const loadOrders = async () => {
 
 const goDetail = (id) => {
 	uni.navigateTo({ url: `/pages/book-order-detail/book-order-detail?orderId=${id}` })
+}
+
+// 取消预约
+const onCancel = (order) => {
+	uni.showModal({
+		title: '确认取消',
+		content: '确定要取消本次预约吗？',
+		success: async (res) => {
+			if (res.confirm) {
+				try {
+					// TODO: 调用取消接口
+					// const result = await cancelBookOrder(order.id)
+					order.status = 3
+					order.statusText = '已取消'
+					uni.showToast({ title: '取消成功', icon: 'success' })
+				} catch (e) {
+					uni.showToast({ title: '取消失败，请重试', icon: 'none' })
+				}
+			}
+		}
+	})
 }
 </script>
 
@@ -124,7 +149,7 @@ const goDetail = (id) => {
 
 .order-list {
 	padding: 24rpx;
-	padding-bottom: 100rpx;
+	padding-bottom: 120rpx;
 }
 
 .order-card {
@@ -169,6 +194,11 @@ const goDetail = (id) => {
 	color: #999;
 }
 
+.status-refund {
+	background-color: #fff3e8;
+	color: #ff9500;
+}
+
 .order-desc {
 	font-size: 26rpx;
 	color: #666;
@@ -190,14 +220,25 @@ const goDetail = (id) => {
 }
 
 .order-amount {
-	font-size: 36rpx;
-	font-weight: 700;
-	color: #ff4d4f;
+	font-size: 28rpx;
+	font-weight: 600;
+	color: #333;
 }
 
-.order-pay-method {
+/* 取消预约按钮 */
+.cancel-btn {
+	padding: 8rpx 24rpx;
+	border: 2rpx solid #ff4d4f;
+	border-radius: 999rpx;
+
+	&:active {
+		background-color: #fff5f5;
+	}
+}
+
+.cancel-text {
 	font-size: 24rpx;
-	color: #999;
+	color: #ff4d4f;
 }
 
 .empty-wrap {
@@ -221,7 +262,9 @@ const goDetail = (id) => {
 }
 
 .tips-text {
+	display: block;
 	font-size: 22rpx;
 	color: #999;
+	margin-bottom: 4rpx;
 }
 </style>

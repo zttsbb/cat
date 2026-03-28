@@ -10,44 +10,19 @@
 
 		<!-- 订单信息 -->
 		<view class="order-info">
-			<view class="section-title">订单信息</view>
+			<view class="section-title">订单数据</view>
+			<view class="info-row">
+				<text class="info-label">订单时间</text>
+				<text class="info-value">{{ order.createTime }}</text>
+			</view>
 			<view class="info-row">
 				<text class="info-label">订单编号</text>
 				<text class="info-value">{{ order.id }}</text>
 			</view>
 			<view class="info-row">
-				<text class="info-label">服务项目</text>
-				<text class="info-value">{{ order.serviceType }}</text>
+				<text class="info-label">支付流水号</text>
+				<text class="info-value">{{ order.payTradeNo }}</text>
 			</view>
-			<view class="info-row">
-				<text class="info-label">服务描述</text>
-				<text class="info-value">{{ order.description }}</text>
-			</view>
-			<view class="info-row">
-				<text class="info-label">预约门店</text>
-				<text class="info-value">{{ order.storeName }}</text>
-			</view>
-			<view class="info-row">
-				<text class="info-label">预约日期</text>
-				<text class="info-value">{{ order.bookDate }}</text>
-			</view>
-			<view class="info-row">
-				<text class="info-label">预约时段</text>
-				<text class="info-value">{{ order.bookTime }}</text>
-			</view>
-			<view class="info-row" v-if="order.remark">
-				<text class="info-label">备注</text>
-				<text class="info-value">{{ order.remark }}</text>
-			</view>
-			<view class="info-row">
-				<text class="info-label">下单时间</text>
-				<text class="info-value">{{ order.createTime }}</text>
-			</view>
-		</view>
-
-		<!-- 支付信息 -->
-		<view class="pay-info">
-			<view class="section-title">支付信息</view>
 			<view class="info-row">
 				<text class="info-label">支付金额</text>
 				<text class="info-value price">￥{{ order.amount.toFixed(2) }}</text>
@@ -56,15 +31,26 @@
 				<text class="info-label">支付方式</text>
 				<text class="info-value">{{ order.payMethod }}</text>
 			</view>
-			<view class="info-row">
-				<text class="info-label">支付流水号</text>
-				<text class="info-value">{{ order.payTradeNo }}</text>
+		</view>
+
+		<!-- 状态操作按钮（对齐原型图：已完成/已退款/已取消） -->
+		<view class="status-actions" v-if="order.status === 2">
+			<view class="status-btn active">
+				<text class="status-btn-text">已完成</text>
+			</view>
+			<view class="status-btn" @click="onRefund">
+				<text class="status-btn-text">已退款(￥{{ order.amount.toFixed(2) }})</text>
+			</view>
+			<view class="status-btn" @click="onCancel">
+				<text class="status-btn-text">已取消</text>
 			</view>
 		</view>
 
 		<!-- 取消预约按钮 -->
 		<view class="cancel-section" v-if="order.status === 1">
-			<view class="cancel-btn" @click="onCancel">取消预约</view>
+			<view class="cancel-btn" @click="onCancelOrder">
+				<text class="cancel-btn-text">取消预约</text>
+			</view>
 		</view>
 	</view>
 </template>
@@ -95,12 +81,12 @@ const order = ref({
 })
 
 const statusClass = computed(() => {
-	const map = { 1: 'bg-orange', 2: 'bg-green', 3: 'bg-gray' }
+	const map = { 1: 'bg-orange', 2: 'bg-green', 3: 'bg-gray', 4: 'bg-orange' }
 	return map[order.value.status] || 'bg-gray'
 })
 
 const statusDesc = computed(() => {
-	const map = { 1: '请按时到店享受服务', 2: '感谢您的使用', 3: '订单已取消' }
+	const map = { 1: '请按时到店享受服务', 2: '感谢您的使用', 3: '订单已取消', 4: '退款已原路返回' }
 	return map[order.value.status] || ''
 })
 
@@ -117,19 +103,50 @@ const loadData = async () => {
 	}
 }
 
+// 退款操作（管理员/已完成状态）
+const onRefund = () => {
+	uni.showModal({
+		title: '确认退款',
+		content: `确定要退款￥${order.value.amount.toFixed(2)}吗？退款将原路返回。`,
+		success: (res) => {
+			if (res.confirm) {
+				// TODO: 调用退款接口
+				order.value.status = 4
+				order.value.statusText = '已退款'
+				uni.showToast({ title: '退款成功', icon: 'success' })
+			}
+		}
+	})
+}
+
+// 取消操作
 const onCancel = () => {
+	uni.showModal({
+		title: '确认取消',
+		content: '确定要取消此订单吗？',
+		success: (res) => {
+			if (res.confirm) {
+				// TODO: 调用取消接口
+				order.value.status = 3
+				order.value.statusText = '已取消'
+				uni.showToast({ title: '取消成功', icon: 'success' })
+			}
+		}
+	})
+}
+
+// 取消预约按钮（待使用状态）
+const onCancelOrder = () => {
 	uni.showModal({
 		title: '确认取消',
 		content: '确定要取消本次预约吗？',
 		success: async (res) => {
 			if (res.confirm) {
 				// TODO: 调用取消接口
-				const result = await cancelBookOrder(orderId.value)
-				if (result) {
-					order.value.status = 3
-					order.value.statusText = '已取消'
-					uni.showToast({ title: '取消成功', icon: 'success' })
-				}
+				// const result = await cancelBookOrder(orderId.value)
+				order.value.status = 3
+				order.value.statusText = '已取消'
+				uni.showToast({ title: '取消成功', icon: 'success' })
 			}
 		}
 	})
@@ -164,8 +181,7 @@ const onCancel = () => {
 	color: #999;
 }
 
-.order-info,
-.pay-info {
+.order-info {
 	background-color: #fff;
 	margin: 24rpx;
 	border-radius: 24rpx;
@@ -204,17 +220,62 @@ const onCancel = () => {
 	}
 }
 
+/* 状态操作按钮 */
+.status-actions {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 24rpx 24rpx;
+	background-color: #fff;
+	border-radius: 24rpx;
+	padding: 32rpx;
+}
+
+.status-btn {
+	flex: 1;
+	text-align: center;
+	padding: 16rpx 12rpx;
+	border-radius: 999rpx;
+	margin: 0 8rpx;
+
+	&:active {
+		background-color: #f5f5f5;
+	}
+
+	&.active {
+		background-color: #07C160;
+	}
+}
+
+.status-btn-text {
+	font-size: 24rpx;
+	color: #666;
+
+	.active & {
+		color: #fff;
+		font-weight: 600;
+	}
+}
+
+/* 取消预约 */
 .cancel-section {
 	padding: 24rpx;
 }
 
 .cancel-btn {
 	background-color: #fff;
-	color: #ff4d4f;
 	border: 2rpx solid #ff4d4f;
 	text-align: center;
 	padding: 24rpx 0;
 	border-radius: 999rpx;
+
+	&:active {
+		background-color: #fff5f5;
+	}
+}
+
+.cancel-btn-text {
 	font-size: 28rpx;
+	color: #ff4d4f;
 }
 </style>
