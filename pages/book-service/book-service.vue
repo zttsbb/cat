@@ -2,12 +2,54 @@
 <!-- 预约服务（对齐原型图-预约+确认预约2） -->
 <template>
 	<view class="page-book-service">
-		<!-- 预约时间标题 -->
-		<view class="section-header">
-			<text class="section-header-title">预约时间</text>
+		<!-- 设备信息区域 -->
+		<view class="device-header">
+			<view class="device-top">
+				<view class="device-name">{{ device.name }}</view>
+				<view :class="['status-badge', device.status === 1 ? 'badge-green' : 'badge-orange']">
+					{{ device.statusText }}
+				</view>
+			</view>
+			<view class="device-detail">
+				<view class="detail-item">
+					<text class="detail-icon">📍</text>
+					<text class="detail-text">{{ device.distance }}</text>
+				</view>
+				<view class="detail-item">
+					<text class="detail-icon">🏠</text>
+					<text class="detail-text">{{ device.address }}</text>
+				</view>
+			</view>
 		</view>
 
-		<!-- 日期选择 -->
+		<!-- 快捷入口 -->
+		<view class="quick-entry">
+			<view class="entry-item" v-for="(item, index) in quickEntries" :key="index" @click="onEntryClick(item)">
+				<view class="entry-icon-wrap">
+					<image v-if="item.iconImage" class="entry-icon-img" :src="item.iconImage" mode="aspectFit" />
+				</view>
+				<text class="entry-text">{{ item.text }}</text>
+			</view>
+		</view>
+
+		<!-- 充值金额卡片 -->
+		<view class="recharge-section">
+			<scroll-view scroll-x class="recharge-scroll">
+				<view class="recharge-list">
+					<view class="recharge-card" v-for="(item, index) in rechargeAmounts" :key="index" @click="onRecharge(item)">
+						<view class="recharge-amount">￥{{ item.amount }}</view>
+						<view class="recharge-bonus" v-if="item.bonus">送￥{{ item.bonus }}</view>
+					</view>
+				</view>
+			</scroll-view>
+		</view>
+
+		<!-- 预约时间 -->
+		<view class="book-title">
+			<text class="book-title-text">预约时间</text>
+		</view>
+
+		<!-- 日期选择（横向滚动） -->
 		<view class="date-section">
 			<scroll-view scroll-x class="date-scroll">
 				<view class="date-list">
@@ -25,20 +67,22 @@
 			</scroll-view>
 		</view>
 
-		<!-- 服务项目列表 -->
+		<!-- 服务项目（横向滚动） -->
 		<view class="service-section">
-			<view
-				:class="['service-card', { active: selectedService === index }]"
-				v-for="(item, index) in serviceList"
-				:key="index"
-				@click="selectService(index)"
-			>
-				<view class="service-info">
-					<text class="service-name">{{ item.name }}</text>
-					<text class="service-price">￥{{ item.price.toFixed(2) }}</text>
-					<text class="service-desc">{{ item.desc }}</text>
+			<scroll-view scroll-x class="service-scroll">
+				<view class="service-list">
+					<view
+						:class="['service-card', { active: selectedService === index }]"
+						v-for="(item, index) in serviceList"
+						:key="index"
+						@click="selectService(index)"
+					>
+						<text class="service-name">{{ item.name }}</text>
+						<text class="service-price">￥{{ item.price.toFixed(2) }}</text>
+						<text class="service-desc">{{ item.desc }}</text>
+					</view>
 				</view>
-			</view>
+			</scroll-view>
 		</view>
 
 		<!-- 时段选择 -->
@@ -65,16 +109,14 @@
 			/>
 		</view>
 
-		<!-- 底部固定栏：支付方式 + 确认下单 -->
+		<!-- 底部固定栏：支付方式 + 确认下单（对齐原型图-确认预约2） -->
 		<view class="bottom-bar safe-bottom">
-			<!-- 支付信息 -->
+			<!-- 账户余额 + 我的卡券 -->
 			<view class="pay-info-row">
-				<!-- 账户余额 -->
 				<view class="pay-info-item" @click="goWallet">
 					<text class="pay-info-label">账户余额</text>
 					<text class="pay-info-value">￥{{ balance }}</text>
 				</view>
-				<!-- 我的卡券 -->
 				<view class="pay-info-item" @click="goCouponList">
 					<text class="pay-info-label">我的卡券</text>
 					<view class="pay-info-right">
@@ -82,7 +124,7 @@
 					</view>
 				</view>
 			</view>
-			<!-- 支付方式选择 -->
+			<!-- 支付方式 radio -->
 			<view class="pay-method-row">
 				<view
 					class="pay-method-item"
@@ -96,12 +138,12 @@
 					<text class="method-name">{{ method.name }}</text>
 				</view>
 			</view>
-			<!-- 选取优惠券 -->
+			<!-- 选取优惠卷 -->
 			<view class="coupon-pick-row" @click="pickCoupon">
 				<text class="coupon-pick-label">选取优惠卷</text>
 				<view class="coupon-pick-right">
 					<text class="coupon-pick-text" v-if="selectedCoupon">-￥{{ selectedCoupon.amount }}</text>
-					<image class="coupon-pick-arrow" src="/static/icon/fenxiang.png" mode="aspectFit" />
+					<text class="coupon-pick-arrow">›</text>
 				</view>
 			</view>
 			<!-- 确认下单按钮 -->
@@ -113,15 +155,49 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useUserStore } from '@/store/index.js'
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 
-const userStore = useUserStore()
+// 设备信息 Mock
+const device = ref({
+	id: 101,
+	name: '智能洗宠机A1',
+	address: '合肥市新站区新海大道5号...',
+	status: 1,
+	statusText: '可使用',
+	distance: '3.6KM'
+})
+
+// 快捷入口（对齐原型图：预约服务/查看现场/预充值/团购核销/查看其它设备）
+const quickEntries = ref([
+	{ iconImage: '/static/icon/qiandao.png', text: '预约服务', action: 'current' },
+	{ iconImage: '/static/icon/shoye.png', text: '查看现场', url: '/pages/store-detail/store-detail' },
+	{ iconImage: '/static/icon/youhuichognzhi.png', text: '预充值', url: '/pages/wallet/wallet' },
+	{ iconImage: '/static/icon/saomahexiao.png', text: '团购核销', action: 'redeem' },
+	{ iconImage: '/static/icon/dingdanliebiao.png', text: '查看其它设备', url: '/pages/index/index' }
+])
+
+// 充值金额（对齐原型图：50元送5元 x5）
+const rechargeAmounts = ref([
+	{ amount: 50, bonus: 5 },
+	{ amount: 50, bonus: 5 },
+	{ amount: 50, bonus: 5 },
+	{ amount: 50, bonus: 5 },
+	{ amount: 50, bonus: 5 }
+])
+
+// 服务列表（对齐原型图：横向滚动 x4）
+const serviceList = ref([
+	{ name: '洗澡美容', price: 30.00, desc: '人工洗澡+修毛' },
+	{ name: '洗澡美容', price: 30.00, desc: '人工洗澡+修毛' },
+	{ name: '洗澡美容', price: 30.00, desc: '人工洗澡+修毛' },
+	{ name: '洗澡美容', price: 30.00, desc: '人工洗澡+修毛' }
+])
 
 const selectedDate = ref(0)
 const selectedService = ref(0)
 const selectedTime = ref(null)
-const selectedPayMethod = ref(2) // 默认微信支付
+const selectedPayMethod = ref(2)
 const remark = ref('')
 const selectedCoupon = ref(null)
 
@@ -133,14 +209,6 @@ const payMethods = [
 	{ name: '卡券' },
 	{ name: '微信支付' }
 ]
-
-// 服务列表
-const serviceList = ref([
-	{ name: '洗澡美容', price: 30.00, desc: '人工洗澡+修毛' },
-	{ name: '洗澡美容', price: 30.00, desc: '人工洗澡+修毛' },
-	{ name: '洗澡美容', price: 30.00, desc: '人工洗澡+修毛' },
-	{ name: '洗澡美容', price: 30.00, desc: '人工洗澡+修毛' }
-])
 
 // 日期列表
 const dateList = ref([])
@@ -163,7 +231,7 @@ const initDateList = () => {
 
 initDateList()
 
-// 时段（两行：上08:00/12:00/16:00 下10:00/14:00）
+// 时段（对齐原型图：上排08:00/12:00/16:00 下排10:00/14:00）
 const timeSlots = ref([
 	{ label: '08:00', disabled: false },
 	{ label: '12:00', disabled: false },
@@ -171,6 +239,11 @@ const timeSlots = ref([
 	{ label: '10:00', disabled: false },
 	{ label: '14:00', disabled: false }
 ])
+
+onLoad((options) => {
+	// TODO: 根据传入的 deviceId 加载设备信息
+	// if (options.deviceId) { loadDevice(options.deviceId) }
+})
 
 const selectDate = (index) => {
 	selectedDate.value = index
@@ -190,6 +263,22 @@ const selectTime = (item) => {
 
 const selectPayMethod = (index) => {
 	selectedPayMethod.value = index
+}
+
+const onEntryClick = (item) => {
+	if (item.action === 'current') return
+	if (item.action === 'redeem') {
+		// TODO: 弹出核销弹窗
+		uni.showToast({ title: '团购核销功能开发中', icon: 'none' })
+		return
+	}
+	if (item.url) {
+		uni.navigateTo({ url: item.url })
+	}
+}
+
+const onRecharge = (item) => {
+	uni.navigateTo({ url: `/pages/wallet/wallet?amount=${item.amount}` })
 }
 
 const goWallet = () => {
@@ -225,16 +314,146 @@ const onSubmit = () => {
 .page-book-service {
 	min-height: 100vh;
 	background-color: #f5f5f5;
-	padding-bottom: 360rpx;
+	padding-bottom: 380rpx;
+}
+
+/* 设备信息头部 */
+.device-header {
+	background-color: #fff;
+	padding: 24rpx 32rpx;
+}
+
+.device-top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 16rpx;
+}
+
+.device-name {
+	font-size: 34rpx;
+	font-weight: 700;
+	color: #333;
+}
+
+.status-badge {
+	font-size: 24rpx;
+	padding: 6rpx 20rpx;
+	border-radius: 999rpx;
+}
+
+.badge-green {
+	background-color: #e8f8ee;
+	color: #07C160;
+}
+
+.badge-orange {
+	background-color: #fff3e8;
+	color: #ff9500;
+}
+
+.device-detail {
+	display: flex;
+	flex-direction: column;
+}
+
+.detail-item {
+	display: flex;
+	align-items: center;
+	margin-bottom: 8rpx;
+}
+
+.detail-icon {
+	margin-right: 8rpx;
+	font-size: 24rpx;
+}
+
+.detail-text {
+	font-size: 26rpx;
+	color: #666;
+}
+
+/* 快捷入口 */
+.quick-entry {
+	background-color: #fff;
+	padding: 20rpx 24rpx 24rpx;
+	display: flex;
+	justify-content: space-between;
+	border-top: 1rpx solid #f0f0f0;
+}
+
+.entry-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.entry-icon-wrap {
+	width: 80rpx;
+	height: 80rpx;
+	border-radius: 20rpx;
+	background-color: #e8f8ee;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 8rpx;
+}
+
+.entry-icon-img {
+	width: 48rpx;
+	height: 48rpx;
+}
+
+.entry-text {
+	font-size: 22rpx;
+	color: #333;
+}
+
+/* 充值金额卡片 */
+.recharge-section {
+	padding: 16rpx 24rpx;
+}
+
+.recharge-scroll {
+	white-space: nowrap;
+}
+
+.recharge-list {
+	display: inline-flex;
+	gap: 16rpx;
+}
+
+.recharge-card {
+	min-width: 140rpx;
+	height: 120rpx;
+	border-radius: 16rpx;
+	background: linear-gradient(135deg, #07C160, #38d976);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.recharge-amount {
+	font-size: 36rpx;
+	font-weight: 700;
+	color: #fff;
+}
+
+.recharge-bonus {
+	font-size: 20rpx;
+	color: rgba(255, 255, 255, 0.9);
+	margin-top: 2rpx;
 }
 
 /* 预约时间标题 */
-.section-header {
-	padding: 24rpx 32rpx 0;
+.book-title {
+	padding: 16rpx 32rpx 8rpx;
 }
 
-.section-header-title {
-	font-size: 30rpx;
+.book-title-text {
+	font-size: 28rpx;
 	font-weight: 600;
 	color: #333;
 }
@@ -242,9 +461,9 @@ const onSubmit = () => {
 /* 日期选择 */
 .date-section {
 	background-color: #fff;
-	margin: 16rpx 24rpx;
-	border-radius: 24rpx;
-	padding: 24rpx;
+	margin: 8rpx 24rpx;
+	border-radius: 16rpx;
+	padding: 20rpx;
 }
 
 .date-scroll {
@@ -253,14 +472,14 @@ const onSubmit = () => {
 
 .date-list {
 	display: inline-flex;
-	gap: 16rpx;
+	gap: 12rpx;
 }
 
 .date-item {
-	width: 120rpx;
+	width: 110rpx;
 	padding: 16rpx 0;
 	text-align: center;
-	border-radius: 16rpx;
+	border-radius: 12rpx;
 	border: 2rpx solid #e0e0e0;
 	display: flex;
 	flex-direction: column;
@@ -276,7 +495,7 @@ const onSubmit = () => {
 .date-week {
 	font-size: 22rpx;
 	color: #999;
-	margin-bottom: 6rpx;
+	margin-bottom: 4rpx;
 }
 
 .active .date-week {
@@ -284,7 +503,7 @@ const onSubmit = () => {
 }
 
 .date-day {
-	font-size: 32rpx;
+	font-size: 30rpx;
 	font-weight: 700;
 	color: #333;
 	margin-bottom: 2rpx;
@@ -295,22 +514,26 @@ const onSubmit = () => {
 	color: #999;
 }
 
-/* 服务项目 */
+/* 服务项目（横向滚动） */
 .service-section {
-	background-color: #fff;
-	margin: 0 24rpx 16rpx;
-	border-radius: 24rpx;
-	padding: 24rpx;
-	display: flex;
-	flex-wrap: wrap;
-	gap: 16rpx;
+	padding: 8rpx 24rpx;
+}
+
+.service-scroll {
+	white-space: nowrap;
+}
+
+.service-list {
+	display: inline-flex;
+	gap: 12rpx;
 }
 
 .service-card {
-	width: calc(50% - 8rpx);
-	padding: 24rpx;
+	min-width: 240rpx;
+	padding: 20rpx;
 	border-radius: 16rpx;
 	border: 2rpx solid #e0e0e0;
+	flex-shrink: 0;
 
 	&.active {
 		border-color: #07C160;
@@ -318,15 +541,11 @@ const onSubmit = () => {
 	}
 }
 
-.service-info {
-	display: flex;
-	flex-direction: column;
-}
-
 .service-name {
 	font-size: 28rpx;
 	font-weight: 600;
 	color: #333;
+	display: block;
 	margin-bottom: 4rpx;
 }
 
@@ -334,33 +553,35 @@ const onSubmit = () => {
 	font-size: 32rpx;
 	font-weight: 700;
 	color: #ff4d4f;
+	display: block;
 	margin-bottom: 4rpx;
 }
 
 .service-desc {
 	font-size: 22rpx;
 	color: #999;
+	display: block;
 }
 
 /* 时段选择 */
 .time-section {
 	background-color: #fff;
-	margin: 0 24rpx 16rpx;
-	border-radius: 24rpx;
-	padding: 24rpx;
+	margin: 8rpx 24rpx;
+	border-radius: 16rpx;
+	padding: 20rpx;
 }
 
 .time-grid {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 16rpx;
+	gap: 12rpx;
 }
 
 .time-item {
-	width: calc(33.33% - 12rpx);
+	width: calc(33.33% - 8rpx);
 	text-align: center;
-	padding: 20rpx 0;
-	border-radius: 16rpx;
+	padding: 16rpx 0;
+	border-radius: 12rpx;
 	border: 2rpx solid #e0e0e0;
 	font-size: 28rpx;
 	color: #333;
@@ -382,9 +603,9 @@ const onSubmit = () => {
 /* 备注 */
 .remark-section {
 	background-color: #fff;
-	margin: 0 24rpx 16rpx;
-	border-radius: 24rpx;
-	padding: 24rpx;
+	margin: 8rpx 24rpx;
+	border-radius: 16rpx;
+	padding: 20rpx;
 }
 
 .remark-input {
@@ -392,12 +613,12 @@ const onSubmit = () => {
 	font-size: 28rpx;
 	color: #333;
 	background-color: #f5f5f5;
-	border-radius: 16rpx;
-	padding: 20rpx 24rpx;
+	border-radius: 12rpx;
+	padding: 16rpx 20rpx;
 	box-sizing: border-box;
 }
 
-/* 底部固定栏 */
+/* ===== 底部固定栏（确认预约2） ===== */
 .bottom-bar {
 	position: fixed;
 	bottom: 0;
@@ -410,11 +631,11 @@ const onSubmit = () => {
 	z-index: 100;
 }
 
-/* 支付信息行 */
+/* 账户余额 + 我的卡券 */
 .pay-info-row {
 	display: flex;
 	align-items: center;
-	margin-bottom: 16rpx;
+	margin-bottom: 12rpx;
 }
 
 .pay-info-item {
@@ -445,18 +666,17 @@ const onSubmit = () => {
 	color: #333;
 }
 
-/* 支付方式 */
+/* 支付方式 radio */
 .pay-method-row {
 	display: flex;
 	align-items: center;
-	justify-content: flex-start;
-	margin-bottom: 16rpx;
+	margin-bottom: 12rpx;
 }
 
 .pay-method-item {
 	display: flex;
 	align-items: center;
-	margin-right: 32rpx;
+	margin-right: 28rpx;
 }
 
 .method-radio {
@@ -486,14 +706,14 @@ const onSubmit = () => {
 	color: #333;
 }
 
-/* 选取优惠券 */
+/* 选取优惠卷 */
 .coupon-pick-row {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 16rpx 0;
+	padding: 12rpx 0;
 	border-top: 1rpx solid #f0f0f0;
-	margin-bottom: 16rpx;
+	margin-bottom: 12rpx;
 }
 
 .coupon-pick-label {
@@ -513,8 +733,8 @@ const onSubmit = () => {
 }
 
 .coupon-pick-arrow {
-	width: 24rpx;
-	height: 24rpx;
+	font-size: 32rpx;
+	color: #ccc;
 }
 
 /* 确认下单按钮 */
@@ -524,7 +744,7 @@ const onSubmit = () => {
 	font-size: 32rpx;
 	font-weight: 600;
 	text-align: center;
-	padding: 24rpx 0;
+	padding: 22rpx 0;
 	border-radius: 999rpx;
 
 	&:active {
