@@ -249,7 +249,7 @@
 					<text class="popup-close" @click="showRedeemPopup = false">✕</text>
 				</view>
 				<view class="platform-grid" v-if="!selectedPlatform">
-					<view class="platform-item" v-for="(item, index) in platforms" :key="index" @click="selectedPlatform = item.value">
+					<view class="platform-item" v-for="(item, index) in platforms" :key="index" @click="selectPlatform(item)">
 						<image class="platform-icon" :src="item.icon" mode="aspectFit" />
 						<text class="platform-name">{{ item.label }}</text>
 					</view>
@@ -265,6 +265,39 @@
 					</view>
 					<view class="popup-btn" @click="onConfirmRedeem">确认核销</view>
 					<view class="popup-tips">*核销使用后结余金额不可退款</view>
+				</view>
+			</view>
+		</view>
+
+		<!-- 核销成功弹窗（叠在预约弹窗上方） -->
+		<view class="rs-overlay" v-if="showRedeemSuccess" @click="showRedeemSuccess = false">
+			<view class="rs-popup" @click.stop>
+				<!-- 成功图标 -->
+				<view class="rs-icon-wrap">
+					<image class="rs-icon-img" src="/static/icon/yuyuechenggong.png" mode="aspectFit" />
+				</view>
+				<text class="rs-title">核销成功</text>
+				<!-- 卡券信息 -->
+				<view class="rs-coupon-card">
+					<view class="rs-coupon-header">
+						<view class="rs-coupon-source">
+							<image v-if="redeemResult.platformIcon" class="rs-platform-icon" :src="redeemResult.platformIcon" mode="aspectFit" />
+							<text class="rs-source-text">{{ redeemResult.platformName }}·次卡</text>
+						</view>
+						<view class="rs-coupon-amount">
+							<text class="rs-amount-symbol">￥</text>
+							<text class="rs-amount-num">{{ redeemResult.amount }}</text>
+						</view>
+					</view>
+					<view class="rs-coupon-detail">
+						<text class="rs-detail-row">适用于:{{ redeemResult.scope }}</text>
+						<text class="rs-detail-row">金额:{{ redeemResult.amount }}元/单次可用:{{ redeemResult.times }}次</text>
+						<text class="rs-detail-row">有效时间:{{ redeemResult.validDays }}天</text>
+					</view>
+				</view>
+				<!-- 扫码下单按钮 -->
+				<view class="rs-btn" @click="onScanOrder">
+					<text class="rs-btn-text">扫码下单</text>
 				</view>
 			</view>
 		</view>
@@ -355,8 +388,17 @@ const closeAll = () => {
 
 // ===== 团购核销 =====
 const showRedeemPopup = ref(false)
+const showRedeemSuccess = ref(false)
 const redeemCode = ref('')
 const selectedPlatform = ref(null)
+const redeemResult = ref({
+	platformName: '',
+	platformIcon: '',
+	amount: 20,
+	scope: '洗宠机',
+	times: 3,
+	validDays: 60
+})
 const platforms = [
 	{ label: '抖音', icon: '/static/icon/douyin.png', value: 'douyin' },
 	{ label: '美团', icon: '/static/icon/meituan.png', value: 'meituan' },
@@ -364,6 +406,44 @@ const platforms = [
 ]
 const currentPlatformIcon = ref('')
 const currentPlatformLabel = ref('')
+
+const selectPlatform = (item) => {
+	selectedPlatform.value = item.value
+	currentPlatformIcon.value = item.icon
+	currentPlatformLabel.value = item.label
+}
+
+const onConfirmRedeem = () => {
+	if (!redeemCode.value.trim()) { uni.showToast({ title: '请输入核销码', icon: 'none' }); return }
+	// TODO: 调用核销接口
+	// redeemCoupon({ platform: selectedPlatform, code: redeemCode }).then(res => { ... })
+	const found = platforms.find(p => p.value === selectedPlatform.value)
+	redeemResult.value = {
+		platformName: found ? found.label : '系统',
+		platformIcon: found ? found.icon : '',
+		amount: 20,
+		scope: '洗宠机',
+		times: 3,
+		validDays: 60
+	}
+	// 关闭核销弹窗，打开预约弹窗（背景）+ 核销成功弹窗
+	showRedeemPopup.value = false
+	bookStep.value = 1
+	selectedDate.value = 0
+	selectedTime.value = null
+	selectedService.value = null
+	selectedPayMethod.value = 'wechat'
+	remark.value = ''
+	showBookPopup.value = true
+	showRedeemSuccess.value = true
+	redeemCode.value = ''
+	selectedPlatform.value = null
+}
+
+const onScanOrder = () => {
+	// 关闭核销成功弹窗，留在预约弹窗继续操作
+	showRedeemSuccess.value = false
+}
 
 // tabBar 页面
 const tabBarPages = ['pages/index/index', 'pages/wash-order-list/wash-order-list', 'pages/scan/scan', 'pages/book-order-list/book-order-list', 'pages/mine/mine']
@@ -384,14 +464,6 @@ const onEntryClick = (action) => {
 const goDeviceDetail = (item) => { uni.navigateTo({ url: `/pages/device-detail/device-detail?deviceId=${item.id}` }) }
 const goRecharge = (item) => { uni.navigateTo({ url: `/pages/wallet/wallet?deviceId=${item.id}` }) }
 const goStoreList = () => { uni.navigateTo({ url: '/pages/store-list/store-list' }) }
-
-const onConfirmRedeem = () => {
-	if (!redeemCode.value.trim()) { uni.showToast({ title: '请输入核销码', icon: 'none' }); return }
-	uni.showToast({ title: '核销成功', icon: 'success' })
-	showRedeemPopup.value = false
-	redeemCode.value = ''
-	selectedPlatform.value = null
-}
 </script>
 
 <style lang="scss" scoped>
@@ -521,4 +593,23 @@ const onConfirmRedeem = () => {
 .platform-selected-icon { width: 48rpx; height: 48rpx; margin-right: 16rpx; }
 .platform-selected-name { flex: 1; font-size: 30rpx; font-weight: 600; color: #333; }
 .platform-change { font-size: 26rpx; color: #07C160; }
+
+/* ===== 核销成功弹窗（叠在预约弹窗上） ===== */
+.rs-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+.rs-popup { width: 600rpx; background-color: #fff; border-radius: 32rpx; padding: 48rpx 36rpx 36rpx; display: flex; flex-direction: column; align-items: center; animation: popIn 0.3s ease-out; }
+.rs-icon-wrap { margin-bottom: 16rpx; }
+.rs-icon-img { width: 120rpx; height: 120rpx; }
+.rs-title { font-size: 36rpx; font-weight: 700; color: #333; margin-bottom: 24rpx; }
+.rs-coupon-card { width: 100%; border-radius: 16rpx; overflow: hidden; margin-bottom: 28rpx; }
+.rs-coupon-header { display: flex; align-items: center; justify-content: space-between; padding: 20rpx 24rpx; background-color: #07C160; }
+.rs-coupon-source { display: flex; align-items: center; }
+.rs-platform-icon { width: 36rpx; height: 36rpx; margin-right: 10rpx; }
+.rs-source-text { font-size: 26rpx; color: #fff; }
+.rs-coupon-amount { display: flex; align-items: baseline; }
+.rs-amount-symbol { font-size: 24rpx; color: #fff; }
+.rs-amount-num { font-size: 40rpx; font-weight: 700; color: #fff; }
+.rs-coupon-detail { padding: 20rpx 24rpx; background-color: #f8fff9; }
+.rs-detail-row { display: block; font-size: 24rpx; color: #666; line-height: 1.8; }
+.rs-btn { width: 100%; background: linear-gradient(135deg, #07C160, #38d976); border-radius: 999rpx; padding: 24rpx 0; text-align: center; &:active { opacity: 0.9; } }
+.rs-btn-text { font-size: 30rpx; font-weight: 600; color: #fff; }
 </style>
