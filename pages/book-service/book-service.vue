@@ -124,19 +124,12 @@
 					</view>
 				</view>
 			</view>
-			<!-- 支付方式 radio -->
+			<!-- 支付方式（对齐原型图：默认微信支付选中） -->
 			<view class="pay-method-row">
-				<view
-					class="pay-method-item"
-					v-for="(method, index) in payMethods"
-					:key="index"
-					@click="selectPayMethod(index)"
-				>
-					<view :class="['method-radio', { active: selectedPayMethod === index }]">
-						<view class="method-radio-inner" v-if="selectedPayMethod === index"></view>
-					</view>
-					<text class="method-name">{{ method.name }}</text>
+				<view :class="['method-radio', { active: true }]">
+					<view class="method-radio-inner"></view>
 				</view>
+				<text class="method-name">微信支付</text>
 			</view>
 			<!-- 选取优惠卷 -->
 			<view class="coupon-pick-row" @click="pickCoupon">
