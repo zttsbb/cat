@@ -106,6 +106,8 @@ const goBack = () => {
 .nav-placeholder {
 	width: 60rpx;
 }
+
+.order-list {
 	background-color: #f5f5f5;
 	padding: 24rpx;
 	padding-bottom: 120rpx;
