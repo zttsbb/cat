@@ -43,7 +43,7 @@
 				<text class="tab-icon">📅</text>
 				<text class="tab-text">预约到店</text>
 			</view>
-			<view class="tab-item" @click="showRedeemPopup = true">
+			<view class="tab-item" @click="goPage('/pages/coupon-redeem/coupon-redeem')">
 				<image class="tab-icon-img" src="/static/icon/saomahexiao.png" mode="aspectFit" />
 				<text class="tab-text">团购核销</text>
 			</view>
@@ -159,50 +159,6 @@
 				</scroll-view>
 			</view>
 		</view>
-
-		<!-- 团购核销弹窗 -->
-		<view class="redeem-overlay" v-if="showRedeemPopup" @click="showRedeemPopup = false">
-			<view class="redeem-popup" @click.stop>
-				<view class="popup-header">
-					<text class="popup-title">团购核销</text>
-					<text class="popup-close" @click="showRedeemPopup = false">✕</text>
-				</view>
-				<view class="platform-grid" v-if="!selectedPlatform">
-					<view class="platform-item" v-for="(item, index) in platforms" :key="index" @click="selectPlatform(item)">
-						<image class="platform-icon" :src="item.icon" mode="aspectFit" /><text class="platform-name">{{ item.label }}</text>
-					</view>
-				</view>
-				<view class="popup-body" v-if="selectedPlatform">
-					<view class="platform-selected" @click="selectedPlatform = null">
-						<image class="platform-selected-icon" :src="currentPlatformIcon" mode="aspectFit" />
-						<text class="platform-selected-name">{{ currentPlatformLabel }}</text><text class="platform-change">切换 ›</text>
-					</view>
-					<view class="popup-input-wrap"><input class="popup-input" v-model="redeemCode" placeholder="请输入核销码" maxlength="20" type="text" /></view>
-					<view class="popup-btn" @click="onConfirmRedeem"><text class="popup-btn-text">确认核销</text></view>
-					<view class="popup-tips">*核销使用后结余金额不可退款</view>
-				</view>
-			</view>
-		</view>
-
-		<!-- 核销成功弹窗 -->
-		<view class="rs-overlay" v-if="showRedeemSuccess" @click="showRedeemSuccess = false">
-			<view class="rs-popup" @click.stop>
-				<view class="rs-icon-wrap"><image class="rs-icon-img" src="/static/icon/yuyuechenggong.png" mode="aspectFit" /></view>
-				<text class="rs-title">核销成功</text>
-				<view class="rs-coupon-card">
-					<view class="rs-coupon-header">
-						<view class="rs-coupon-source"><image v-if="redeemResult.platformIcon" class="rs-platform-icon" :src="redeemResult.platformIcon" mode="aspectFit" /><text class="rs-source-text">{{ redeemResult.platformName }}·次卡</text></view>
-						<view class="rs-coupon-amount"><text class="rs-amount-symbol">￥</text><text class="rs-amount-num">{{ redeemResult.amount }}</text></view>
-					</view>
-					<view class="rs-coupon-detail">
-						<text class="rs-detail-row">适用于:{{ redeemResult.scope }}</text>
-						<text class="rs-detail-row">金额:{{ redeemResult.amount }}元/单次可用:{{ redeemResult.times }}次</text>
-						<text class="rs-detail-row">有效时间:{{ redeemResult.validDays }}天</text>
-					</view>
-				</view>
-				<view class="rs-btn" @click="onScanOrder"><text class="rs-btn-text">扫码下单</text></view>
-			</view>
-		</view>
 	</view>
 </template>
 
@@ -316,27 +272,8 @@ const closeAll = () => {
 }
 
 // ===== 团购核销 =====
-const showRedeemPopup = ref(false)
-const showRedeemSuccess = ref(false)
-const redeemCode = ref('')
-const selectedPlatform = ref(null)
-const redeemResult = ref({ platformName: '', platformIcon: '', amount: 20, scope: '洗宠机', times: 3, validDays: 60 })
-const platforms = [
-	{ label: '抖音', icon: '/static/icon/douyin.png', value: 'douyin' },
-	{ label: '美团', icon: '/static/icon/meituan.png', value: 'meituan' },
-	{ label: '系统', icon: '/static/icon/xitong.png', value: 'system' }
-]
-const currentPlatformIcon = ref('')
-const currentPlatformLabel = ref('')
-const selectPlatform = (item) => { selectedPlatform.value = item.value; currentPlatformIcon.value = item.icon; currentPlatformLabel.value = item.label }
-const onConfirmRedeem = () => {
-	if (!redeemCode.value.trim()) { uni.showToast({ title: '请输入核销码', icon: 'none' }); return }
-	const found = platforms.find(p => p.value === selectedPlatform.value)
-	redeemResult.value = { platformName: found ? found.label : '系统', platformIcon: found ? found.icon : '', amount: 20, scope: '洗宠机', times: 3, validDays: 60 }
-	showRedeemPopup.value = false; showBookPopup.value = true; showRedeemSuccess.value = true
-	redeemCode.value = ''; selectedPlatform.value = null
-}
 const onScanOrder = () => { showRedeemSuccess.value = false }
+
 </script>
 
 <style lang="scss" scoped>
@@ -425,12 +362,12 @@ const onScanOrder = () => { showRedeemSuccess.value = false }
 }
 
 /* ===== 弹窗样式（与首页一致） ===== */
-.book-overlay, .redeem-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 999; display: flex; align-items: flex-end; justify-content: center; }
-.book-popup, .redeem-popup { width: 100%; max-height: 80vh; background-color: #fff; border-radius: 32rpx 32rpx 0 0; padding: 0 32rpx 40rpx; padding-bottom: calc(40rpx + env(safe-area-inset-bottom)); animation: slideUp 0.3s ease-out; display: flex; flex-direction: column; }
+.book-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 999; display: flex; align-items: flex-end; justify-content: center; }
+.book-popup { width: 100%; max-height: 80vh; background-color: #fff; border-radius: 32rpx 32rpx 0 0; padding: 0 32rpx 40rpx; padding-bottom: calc(40rpx + env(safe-area-inset-bottom)); animation: slideUp 0.3s ease-out; display: flex; flex-direction: column; }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-.book-popup-header, .popup-header { display: flex; align-items: center; justify-content: space-between; padding: 32rpx 0 20rpx; }
-.book-popup-title, .popup-title { font-size: 36rpx; font-weight: 700; color: #333; }
-.book-popup-close, .popup-close { width: 56rpx; height: 56rpx; border-radius: 50%; background-color: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 32rpx; color: #999; }
+.book-popup-header { display: flex; align-items: center; justify-content: space-between; padding: 32rpx 0 20rpx; }
+.book-popup-title { font-size: 36rpx; font-weight: 700; color: #333; }
+.book-popup-close { width: 56rpx; height: 56rpx; border-radius: 50%; background-color: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 32rpx; color: #999; }
 .popup-section { flex: 1; overflow-y: auto; }
 .popup-section-title { font-size: 28rpx; font-weight: 600; color: #333; margin-bottom: 20rpx; display: block; }
 .date-scroll { white-space: nowrap; margin-bottom: 20rpx; }
@@ -462,39 +399,17 @@ const onScanOrder = () => { showRedeemSuccess.value = false }
 .popup-btn-back { flex: 1; background-color: #f5f5f5; border-radius: 999rpx; padding: 24rpx 0; text-align: center; }
 .popup-btn-back .popup-btn-text { color: #666; font-weight: 500; }
 .popup-btn-row .popup-btn { flex: 2; }
-.popup-body { display: flex; flex-direction: column; }
-.popup-input-wrap { background-color: #f5f5f5; border-radius: 16rpx; padding: 24rpx 32rpx; margin-bottom: 32rpx; }
-.popup-input { font-size: 30rpx; color: #333; height: 48rpx; }
-.popup-tips { text-align: center; font-size: 22rpx; color: #999; }
-.platform-grid { display: flex; justify-content: space-around; padding: 24rpx 0 40rpx; }
-.platform-item { display: flex; flex-direction: column; align-items: center; padding: 24rpx; border-radius: 20rpx; &:active { background-color: #f5f5f5; } }
-.platform-icon { width: 96rpx; height: 96rpx; margin-bottom: 12rpx; }
-.platform-name { font-size: 26rpx; color: #333; }
-.platform-selected { display: flex; align-items: center; padding: 20rpx 24rpx; background-color: #f5f5f5; border-radius: 16rpx; margin-bottom: 24rpx; }
-.platform-selected-icon { width: 48rpx; height: 48rpx; margin-right: 16rpx; }
-.platform-selected-name { flex: 1; font-size: 30rpx; font-weight: 600; color: #333; }
-.platform-change { font-size: 26rpx; color: #07C160; }
 
 /* 预约成功弹窗 */
-.success-overlay, .rs-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-.success-popup, .rs-popup { width: 560rpx; background-color: #fff; border-radius: 32rpx; padding: 48rpx 36rpx 36rpx; display: flex; flex-direction: column; align-items: center; animation: popIn 0.3s ease-out; }
+.success-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+.success-popup { width: 560rpx; background-color: #fff; border-radius: 32rpx; padding: 48rpx 36rpx 36rpx; display: flex; flex-direction: column; align-items: center; animation: popIn 0.3s ease-out; }
 @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.success-icon-wrap, .rs-icon-wrap { margin-bottom: 16rpx; }
-.success-icon-img, .rs-icon-img { width: 120rpx; height: 120rpx; }
-.success-title, .rs-title { font-size: 36rpx; font-weight: 700; color: #333; margin-bottom: 12rpx; }
+.success-icon-wrap { margin-bottom: 16rpx; }
+.success-icon-img { width: 120rpx; height: 120rpx; }
+.success-title { font-size: 36rpx; font-weight: 700; color: #333; margin-bottom: 12rpx; }
 .success-desc { font-size: 26rpx; color: #999; margin-bottom: 32rpx; }
-.success-btn, .rs-btn { width: 100%; background: linear-gradient(135deg, #07C160, #38d976); border-radius: 999rpx; padding: 24rpx 0; text-align: center; &:active { opacity: 0.9; } }
-.success-btn-text, .rs-btn-text { font-size: 30rpx; font-weight: 600; color: #fff; }
-.rs-coupon-card { width: 100%; border-radius: 16rpx; overflow: hidden; margin-bottom: 28rpx; }
-.rs-coupon-header { display: flex; align-items: center; justify-content: space-between; padding: 20rpx 24rpx; background-color: #07C160; }
-.rs-coupon-source { display: flex; align-items: center; }
-.rs-platform-icon { width: 36rpx; height: 36rpx; margin-right: 10rpx; }
-.rs-source-text { font-size: 26rpx; color: #fff; }
-.rs-coupon-amount { display: flex; align-items: baseline; }
-.rs-amount-symbol { font-size: 24rpx; color: #fff; }
-.rs-amount-num { font-size: 40rpx; font-weight: 700; color: #fff; }
-.rs-coupon-detail { padding: 20rpx 24rpx; background-color: #f8fff9; }
-.rs-detail-row { display: block; font-size: 24rpx; color: #666; line-height: 1.8; }
+.success-btn { width: 100%; background: linear-gradient(135deg, #07C160, #38d976); border-radius: 999rpx; padding: 24rpx 0; text-align: center; &:active { opacity: 0.9; } }
+.success-btn-text { font-size: 30rpx; font-weight: 600; color: #fff; }
 
 /* 卡券选择弹窗 */
 .coupon-picker-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 1002; display: flex; align-items: flex-end; justify-content: center; }
