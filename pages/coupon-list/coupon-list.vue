@@ -16,8 +16,8 @@
 				:key="coupon.id"
 				:class="['coupon-card', { 'coupon-expired': coupon.status !== 1 }]"
 			>
-				<!-- 卡片背景渐变 -->
-				<view class="coupon-bg"></view>
+				<!-- 卡片背景图 -->
+				<image class="coupon-bg-img" :src="index % 2 === 0 ? '/static/bg/bg1.jpg' : '/static/bg/bg2.jpg'" mode="aspectFill" />
 				<!-- 卡片内容 -->
 				<view class="coupon-content">
 					<!-- 左侧金额 -->
@@ -152,9 +152,6 @@ const loadData = async () => {
 	height: 220rpx;
 
 	&.coupon-expired {
-		.coupon-bg {
-			filter: grayscale(1) opacity(0.5);
-		}
 		.coupon-amount {
 			color: #999;
 		}
@@ -168,21 +165,19 @@ const loadData = async () => {
 	}
 }
 
-/* 渐变半透明背景图 */
-.coupon-bg {
+/* 背景图（用image标签替代background-image，兼容小程序） */
+.coupon-bg-img {
 	position: absolute;
 	top: 0;
 	left: 0;
-	right: 0;
-	bottom: 0;
-	background-image: url('/static/bg/bg1.jpg');
-	background-size: cover;
-	background-position: center;
+	width: 100%;
+	height: 100%;
+	border-radius: 24rpx;
+	opacity: 0.85;
 }
 
-/* 第二种背景色用于区分 */
-.coupon-card:nth-child(even) .coupon-bg {
-	background-image: url('/static/bg/bg2.jpg');
+.coupon-card.coupon-expired .coupon-bg-img {
+	opacity: 0.3;
 }
 
 /* 卡片内容 */
