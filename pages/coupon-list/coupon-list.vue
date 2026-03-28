@@ -12,7 +12,7 @@
 		<!-- 卡券列表 -->
 		<view class="coupon-list">
 			<view
-				v-for="coupon in filteredCoupons"
+				v-for="(coupon, index) in filteredCoupons"
 				:key="coupon.id"
 				:class="['coupon-card', { 'coupon-expired': coupon.status !== 1 }]"
 			>
