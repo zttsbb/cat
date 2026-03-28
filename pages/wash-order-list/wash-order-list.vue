@@ -2,6 +2,15 @@
 <!-- 洗宠订单列表 -->
 <template>
 	<view class="page-wash-order-list">
+		<!-- 自定义导航栏 -->
+		<view class="nav-bar" :style="{ paddingTop: statusBarHeight + 'px' }">
+			<view class="nav-back" @click="goBack">
+				<text class="nav-back-icon">‹</text>
+			</view>
+			<view class="nav-title">洗宠订单</view>
+			<view class="nav-placeholder"></view>
+		</view>
+
 		<!-- 订单列表 -->
 		<view class="order-list">
 			<order-card
@@ -29,9 +38,12 @@ import { ref, onMounted } from 'vue'
 import { getWashOrderList } from '@/api/order.js'
 import OrderCard from '@/components/order-card/order-card.vue'
 
+const statusBarHeight = ref(0)
 const orderList = ref([])
 
 onMounted(() => {
+	const sysInfo = uni.getSystemInfoSync()
+	statusBarHeight.value = sysInfo.statusBarHeight || 0
 	loadOrders()
 })
 
@@ -48,11 +60,52 @@ const loadOrders = async () => {
 const goDetail = (id) => {
 	uni.navigateTo({ url: `/pages/wash-order-detail/wash-order-detail?orderId=${id}` })
 }
+
+const goBack = () => {
+	uni.navigateBack({ delta: 1 })
+}
 </script>
 
 <style lang="scss" scoped>
 .page-wash-order-list {
 	min-height: 100vh;
+	background-color: #f5f5f5;
+}
+
+/* 自定义导航栏 */
+.nav-bar {
+	background: linear-gradient(135deg, #07C160, #38d976);
+	padding: 0 24rpx;
+	display: flex;
+	align-items: center;
+}
+
+.nav-back {
+	width: 60rpx;
+	height: 80rpx;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+}
+
+.nav-back-icon {
+	font-size: 48rpx;
+	color: #fff;
+	font-weight: 300;
+}
+
+.nav-title {
+	flex: 1;
+	text-align: center;
+	font-size: 34rpx;
+	font-weight: 600;
+	color: #fff;
+	padding: 16rpx 0;
+}
+
+.nav-placeholder {
+	width: 60rpx;
+}
 	background-color: #f5f5f5;
 	padding: 24rpx;
 	padding-bottom: 120rpx;

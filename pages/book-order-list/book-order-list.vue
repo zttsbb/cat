@@ -2,6 +2,15 @@
 <!-- 预约订单列表 -->
 <template>
 	<view class="page-book-order-list">
+		<!-- 自定义导航栏 -->
+		<view class="nav-bar" :style="{ paddingTop: statusBarHeight + 'px' }">
+			<view class="nav-back" @click="goBack">
+				<text class="nav-back-icon">‹</text>
+			</view>
+			<view class="nav-title">预约订单</view>
+			<view class="nav-placeholder"></view>
+		</view>
+
 		<!-- Tab切换 -->
 		<view class="tab-bar">
 			<view :class="['tab-item', { active: currentTab === item.key }]" v-for="item in tabs" :key="item.key" @click="switchTab(item.key)">
@@ -44,6 +53,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { getBookOrderList, cancelBookOrder } from '@/api/order.js'
 
+const statusBarHeight = ref(0)
+
 const currentTab = ref('')
 const orderList = ref([])
 
@@ -69,6 +80,8 @@ const switchTab = (key) => {
 }
 
 onMounted(() => {
+	const sysInfo = uni.getSystemInfoSync()
+	statusBarHeight.value = sysInfo.statusBarHeight || 0
 	loadOrders()
 })
 
@@ -84,6 +97,10 @@ const loadOrders = async () => {
 
 const goDetail = (id) => {
 	uni.navigateTo({ url: `/pages/book-order-detail/book-order-detail?orderId=${id}` })
+}
+
+const goBack = () => {
+	uni.navigateBack({ delta: 1 })
 }
 
 // 取消预约
@@ -112,6 +129,41 @@ const onCancel = (order) => {
 .page-book-order-list {
 	min-height: 100vh;
 	background-color: #f5f5f5;
+}
+
+/* 自定义导航栏 */
+.nav-bar {
+	background: linear-gradient(135deg, #07C160, #38d976);
+	padding: 0 24rpx;
+	display: flex;
+	align-items: center;
+}
+
+.nav-back {
+	width: 60rpx;
+	height: 80rpx;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+}
+
+.nav-back-icon {
+	font-size: 48rpx;
+	color: #fff;
+	font-weight: 300;
+}
+
+.nav-title {
+	flex: 1;
+	text-align: center;
+	font-size: 34rpx;
+	font-weight: 600;
+	color: #fff;
+	padding: 16rpx 0;
+}
+
+.nav-placeholder {
+	width: 60rpx;
 }
 
 .tab-bar {

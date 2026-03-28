@@ -67,6 +67,7 @@
 		{
 			"path": "pages/wash-order-list/wash-order-list",
 			"style": {
+				"navigationStyle": "custom",
 				"navigationBarTitleText": "洗宠订单"
 			}
 		},
@@ -79,6 +80,7 @@
 		{
 			"path": "pages/book-order-list/book-order-list",
 			"style": {
+				"navigationStyle": "custom",
 				"navigationBarTitleText": "预约订单"
 			}
 		},
