@@ -130,6 +130,13 @@
 			"style": {
 				"navigationBarTitleText": "扫一扫"
 			}
+		},
+		{
+			"path": "pages/device-detail/device-detail",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "设备详情"
+			}
 		}
 	],
 	"globalStyle": {

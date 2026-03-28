@@ -1,90 +1,84 @@
-<!-- pages/index/index.vue -->
-<!-- 门店首页（原型图-默认主页7） -->
+<!-- pages/device-detail/device-detail.vue -->
+<!-- 设备详情页（原型图-默认主页1） -->
 <template>
-	<view class="page-home">
+	<view class="page-device-detail">
 		<!-- 自定义导航栏 -->
 		<view class="nav-bar" :style="{ paddingTop: statusBarHeight + 'px' }">
-			<view class="nav-content">物沃PET</view>
+			<view class="nav-content">智能洗宠机</view>
 		</view>
 
-		<!-- 门店信息区域 -->
-		<view class="store-info-card">
-			<view class="store-top">
-				<view class="store-name">{{ store.name }}</view>
-				<view class="store-switch" @click="goStoreList">
-					<text class="switch-text">切换门店</text>
-					<text class="switch-arrow">›</text>
+		<!-- 设备信息区域 -->
+		<view class="device-info-card">
+			<view class="device-top">
+				<view class="device-name">{{ device.name }}</view>
+				<view :class="['status-badge', device.status === 1 ? 'badge-green' : 'badge-orange']">
+					{{ device.statusText }}
 				</view>
 			</view>
-			<!-- 门店标签 -->
-			<view class="store-tags">
-				<view class="store-tag" v-for="(tag, idx) in store.tags" :key="idx">
-					<text class="tag-icon">{{ tag.icon }}</text>
-					<text class="tag-text">{{ tag.text }}</text>
+			<view class="device-detail">
+				<view class="detail-item">
+					<text class="detail-icon">📍</text>
+					<text class="detail-text">{{ device.distance }}</text>
+				</view>
+				<view class="detail-item">
+					<text class="detail-icon">🏠</text>
+					<text class="detail-text">{{ device.address }}</text>
 				</view>
 			</view>
-			<!-- 地址信息 -->
-			<view class="store-address">
-				<text class="address-text">距我 {{ store.distance }} | {{ store.address }}</text>
+			<!-- 底部操作按钮 -->
+			<view class="device-actions">
+				<view class="action-btn action-left" @click="goStoreLive">
+					<text class="action-btn-text">查看现场</text>
+				</view>
+				<view class="action-btn action-right" @click="goStoreOpen">
+					<text class="action-btn-text">到店开门</text>
+				</view>
 			</view>
-		</view>
-
-		<!-- 轮播图 -->
-		<view class="swiper-section">
-			<swiper class="banner-swiper" :autoplay="true" :interval="4000" :circular="true"
-				:indicator-dots="true" indicator-color="rgba(255,255,255,0.5)"
-				indicator-active-color="#fff" @change="onSwiperChange">
-				<swiper-item v-for="(item, index) in bannerList" :key="index">
-					<view class="swiper-item" @click="onBannerClick(item)">
-						<image class="swiper-image" :src="item.image" mode="aspectFill" />
-					</view>
-				</swiper-item>
-			</swiper>
 		</view>
 
 		<!-- 快捷入口 -->
 		<view class="quick-entry">
+			<view class="entry-title">快捷服务</view>
 			<view class="entry-grid">
 				<view class="entry-item" v-for="(item, index) in quickEntries" :key="index" @click="onEntryClick(item)">
-					<view class="entry-icon-wrap">
+					<view class="entry-icon">
 						<image v-if="item.iconImage" class="entry-icon-img" :src="item.iconImage" mode="aspectFit" />
+						<text v-else>{{ item.icon }}</text>
 					</view>
 					<text class="entry-text">{{ item.text }}</text>
 				</view>
 			</view>
 		</view>
 
-		<!-- 设备列表 -->
-		<view class="device-section">
-			<view class="section-header">
-				<text class="section-title">可用设备</text>
+		<!-- 充值快捷金额 -->
+		<view class="recharge-section">
+			<view class="section-title">
+				<image class="section-title-icon" src="/icon/youhuichognzhi.png" mode="aspectFit" />
 			</view>
-			<view class="device-list">
-				<view class="device-card" v-for="(item, index) in deviceList" :key="index" @click="goDeviceDetail(item)">
-					<!-- 设备顶部信息 -->
-					<view class="device-card-top">
-						<view class="device-card-name">{{ item.name }}</view>
-						<view :class="['device-status', item.status === 1 ? 'status-green' : 'status-gray']">
-							{{ item.statusText }}
-						</view>
-					</view>
-					<view class="device-card-addr">
-						<text class="addr-text">{{ item.address }}</text>
-					</view>
-					<!-- 价格信息 -->
-					<view class="device-card-price">
-						<text class="price-label">每分钟</text>
-						<text class="price-value">{{ item.priceRange }}</text>
-						<text class="price-unit">元</text>
-					</view>
-					<!-- 操作按钮 -->
-					<view class="device-card-actions">
-						<view class="device-card-btn btn-recharge" @click.stop="goRecharge(item)">
-							<text class="btn-text">预充值</text>
-						</view>
-					</view>
+			<view class="recharge-list">
+				<view class="recharge-card" v-for="(item, index) in rechargeAmounts" :key="index" @click="onRecharge(item)">
+					<view class="recharge-amount">￥{{ item.amount }}</view>
+					<view class="recharge-bonus" v-if="item.bonus">送￥{{ item.bonus }}</view>
+					<view class="recharge-tag">充值</view>
 				</view>
 			</view>
+		</view>
+
+		<!-- 设备功能 -->
+		<view class="features-section">
+			<view class="section-title">设备功能</view>
+			<view class="features-list">
+				<view class="feature-item" v-for="(item, index) in device.features" :key="index">
+					<text class="feature-icon">{{ ['🧴', '✨', '💧', '🔥'][index] }}</text>
+					<text class="feature-text">{{ item }}</text>
+				</view>
+			</view>
+		</view>
+
+		<!-- 提示 -->
+		<view class="tips-section">
+			<text class="tips-text">* 本设备需预支付{{ device.prepayAmount }}元，结算订单后原路退回</text>
+			<text class="tips-text">* 每分钟{{ device.pricePerMinute }}元，按量计费</text>
 		</view>
 
 		<!-- 团购核销底部弹窗 -->
@@ -94,12 +88,14 @@
 					<text class="popup-title">团购核销</text>
 					<text class="popup-close" @click="closeRedeemPopup">✕</text>
 				</view>
+				<!-- 平台选择 -->
 				<view class="platform-grid" v-if="!selectedPlatform">
 					<view class="platform-item" v-for="(item, index) in platforms" :key="index" @click="selectPlatform(item)">
 						<image class="platform-icon" :src="item.icon" mode="aspectFit" />
 						<text class="platform-name">{{ item.label }}</text>
 					</view>
 				</view>
+				<!-- 核销码输入 -->
 				<view class="popup-body" v-if="selectedPlatform">
 					<view class="platform-selected" @click="selectedPlatform = null">
 						<image class="platform-selected-icon" :src="currentPlatformIcon" mode="aspectFit" />
@@ -107,7 +103,13 @@
 						<text class="platform-change">切换 ›</text>
 					</view>
 					<view class="popup-input-wrap">
-						<input class="popup-input" v-model="redeemCode" placeholder="请输入核销码" maxlength="20" type="text" />
+						<input
+							class="popup-input"
+							v-model="redeemCode"
+							placeholder="请输入核销码"
+							maxlength="20"
+							type="text"
+						/>
 					</view>
 					<view class="popup-btn" @click="onConfirmRedeem">确认核销</view>
 					<view class="popup-tips">*核销使用后结余金额不可退款</view>
@@ -122,56 +124,35 @@ import { ref, computed, onMounted } from 'vue'
 
 const statusBarHeight = ref(0)
 
-// 门店信息 Mock
-const store = ref({
-	id: 1,
-	name: '我是门店名称',
-	address: '合肥市新海大道5号',
-	distance: '1.45KM',
-	tags: [
-		{ icon: '🅿️', text: '有车位' },
-		{ icon: '📸', text: '门店图' },
-		{ icon: '✂️', text: '有技师' },
-		{ icon: '📶', text: 'WIFI覆盖' }
-	]
+// 设备信息 Mock
+const device = ref({
+	id: 101,
+	name: '智能洗宠机A1',
+	storeName: '物沃宠物洗护中心（南山店）',
+	address: '深圳市南山区科技园南区深南大道9966号',
+	status: 1,
+	statusText: '可使用',
+	pricePerMinute: 0.8,
+	distance: '3.6KM',
+	prepayAmount: 50,
+	features: ['香波洗护', '护毛护理', '清水冲洗', '消毒烘干']
 })
 
-// 轮播图 Mock（接口返回）
-const bannerList = ref([
-	{ id: 1, image: '/banner/banner1.jpg', link: '', title: '轮播图1' },
-	{ id: 2, image: '/banner/banner2.jpg', link: '', title: '轮播图2' },
-	{ id: 3, image: '/banner/banner3.jpg', link: '', title: '轮播图3' }
-])
-
-// 快捷入口（对齐原型图：预约到店、团购核销、我的订单、优惠充值、分享有礼）
+// 快捷入口
 const quickEntries = ref([
-	{ iconImage: '/icon/qiandao.png', text: '预约到店', url: '/pages/book-service/book-service' },
+	{ iconImage: '/icon/qiandao.png', text: '预约服务', url: '/pages/book-service/book-service' },
 	{ iconImage: '/icon/saomahexiao.png', text: '团购核销', action: 'redeem' },
-	{ iconImage: '/icon/qianbao.png', text: '我的订单', url: '/pages/wash-order-list/wash-order-list' },
 	{ iconImage: '/icon/youhuichognzhi.png', text: '优惠充值', url: '/pages/wallet/wallet' },
+	{ iconImage: '/icon/qianbao.png', text: '我的订单', url: '/pages/wash-order-list/wash-order-list' },
 	{ iconImage: '/icon/fenxiang.png', text: '分享有礼', action: 'share' }
 ])
 
-// 设备列表 Mock
-const deviceList = ref([
-	{
-		id: 101,
-		name: '智能洗宠机A1',
-		address: '合肥市新站区新海大道5号...',
-		status: 1,
-		statusText: '可使用',
-		priceRange: '0.8-1.2',
-		storeId: 1
-	},
-	{
-		id: 102,
-		name: '智能洗宠机A2',
-		address: '合肥市新站区新海大道5号...',
-		status: 1,
-		statusText: '可使用',
-		priceRange: '0.8-1.2',
-		storeId: 1
-	}
+// 充值金额
+const rechargeAmounts = ref([
+	{ amount: 50, bonus: 5 },
+	{ amount: 100, bonus: 15 },
+	{ amount: 200, bonus: 40 },
+	{ amount: 500, bonus: 120 }
 ])
 
 // 团购核销弹窗
@@ -205,10 +186,10 @@ onMounted(() => {
 	const sysInfo = uni.getSystemInfoSync()
 	statusBarHeight.value = sysInfo.statusBarHeight || 0
 
-	// TODO: 加载门店信息和设备列表
-	// getStoreDetail(storeId).then(res => { store.value = res })
-	// getDeviceList({ storeId }).then(res => { deviceList.value = res })
-	// getBannerList({ storeId }).then(res => { bannerList.value = res })
+	// TODO: 根据传入的 deviceId 加载设备详情
+	// const pages = getCurrentPages()
+	// const page = pages[pages.length - 1]
+	// const deviceId = page.$page.options?.id || page.$page.options?.deviceId
 })
 
 // 快捷入口点击
@@ -218,7 +199,6 @@ const onEntryClick = (item) => {
 		return
 	}
 	if (item.action === 'share') {
-		// TODO: 分享有礼逻辑
 		uni.showToast({ title: '分享有礼功能开发中', icon: 'none' })
 		return
 	}
@@ -227,19 +207,14 @@ const onEntryClick = (item) => {
 	}
 }
 
-// 跳转设备详情
-const goDeviceDetail = (item) => {
-	uni.navigateTo({ url: `/pages/device-detail/device-detail?deviceId=${item.id}` })
+// 查看现场
+const goStoreLive = () => {
+	uni.navigateTo({ url: '/pages/store-detail/store-detail?storeId=1' })
 }
 
-// 预充值
-const goRecharge = (item) => {
-	uni.navigateTo({ url: `/pages/wallet/wallet?deviceId=${item.id}` })
-}
-
-// 切换门店
-const goStoreList = () => {
-	uni.navigateTo({ url: '/pages/store-list/store-list' })
+// 到店开门
+const goStoreOpen = () => {
+	uni.showToast({ title: '开门功能开发中', icon: 'none' })
 }
 
 // 关闭核销弹窗
@@ -255,29 +230,26 @@ const onConfirmRedeem = () => {
 		uni.showToast({ title: '请输入核销码', icon: 'none' })
 		return
 	}
-	// TODO: 调用核销接口
 	uni.showToast({ title: '核销成功', icon: 'success' })
 	closeRedeemPopup()
+	setTimeout(() => {
+		uni.navigateTo({ url: '/pages/book-service/book-service' })
+	}, 500)
 }
 
-// 轮播图
-const onSwiperChange = (e) => {}
-
-const onBannerClick = (item) => {
-	if (item.link) {
-		uni.navigateTo({ url: item.link })
-	}
+// 充值
+const onRecharge = (item) => {
+	uni.navigateTo({ url: `/pages/wallet/wallet?amount=${item.amount}` })
 }
 </script>
 
 <style lang="scss" scoped>
-.page-home {
+.page-device-detail {
 	min-height: 100vh;
 	background-color: #f5f5f5;
-	padding-bottom: 140rpx;
+	padding-bottom: 40rpx;
 }
 
-/* 导航栏 */
 .nav-bar {
 	background: linear-gradient(135deg, #07C160, #38d976);
 	padding: 20rpx 32rpx;
@@ -291,119 +263,132 @@ const onBannerClick = (item) => {
 	}
 }
 
-/* 门店信息卡片 */
-.store-info-card {
-	background: #fff;
+.device-info-card {
+	background-color: #fff;
 	margin: 24rpx;
 	border-radius: 24rpx;
 	padding: 32rpx;
 	box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
 }
 
-.store-top {
+.device-top {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: 20rpx;
+	margin-bottom: 24rpx;
 }
 
-.store-name {
+.device-name {
 	font-size: 36rpx;
 	font-weight: 700;
 	color: #333;
 }
 
-.store-switch {
+.status-badge {
+	font-size: 24rpx;
+	padding: 6rpx 20rpx;
+	border-radius: 999rpx;
+}
+
+.badge-green {
+	background-color: #e8f8ee;
+	color: #07C160;
+}
+
+.badge-orange {
+	background-color: #fff3e8;
+	color: #ff9500;
+}
+
+.device-detail {
+	display: flex;
+	flex-direction: column;
+}
+
+.detail-item {
 	display: flex;
 	align-items: center;
-	padding: 8rpx 20rpx;
-	background-color: #f5f5f5;
+	margin-bottom: 12rpx;
+}
+
+.detail-icon {
+	margin-right: 12rpx;
+	font-size: 28rpx;
+}
+
+.detail-text {
+	font-size: 26rpx;
+	color: #666;
+}
+
+.device-actions {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-top: 28rpx;
+	padding-top: 24rpx;
+	border-top: 1rpx solid #f0f0f0;
+}
+
+.action-btn {
+	flex: 1;
+	text-align: center;
+	padding: 20rpx 0;
 	border-radius: 999rpx;
+}
+
+.action-left {
+	background-color: #f5f5f5;
+	margin-right: 20rpx;
 
 	&:active {
 		background-color: #ebebeb;
 	}
 }
 
-.switch-text {
-	font-size: 24rpx;
-	color: #666;
+.action-right {
+	background: linear-gradient(135deg, #07C160, #38d976);
+
+	&:active {
+		opacity: 0.9;
+	}
 }
 
-.switch-arrow {
+.action-btn-text {
 	font-size: 28rpx;
-	color: #666;
-	margin-left: 4rpx;
+	font-weight: 600;
+	color: #333;
 }
 
-.store-tags {
-	display: flex;
-	flex-wrap: wrap;
-	margin-bottom: 20rpx;
+.action-right .action-btn-text {
+	color: #fff;
 }
 
-.store-tag {
-	display: flex;
-	align-items: center;
-	margin-right: 20rpx;
-	margin-bottom: 12rpx;
-}
-
-.tag-icon {
-	font-size: 24rpx;
-	margin-right: 6rpx;
-}
-
-.tag-text {
-	font-size: 24rpx;
-	color: #666;
-}
-
-.store-address {
-	padding-top: 16rpx;
-	border-top: 1rpx solid #f0f0f0;
-}
-
-.address-text {
-	font-size: 26rpx;
-	color: #999;
-}
-
-/* 轮播图 */
-.swiper-section {
-	margin: 0 24rpx 24rpx;
-	border-radius: 24rpx;
-	overflow: hidden;
-}
-
-.banner-swiper {
-	width: 100%;
-	height: 300rpx;
-	border-radius: 24rpx;
-}
-
-.swiper-item {
-	width: 100%;
-	height: 100%;
-}
-
-.swiper-image {
-	width: 100%;
-	height: 100%;
-	border-radius: 24rpx;
-}
-
-/* 快捷入口 */
 .quick-entry {
 	background-color: #fff;
 	margin: 0 24rpx 24rpx;
 	border-radius: 24rpx;
-	padding: 32rpx 16rpx;
+	padding: 32rpx;
+}
+
+.entry-title,
+.section-title {
+	font-size: 32rpx;
+	font-weight: 600;
+	color: #333;
+	margin-bottom: 24rpx;
+	display: flex;
+	align-items: center;
+}
+
+.section-title-icon {
+	width: 36rpx;
+	height: 36rpx;
 }
 
 .entry-grid {
 	display: flex;
-	justify-content: space-around;
+	justify-content: space-between;
 }
 
 .entry-item {
@@ -411,7 +396,7 @@ const onBannerClick = (item) => {
 	flex-direction: column;
 	align-items: center;
 
-	.entry-icon-wrap {
+	.entry-icon {
 		width: 96rpx;
 		height: 96rpx;
 		border-radius: 24rpx;
@@ -419,6 +404,7 @@ const onBannerClick = (item) => {
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		font-size: 44rpx;
 		margin-bottom: 12rpx;
 	}
 
@@ -433,128 +419,98 @@ const onBannerClick = (item) => {
 	}
 }
 
-/* 设备列表 */
-.device-section {
-	margin: 0 24rpx 24rpx;
-}
-
-.section-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 20rpx;
-}
-
-.section-title {
-	font-size: 32rpx;
-	font-weight: 600;
-	color: #333;
-}
-
-.device-list {
-	display: flex;
-	flex-direction: column;
-}
-
-.device-card {
+.recharge-section {
 	background-color: #fff;
+	margin: 0 24rpx 24rpx;
 	border-radius: 24rpx;
 	padding: 32rpx;
-	margin-bottom: 20rpx;
-	box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
-
-	&:active {
-		background-color: #fafafa;
-	}
 }
 
-.device-card-top {
+.recharge-list {
 	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 12rpx;
+	overflow-x: auto;
+	white-space: nowrap;
 }
 
-.device-card-name {
-	font-size: 32rpx;
-	font-weight: 600;
-	color: #333;
-}
-
-.device-status {
-	font-size: 22rpx;
-	padding: 4rpx 16rpx;
-	border-radius: 999rpx;
-}
-
-.status-green {
-	background-color: #e8f8ee;
-	color: #07C160;
-}
-
-.status-gray {
-	background-color: #f0f0f0;
-	color: #999;
-}
-
-.device-card-addr {
-	margin-bottom: 16rpx;
-}
-
-.addr-text {
-	font-size: 24rpx;
-	color: #999;
-}
-
-.device-card-price {
-	display: flex;
-	align-items: baseline;
-	margin-bottom: 20rpx;
-}
-
-.price-label {
-	font-size: 24rpx;
-	color: #666;
-	margin-right: 8rpx;
-}
-
-.price-value {
-	font-size: 32rpx;
-	font-weight: 700;
-	color: #333;
-}
-
-.price-unit {
-	font-size: 22rpx;
-	color: #666;
-	margin-left: 4rpx;
-}
-
-.device-card-actions {
-	display: flex;
-	justify-content: flex-end;
-}
-
-.device-card-btn {
-	padding: 14rpx 40rpx;
-	border-radius: 999rpx;
-}
-
-.btn-recharge {
+.recharge-card {
+	min-width: 200rpx;
+	height: 160rpx;
+	border-radius: 20rpx;
 	background: linear-gradient(135deg, #07C160, #38d976);
-
-	&:active {
-		opacity: 0.9;
-	}
+	margin-right: 20rpx;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	position: relative;
+	flex-shrink: 0;
 }
 
-.btn-text {
-	font-size: 26rpx;
-	font-weight: 600;
+.recharge-amount {
+	font-size: 44rpx;
+	font-weight: 700;
 	color: #fff;
 }
 
-/* 团购核销弹窗 */
+.recharge-bonus {
+	font-size: 24rpx;
+	color: rgba(255, 255, 255, 0.9);
+	margin-top: 4rpx;
+}
+
+.recharge-tag {
+	position: absolute;
+	top: 12rpx;
+	right: 12rpx;
+	font-size: 20rpx;
+	color: rgba(255, 255, 255, 0.8);
+	background-color: rgba(255, 255, 255, 0.2);
+	padding: 2rpx 12rpx;
+	border-radius: 999rpx;
+}
+
+.features-section {
+	background-color: #fff;
+	margin: 0 24rpx 24rpx;
+	border-radius: 24rpx;
+	padding: 32rpx;
+}
+
+.features-list {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.feature-item {
+	width: 50%;
+	display: flex;
+	align-items: center;
+	padding: 16rpx 0;
+
+	.feature-icon {
+		font-size: 36rpx;
+		margin-right: 12rpx;
+	}
+
+	.feature-text {
+		font-size: 28rpx;
+		color: #333;
+	}
+}
+
+.tips-section {
+	margin: 0 24rpx;
+	padding: 24rpx 32rpx;
+}
+
+.tips-text {
+	display: block;
+	font-size: 22rpx;
+	color: #999;
+	margin-bottom: 8rpx;
+}
+
+/* 团购核销底部弹窗 */
 .redeem-overlay {
 	position: fixed;
 	top: 0;

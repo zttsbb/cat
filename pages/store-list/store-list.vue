@@ -87,7 +87,7 @@ const goStoreDetail = (id) => {
 }
 
 const goDeviceDetail = (id) => {
-	uni.navigateTo({ url: `/pages/index/index?deviceId=${id}` })
+	uni.navigateTo({ url: `/pages/device-detail/device-detail?deviceId=${id}` })
 }
 
 const goRecharge = () => {
