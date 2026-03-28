@@ -151,6 +151,35 @@
 				<text class="submit-text">确认下单</text>
 			</view>
 		</view>
+
+		<!-- 核销成功弹窗（对齐原型图-核销成功） -->
+		<view class="redeem-success-overlay" v-if="showRedeemSuccess" @click="closeRedeemSuccess">
+			<view class="redeem-success-popup" @click.stop>
+				<!-- 成功图标 -->
+				<view class="rs-icon-wrap">
+					<image class="rs-icon-img" src="/static/icon/yuyuechenggong.png" mode="aspectFit" />
+				</view>
+				<text class="rs-title">核销成功</text>
+				<!-- 卡券信息 -->
+				<view class="rs-coupon-info">
+					<view class="rs-coupon-source">
+						<image v-if="redeemResult.platformIcon" class="rs-platform-icon" :src="redeemResult.platformIcon" mode="aspectFit" />
+						<text class="rs-platform-name">{{ redeemResult.platformName }}</text>
+					</view>
+					<text class="rs-coupon-type">{{ redeemResult.couponType }}</text>
+					<text class="rs-coupon-scope">{{ redeemResult.couponScope }}</text>
+					<view class="rs-coupon-amount">
+						<text class="rs-amount">金额{{ redeemResult.amount }}/单次</text>
+					</view>
+					<text class="rs-coupon-remain">可用{{ redeemResult.remain }}次</text>
+					<text class="rs-coupon-expire">有效时间{{ redeemResult.expire }}</text>
+				</view>
+				<!-- 扫码下单按钮 -->
+				<view class="rs-btn" @click="closeRedeemSuccess">
+					<text class="rs-btn-text">扫码下单</text>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -203,6 +232,18 @@ const selectedCoupon = ref(null)
 
 const balance = ref(5.6)
 const couponCount = ref(3)
+
+// 核销成功弹窗
+const showRedeemSuccess = ref(false)
+const redeemResult = ref({
+	platformName: '美团',
+	platformIcon: '/static/icon/meituan.png',
+	couponType: '次卡',
+	couponScope: '适用于:洗宠机',
+	amount: 20,
+	remain: 3,
+	expire: '60天'
+})
 
 const payMethods = [
 	{ name: '余额支付' },
@@ -268,13 +309,19 @@ const selectPayMethod = (index) => {
 const onEntryClick = (item) => {
 	if (item.action === 'current') return
 	if (item.action === 'redeem') {
-		// TODO: 弹出核销弹窗
-		uni.showToast({ title: '团购核销功能开发中', icon: 'none' })
+		// TODO: 弹出核销弹窗，核销成功后显示核销成功弹窗
+		// 模拟核销成功
+		showRedeemSuccess.value = true
 		return
 	}
 	if (item.url) {
 		uni.navigateTo({ url: item.url })
 	}
+}
+
+// 关闭核销成功弹窗
+const closeRedeemSuccess = () => {
+	showRedeemSuccess.value = false
 }
 
 const onRecharge = (item) => {
@@ -776,5 +823,135 @@ const onSubmit = () => {
 
 .submit-text {
 	font-size: 32rpx;
+}
+
+/* ===== 核销成功弹窗（背景=预约页面） ===== */
+.redeem-success-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.redeem-success-popup {
+	width: 580rpx;
+	background-color: #fff;
+	border-radius: 32rpx;
+	padding: 60rpx 40rpx 40rpx;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+	from { transform: scale(0.8); opacity: 0; }
+	to { transform: scale(1); opacity: 1; }
+}
+
+.rs-icon-wrap {
+	margin-bottom: 20rpx;
+}
+
+.rs-icon-img {
+	width: 120rpx;
+	height: 120rpx;
+}
+
+.rs-title {
+	font-size: 36rpx;
+	font-weight: 700;
+	color: #333;
+	margin-bottom: 32rpx;
+}
+
+/* 卡券信息 */
+.rs-coupon-info {
+	width: 100%;
+	background-color: #fafafa;
+	border-radius: 20rpx;
+	padding: 28rpx;
+	margin-bottom: 32rpx;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.rs-coupon-source {
+	display: flex;
+	align-items: center;
+	margin-bottom: 8rpx;
+}
+
+.rs-platform-icon {
+	width: 32rpx;
+	height: 32rpx;
+	margin-right: 8rpx;
+}
+
+.rs-platform-name {
+	font-size: 28rpx;
+	font-weight: 600;
+	color: #333;
+}
+
+.rs-coupon-type {
+	font-size: 24rpx;
+	color: #999;
+	margin-bottom: 6rpx;
+}
+
+.rs-coupon-scope {
+	font-size: 24rpx;
+	color: #666;
+	margin-bottom: 12rpx;
+}
+
+.rs-coupon-amount {
+	margin-bottom: 6rpx;
+}
+
+.rs-amount {
+	font-size: 30rpx;
+	font-weight: 700;
+	color: #ff4d4f;
+}
+
+.rs-coupon-remain {
+	font-size: 24rpx;
+	color: #07C160;
+	margin-bottom: 6rpx;
+}
+
+.rs-coupon-expire {
+	font-size: 22rpx;
+	color: #999;
+}
+
+/* 扫码下单按钮 */
+.rs-btn {
+	width: 100%;
+	background: linear-gradient(135deg, #07C160, #38d976);
+	border-radius: 999rpx;
+	padding: 24rpx 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	&:active {
+		opacity: 0.9;
+	}
+}
+
+.rs-btn-text {
+	font-size: 30rpx;
+	font-weight: 600;
+	color: #fff;
 }
 </style>
