@@ -52,11 +52,6 @@
 			}
 		},
 		{
-			"style": {
-				"navigationBarTitleText": "确认预约"
-			}
-		},
-		{
 			"path": "pages/book-success/book-success",
 			"style": {
 				"navigationBarTitleText": "预约成功",
