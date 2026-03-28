@@ -41,19 +41,19 @@
 				<text class="tab-text">预约到店</text>
 			</view>
 			<view class="tab-item" @click="goPage('/pages/coupon-redeem/coupon-redeem')">
-				<image class="tab-icon-img" src="/icon/saomahexiao.png" mode="aspectFit" />
+				<image class="tab-icon-img" src="/static/icon/saomahexiao.png" mode="aspectFit" />
 				<text class="tab-text">团购核销</text>
 			</view>
 			<view class="tab-item" @click="goPage('/pages/wash-order-list/wash-order-list')">
-				<image class="tab-icon-img" src="/icon/dingdan.png" mode="aspectFit" />
+				<image class="tab-icon-img" src="/static/icon/dingdan.png" mode="aspectFit" />
 				<text class="tab-text">我的订单</text>
 			</view>
 			<view class="tab-item" @click="goPage('/pages/wallet/wallet')">
-				<image class="tab-icon-img" src="/icon/youhuichognzhi.png" mode="aspectFit" />
+				<image class="tab-icon-img" src="/static/icon/youhuichognzhi.png" mode="aspectFit" />
 				<text class="tab-text">优惠充值</text>
 			</view>
 			<view class="tab-item" @click="sharePage">
-				<image class="tab-icon-img" src="/icon/fenxiang.png" mode="aspectFit" />
+				<image class="tab-icon-img" src="/static/icon/fenxiang.png" mode="aspectFit" />
 				<text class="tab-text">分享有礼</text>
 			</view>
 		</view>

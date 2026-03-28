@@ -79,9 +79,9 @@ const switchTab = (key) => {
 }
 
 const getSourceIcon = (source) => {
-	if (source === '抖音') return '/icon/douyin.png'
-	if (source === '美团') return '/icon/meituan.png'
-	if (source === '系统') return '/icon/ceng.png'
+	if (source === '抖音') return '/static/icon/douyin.png'
+	if (source === '美团') return '/static/icon/meituan.png'
+	if (source === '系统') return '/static/icon/ceng.png'
 	return ''
 }
 
@@ -175,14 +175,14 @@ const loadData = async () => {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background-image: url('/bg/bg1.jpg');
+	background-image: url('/static/bg/bg1.jpg');
 	background-size: cover;
 	background-position: center;
 }
 
 /* 第二种背景色用于区分 */
 .coupon-card:nth-child(even) .coupon-bg {
-	background-image: url('/bg/bg2.jpg');
+	background-image: url('/static/bg/bg2.jpg');
 }
 
 /* 卡片内容 */

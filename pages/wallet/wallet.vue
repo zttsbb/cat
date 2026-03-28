@@ -15,7 +15,7 @@
 			<view class="recharge-scroll">
 				<view class="recharge-card" v-for="(item, index) in rechargeAmounts" :key="index" @click="onRecharge(item)">
 					<view class="bonus-badge">
-						<image class="bonus-badge-img" src="/icon/ceng.png" mode="aspectFit" />
+						<image class="bonus-badge-img" src="/static/icon/ceng.png" mode="aspectFit" />
 					</view>
 					<view class="recharge-amount">￥{{ item.amount }}</view>
 					<view class="recharge-bonus" v-if="item.bonus">赠￥{{ item.bonus }}</view>

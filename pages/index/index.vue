@@ -145,11 +145,11 @@ const bannerList = ref([
 
 // 快捷入口（对齐原型图：预约到店、团购核销、我的订单、优惠充值、分享有礼）
 const quickEntries = ref([
-	{ iconImage: '/icon/qiandao.png', text: '预约到店', url: '/pages/book-service/book-service' },
-	{ iconImage: '/icon/saomahexiao.png', text: '团购核销', action: 'redeem' },
-	{ iconImage: '/icon/qianbao.png', text: '我的订单', url: '/pages/wash-order-list/wash-order-list' },
-	{ iconImage: '/icon/youhuichognzhi.png', text: '优惠充值', url: '/pages/wallet/wallet' },
-	{ iconImage: '/icon/fenxiang.png', text: '分享有礼', action: 'share' }
+	{ iconImage: '/static/icon/qiandao.png', text: '预约到店', url: '/pages/book-service/book-service' },
+	{ iconImage: '/static/icon/saomahexiao.png', text: '团购核销', action: 'redeem' },
+	{ iconImage: '/static/icon/qianbao.png', text: '我的订单', url: '/pages/wash-order-list/wash-order-list' },
+	{ iconImage: '/static/icon/youhuichognzhi.png', text: '优惠充值', url: '/pages/wallet/wallet' },
+	{ iconImage: '/static/icon/fenxiang.png', text: '分享有礼', action: 'share' }
 ])
 
 // 设备列表 Mock
@@ -180,9 +180,9 @@ const redeemCode = ref('')
 const selectedPlatform = ref(null)
 
 const platforms = [
-	{ label: '抖音', icon: '/icon/douyin.png', value: 'douyin' },
-	{ label: '美团', icon: '/icon/meituan.png', value: 'meituan' },
-	{ label: '系统', icon: '/icon/ceng.png', value: 'system' }
+	{ label: '抖音', icon: '/static/icon/douyin.png', value: 'douyin' },
+	{ label: '美团', icon: '/static/icon/meituan.png', value: 'meituan' },
+	{ label: '系统', icon: '/static/icon/ceng.png', value: 'system' }
 ]
 
 const currentPlatformIcon = computed(() => {

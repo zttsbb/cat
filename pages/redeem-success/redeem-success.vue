@@ -66,14 +66,14 @@ onLoad((options) => {
 		couponExpire.value = options.expire || '60天'
 		// 根据平台设置图标
 		if (platformName.value === '抖音') {
-			platformIcon.value = '/icon/douyin.png'
+			platformIcon.value = '/static/icon/douyin.png'
 		} else if (platformName.value === '美团') {
-			platformIcon.value = '/icon/meituan.png'
+			platformIcon.value = '/static/icon/meituan.png'
 		} else {
-			platformIcon.value = '/icon/ceng.png'
+			platformIcon.value = '/static/icon/ceng.png'
 		}
 	} else {
-		platformIcon.value = '/icon/meituan.png'
+		platformIcon.value = '/static/icon/meituan.png'
 	}
 })
 

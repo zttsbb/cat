@@ -84,7 +84,7 @@ const selectedPayMethod = ref(0)
 const selectedCoupon = ref(null)
 
 const payMethods = ref([
-	{ iconImage: '/icon/qianbao.png', name: '余额支付', desc: '当前余额 ￥56.89', key: 'balance' },
+	{ iconImage: '/static/icon/qianbao.png', name: '余额支付', desc: '当前余额 ￥56.89', key: 'balance' },
 	{ icon: '🎫', name: '卡券支付', desc: '可用卡券 3张', key: 'coupon' },
 	{ icon: '💬', name: '微信支付', desc: '', key: 'wechat' }
 ])
