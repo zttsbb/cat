@@ -124,8 +124,22 @@ const goCouponList = () => {
 	uni.navigateTo({ url: '/pages/coupon-list/coupon-list' })
 }
 
+// tabBar 页面列表
+const tabBarPages = [
+	'pages/index/index',
+	'pages/wash-order-list/wash-order-list',
+	'pages/scan/scan',
+	'pages/book-order-list/book-order-list',
+	'pages/mine/mine'
+]
+
 const goPage = (url) => {
-	uni.navigateTo({ url })
+	const pagePath = url.replace(/^\//, '')
+	if (tabBarPages.includes(pagePath)) {
+		uni.switchTab({ url })
+	} else {
+		uni.navigateTo({ url })
+	}
 }
 
 const goAgreement = (type) => {
