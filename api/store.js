@@ -229,9 +229,9 @@ export const getBannerList = (params = {}) => {
 	// return request({ url: '/api/store/banners', method: 'GET', data: params })
 
 	return Promise.resolve([
-		{ id: 1, image: '/banner/banner1.jpg', link: '', title: '轮播图1' },
-		{ id: 2, image: '/banner/banner2.jpg', link: '', title: '轮播图2' },
-		{ id: 3, image: '/banner/banner3.jpg', link: '', title: '轮播图3' }
+		{ id: 1, image: '/static/banner/banner1.jpg', link: '', title: '轮播图1' },
+		{ id: 2, image: '/static/banner/banner2.jpg', link: '', title: '轮播图2' },
+		{ id: 3, image: '/static/banner/banner3.jpg', link: '', title: '轮播图3' }
 	])
 }
 
