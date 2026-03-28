@@ -617,6 +617,7 @@ const goStoreList = () => { uni.navigateTo({ url: '/pages/store-list/store-list'
 .popup-btn-text { font-size: 32rpx; font-weight: 600; color: #fff; }
 .popup-btn-row { display: flex; gap: 16rpx; }
 .popup-btn-back { flex: 1; background-color: #f5f5f5; border-radius: 999rpx; padding: 24rpx 0; text-align: center; }
+.popup-btn-row .popup-btn { flex: 2; }
 .popup-btn-back .popup-btn-text { color: #666; font-weight: 500; }
 
 /* ===== 预约成功弹窗 ===== */
