@@ -192,6 +192,15 @@ onMounted(() => {
 	// const deviceId = page.$page.options?.id || page.$page.options?.deviceId
 })
 
+// tabBar 页面列表
+const tabBarPages = [
+	'pages/index/index',
+	'pages/wash-order-list/wash-order-list',
+	'pages/scan/scan',
+	'pages/book-order-list/book-order-list',
+	'pages/mine/mine'
+]
+
 // 快捷入口点击
 const onEntryClick = (item) => {
 	if (item.action === 'redeem') {
@@ -203,7 +212,12 @@ const onEntryClick = (item) => {
 		return
 	}
 	if (item.url) {
-		uni.navigateTo({ url: item.url })
+		const pagePath = item.url.replace(/^\//, '')
+		if (tabBarPages.includes(pagePath)) {
+			uni.switchTab({ url: item.url })
+		} else {
+			uni.navigateTo({ url: item.url })
+		}
 	}
 }
 
