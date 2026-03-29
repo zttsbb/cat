@@ -707,11 +707,9 @@ $primary-bg: #f5fde6;
 /* ==================== 门店信息卡片 ==================== */
 .store-info-card {
 	background: #fff;
-	margin: -24rpx 24rpx 0;
+	margin: 20rpx 24rpx 0;
 	border-radius: 20rpx;
 	padding: 28rpx 32rpx;
-	position: relative;
-	z-index: 2;
 }
 
 .store-name-row {
