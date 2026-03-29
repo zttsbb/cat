@@ -491,7 +491,7 @@ const onEntryClick = (item) => {
 			openRedeemPopup()
 			break
 		case 'orders':
-			uni.switchTab({ url: '/pages/wash-order-list/wash-order-list' })
+			uni.navigateTo({ url: '/pages/wash-order-list/wash-order-list' })
 			break
 		case 'recharge':
 			uni.navigateTo({ url: '/pages/wallet/wallet' })
