@@ -1258,8 +1258,54 @@ $primary-bg: #f5fde6;
 .coupon-title {
 	font-size: 26rpx;
 	font-weight: 600;
-	color: #222;
+	color: #333;
 	margin-bottom: 12rpx;
+}
+
+.coupon-card {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 20rpx 24rpx;
+	background: #fff;
+	border: 2rpx solid #e8e8e8;
+	border-radius: 16rpx;
+
+	&:active {
+		background: #fafafa;
+	}
+}
+
+.coupon-left {
+	display: flex;
+	align-items: center;
+}
+
+.coupon-label {
+	font-size: 28rpx;
+	color: #333;
+}
+
+.coupon-right {
+	display: flex;
+	align-items: center;
+}
+
+.coupon-amount {
+	font-size: 28rpx;
+	font-weight: 700;
+	color: #ff4d4f;
+	margin-right: 12rpx;
+
+	&.placeholder {
+		color: #999;
+		font-weight: 400;
+	}
+}
+
+.coupon-arrow {
+	font-size: 28rpx;
+	color: #ccc;
 }
 
 .coupon-card {

@@ -118,11 +118,11 @@ const loadData = async () => {
 	text-align: center;
 	padding: 28rpx 0;
 	font-size: 28rpx;
-	color: #666;
+	color: #222;
 	position: relative;
 
 	&.active {
-		color: #07C160;
+		color: #91de00;
 		font-weight: 600;
 
 		&::after {
@@ -133,7 +133,7 @@ const loadData = async () => {
 			transform: translateX(-50%);
 			width: 60rpx;
 			height: 4rpx;
-			background-color: #07C160;
+			background-color: #91de00;
 			border-radius: 999rpx;
 		}
 	}

@@ -240,7 +240,7 @@ $primary-bg: #f5fde6;
 
 .balance-label {
 	font-size: 24rpx;
-	color: rgba(255, 255, 255, 0.8);
+	color: rgba(255, 255, 255, 0.95);
 	display: block;
 	margin-bottom: 8rpx;
 }
