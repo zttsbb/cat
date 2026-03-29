@@ -11,7 +11,7 @@
 					<text v-else class="avatar-placeholder">👤</text>
 				</view>
 				<view class="user-text">
-					<text class="user-name">{{ isLoggedIn ? (userInfo.nickName || '宠物达人') : '请登录' }}</text>
+					<text :class="['user-name', { 'login-text': !isLoggedIn }]">{{ isLoggedIn ? (userInfo.nickName || '宠物达人') : '请登录' }}</text>
 					<text class="user-desc">{{ isLoggedIn ? (userInfo.phone || '') : '登录后享受更多服务' }}</text>
 				</view>
 				<text class="login-arrow">›</text>
@@ -62,7 +62,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getUserInfo } from '@/api/user.js'
+import { login, getUserInfo } from '@/api/user.js'
 import { getWalletInfo } from '@/api/pay.js'
 import { getCouponList } from '@/api/coupon.js'
 
@@ -71,7 +71,19 @@ const statusBarHeight = ref(0)
 onMounted(() => {
 	const sysInfo = uni.getSystemInfoSync()
 	statusBarHeight.value = sysInfo.statusBarHeight || 0
+
+	// 检查是否已登录
+	checkLoginStatus()
 })
+
+// 检查登录状态
+const checkLoginStatus = () => {
+	const token = uni.getStorageSync('token')
+	if (token) {
+		isLoggedIn.value = true
+		loadUserData()
+	}
+}
 
 // ==================== 用户状态 ====================
 const isLoggedIn = ref(false)
@@ -94,11 +106,40 @@ const menuList = ref([
  * 接口: POST /api/user/login
  */
 const onLogin = async () => {
-	// TODO: const { code } = await uni.login({ provider: 'weixin' })
-	// const res = await login({ code })
-	// isLoggedIn.value = true
-	// await loadUserData()
-	uni.showToast({ title: '登录功能开发中', icon: 'none' })
+	try {
+		uni.showLoading({ title: '登录中...' })
+
+		// #ifdef MP-WEIXIN
+		const { code } = await uni.login({ provider: 'weixin' })
+		// #endif
+
+		// #ifdef MP-ALIPAY
+		const { authCode: code } = await my.getAuthCode()
+		// #endif
+
+		// #ifdef MP-TOUTIAO
+		const { code } = await tt.login({ provider: 'toutiao' })
+		// #endif
+
+		// 调用登录接口
+		const res = await login({ code })
+
+		// 保存 token
+		uni.setStorageSync('token', res.token)
+
+		isLoggedIn.value = true
+		userInfo.value = res.userInfo
+
+		// 加载用户数据
+		await loadUserData()
+
+		uni.hideLoading()
+		uni.showToast({ title: '登录成功', icon: 'success' })
+	} catch (error) {
+		uni.hideLoading()
+		console.error('登录失败:', error)
+		uni.showToast({ title: '登录失败，请重试', icon: 'none' })
+	}
 }
 
 /**
@@ -106,9 +147,28 @@ const onLogin = async () => {
  * 并行: 用户信息 / 钱包余额 / 卡券数量
  */
 const loadUserData = async () => {
-	// TODO: const info = await getUserInfo()
-	// TODO: const wallet = await getWalletInfo()
-	// TODO: const coupons = await getCouponList()
+	try {
+		// 并行加载数据
+		const [info, wallet, coupons] = await Promise.allSettled([
+			getUserInfo(),
+			getWalletInfo(),
+			getCouponList()
+		])
+
+		if (info.status === 'fulfilled') {
+			userInfo.value = info.value
+		}
+
+		if (wallet.status === 'fulfilled') {
+			balance.value = wallet.value.balance || '0.00'
+		}
+
+		if (coupons.status === 'fulfilled') {
+			couponCount.value = coupons.value.list?.length || 0
+		}
+	} catch (error) {
+		console.error('加载用户数据失败:', error)
+	}
 }
 
 const goProfile = () => { uni.navigateTo({ url: '/pages/profile/profile' }) }
@@ -126,7 +186,10 @@ const onLogout = () => {
 		content: '确定要退出登录吗？',
 		success: (res) => {
 			if (res.confirm) {
+				// 清除 token
+				uni.removeStorageSync('token')
 				isLoggedIn.value = false
+				userInfo.value = { nickName: '', phone: '', avatarUrl: '' }
 				uni.showToast({ title: '已退出登录', icon: 'success' })
 			}
 		}
@@ -193,6 +256,10 @@ $primary-bg: #f5fde6;
 	color: #222;
 	display: block;
 	margin-bottom: 6rpx;
+
+	&.login-text {
+		color: $primary;
+	}
 }
 
 .user-desc {

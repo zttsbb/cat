@@ -1,6 +1,31 @@
 // api/user.js - 用户相关接口
 
 /**
+ * 微信登录
+ * POST /api/user/login
+ * @param {Object} data - { code }
+ * @returns {Promise} { token, userInfo }
+ */
+export const login = (data = {}) => {
+	// TODO: 替换为实际接口调用
+	// return request({ url: '/api/user/login', method: 'POST', data })
+
+	// Mock 返回
+	return Promise.resolve({
+		token: 'mock_token_' + Date.now(),
+		userInfo: {
+			id: '100001',
+			nickName: '宠物达人',
+			avatarUrl: '',
+			phone: '138****8888',
+			balance: 865.50,
+			couponCount: 3,
+			isLogin: true
+		}
+	})
+}
+
+/**
  * 获取用户信息
  * GET /api/user/info
  * @returns {Promise} 用户信息
