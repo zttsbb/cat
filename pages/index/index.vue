@@ -57,7 +57,6 @@
 				<text class="entry-label">{{ item.text }}</text>
 			</view>
 		</view>
-		</view>
 
 		<!-- 设备列表 -->
 		<view class="device-section">
@@ -85,6 +84,7 @@
 					</view>
 				</view>
 			</view>
+		</view>
 		</view>
 
 		<!-- ========== 二、预约到店弹窗（2/3页面） ========== -->
