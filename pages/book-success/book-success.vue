@@ -76,7 +76,7 @@ const shareBtn = () => {
 }
 
 .nav-bar {
-	background: linear-gradient(135deg, #07C160, #38d976);
+	background: $primary;
 	padding: 0 24rpx;
 	display: flex;
 	align-items: center;
@@ -125,7 +125,7 @@ const shareBtn = () => {
 .success-title {
 	font-size: 44rpx;
 	font-weight: 700;
-	color: #07C160;
+	color: #7bc400;
 	margin-bottom: 16rpx;
 }
 
