@@ -622,8 +622,9 @@ const onConfirmRedeem = () => {
 		return
 	}
 	// TODO: 调用核销接口
-	// Mock: 直接显示核销成功
+	// Mock: 直接显示核销成功，同时打开预约弹窗作为背景
 	showRedeemSuccess.value = true
+	openBookPopup()
 }
 
 /** 继续下单 */
@@ -632,8 +633,6 @@ const onContinueOrder = () => {
 	showRedeemSuccess.value = false
 	selectedPlatform.value = null
 	redeemCode.value = ''
-	// 打开预约弹窗
-	openBookPopup()
 }
 </script>
 
