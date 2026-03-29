@@ -5,20 +5,25 @@
 <template>
 	<view class="page-store">
 		<!-- ========== 一、门店主页 ========== -->
-		<!-- 门店大图 -->
+		<!-- 门店名称（轮播图上面） -->
+		<view class="store-name-bar">
+			<text class="store-name-bar-text">{{ store.name }}</text>
+			<view class="switch-btn" @click="goStoreList">
+				<text class="switch-text">切换门店</text>
+				<text class="switch-arrow">›</text>
+			</view>
+		</view>
+		<!-- 门店大图（轮播图） -->
 		<view class="store-banner">
-			<image class="banner-img" :src="store.banner" mode="aspectFill" />
+			<swiper class="banner-swiper" :autoplay="true" :interval="4000" :circular="true" indicator-dots indicator-active-color="#fff">
+				<swiper-item v-for="(item, index) in bannerList" :key="index">
+					<image class="banner-img" :src="item.image" mode="aspectFill" />
+				</swiper-item>
+			</swiper>
 		</view>
 
 		<!-- 门店信息 -->
 		<view class="store-info-card">
-			<view class="store-top-row">
-				<text class="store-name">{{ store.name }}</text>
-				<view class="switch-btn" @click="goStoreList">
-					<text class="switch-text">切换门店</text>
-					<text class="switch-arrow">›</text>
-				</view>
-			</view>
 			<view class="store-addr-row">
 				<text class="store-addr">📍 {{ store.address }}</text>
 			</view>
@@ -82,37 +87,39 @@
 					</view>
 				</view>
 
-				<!-- 预约时间（时间轴形式） -->
+				<!-- 预约时间 -->
 				<view class="timeline-section">
 					<text class="timeline-title">预约时间</text>
-					<scroll-view scroll-x class="timeline-scroll">
-						<view class="timeline-list">
+					<!-- 日期选择（普通横向滚动） -->
+					<scroll-view scroll-x class="date-scroll-wrap">
+						<view class="date-list">
 							<view
-								:class="['timeline-item', { active: selectedDate === index, passed: index < selectedDate }]"
+								:class="['date-item', { active: selectedDate === index }]"
 								v-for="(item, index) in dateList"
 								:key="index"
 								@click="selectedDate = index"
 							>
-								<!-- 圆点 + 连接线 -->
-								<view class="tl-dot-line">
-									<view :class="['tl-dot', { active: selectedDate === index, passed: index <= selectedDate }]"></view>
-									<view class="tl-line" v-if="index < dateList.length - 1" :class="{ active: index < selectedDate }"></view>
-								</view>
-								<text class="tl-week">{{ item.week }}</text>
-								<text class="tl-day">{{ item.day }}</text>
-								<text class="tl-month">{{ item.month }}</text>
+								<text class="date-week">{{ item.week }}</text>
+								<text class="date-day">{{ item.day }}</text>
+								<text class="date-month">{{ item.month }}</text>
 							</view>
 						</view>
 					</scroll-view>
-					<!-- 时段选择 -->
-					<view class="time-grid">
-						<view
-							:class="['time-slot', { active: selectedTime === item, disabled: item.disabled }]"
-							v-for="(item, idx) in timeSlots"
-							:key="idx"
-							@click="!item.disabled && (selectedTime = item)"
-						>
-							<text class="time-slot-text">{{ item.label }}</text>
+					<!-- 时段选择（时间轴形式） -->
+					<view class="time-timeline">
+						<view class="time-tl-track">
+							<view
+								:class="['time-tl-item', { active: selectedTime === item, disabled: item.disabled }]"
+								v-for="(item, idx) in timeSlots"
+								:key="idx"
+								@click="!item.disabled && (selectedTime = item)"
+							>
+								<view class="time-tl-dot-wrap">
+									<view :class="['time-tl-dot', { active: selectedTime === item, disabled: item.disabled }]"></view>
+									<view class="time-tl-line" v-if="idx < timeSlots.length - 1"></view>
+								</view>
+								<text :class="['time-tl-text', { active: selectedTime === item, disabled: item.disabled }]">{{ item.label }}</text>
+							</view>
 						</view>
 					</view>
 				</view>
@@ -233,11 +240,17 @@ import { getWalletInfo, getAvailableCoupons } from '@/api/pay.js'
 const store = ref({
 	id: 1,
 	name: '物沃宠物洗护中心（南山店）',
-	banner: '/static/banner/banner1.jpg',
 	address: '深圳市南山区科技园南区深南大道9966号',
 	distance: '3.6KM',
 	tags: ['有车位', '有技师', 'WIFI覆盖', '门店图']
 })
+
+/** @type {Array} 轮播图 - 接口: GET /api/store/banners */
+const bannerList = ref([
+	{ id: 1, image: '/static/banner/banner1.jpg' },
+	{ id: 2, image: '/static/banner/banner2.jpg' },
+	{ id: 3, image: '/static/banner/banner3.jpg' }
+])
 
 // ==================== 快捷入口 ====================
 const quickEntries = ref([
@@ -289,12 +302,12 @@ initDateList()
 
 // 时段
 const timeSlots = ref([
-	{ label: '08:00', disabled: false },
-	{ label: '10:00', disabled: false },
-	{ label: '12:00', disabled: false },
-	{ label: '14:00', disabled: false },
-	{ label: '16:00', disabled: false },
-	{ label: '18:00', disabled: true }
+	{ label: '08:00-10:00', disabled: false },
+	{ label: '10:00-12:00', disabled: false },
+	{ label: '12:00-14:00', disabled: false },
+	{ label: '14:00-16:00', disabled: false },
+	{ label: '16:00-18:00', disabled: false },
+	{ label: '18:00-20:00', disabled: true }
 ])
 
 // 服务项目
@@ -480,37 +493,16 @@ $primary-bg: #f5fde6;
 
 /* ==================== 一、门店主页 ==================== */
 
-/* 门店大图 */
-.store-banner {
-	width: 100%;
-	height: 400rpx;
-	overflow: hidden;
-}
-
-.banner-img {
-	width: 100%;
-	height: 100%;
-}
-
-/* 门店信息卡片 */
-.store-info-card {
+/* 门店名称栏（轮播图上面） */
+.store-name-bar {
 	background: #fff;
-	margin: 0 24rpx;
-	margin-top: -40rpx;
-	border-radius: 20rpx;
-	padding: 28rpx 32rpx;
-	position: relative;
-	z-index: 1;
-}
-
-.store-top-row {
+	padding: 24rpx 32rpx;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: 12rpx;
 }
 
-.store-name {
+.store-name-bar-text {
 	font-size: 34rpx;
 	font-weight: 700;
 	color: #222;
@@ -537,6 +529,34 @@ $primary-bg: #f5fde6;
 	font-size: 28rpx;
 	color: #666;
 	margin-left: 4rpx;
+}
+
+/* 门店大图（轮播图） */
+.store-banner {
+	width: 100%;
+	height: 320rpx;
+	overflow: hidden;
+}
+
+.banner-swiper {
+	width: 100%;
+	height: 100%;
+}
+
+.banner-img {
+	width: 100%;
+	height: 100%;
+}
+
+/* 门店信息卡片 */
+.store-info-card {
+	background: #fff;
+	margin: 0 24rpx;
+	margin-top: -20rpx;
+	border-radius: 20rpx;
+	padding: 28rpx 32rpx;
+	position: relative;
+	z-index: 1;
 }
 
 .store-addr-row {
@@ -787,7 +807,7 @@ $primary-bg: #f5fde6;
 	color: #999;
 }
 
-/* 时间轴形式 - 预约时间 */
+/* 预约时间 */
 .timeline-section {
 	background: #fff;
 	margin: 12rpx 24rpx 0;
@@ -803,128 +823,114 @@ $primary-bg: #f5fde6;
 	margin-bottom: 16rpx;
 }
 
-.timeline-scroll {
+/* 日期选择（普通横向滚动） */
+.date-scroll-wrap {
 	white-space: nowrap;
 	margin-bottom: 20rpx;
 }
 
-.timeline-list {
+.date-list {
 	display: inline-flex;
-	gap: 0;
+	gap: 12rpx;
 }
 
-.timeline-item {
-	width: 120rpx;
-	flex-shrink: 0;
+.date-item {
+	width: 110rpx;
+	padding: 16rpx 0;
+	text-align: center;
+	border-radius: 12rpx;
+	border: 2rpx solid #e8e8e8;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	position: relative;
-
-	&.active {
-		.tl-week { color: $primary-dark; }
-		.tl-day { color: $primary-dark; }
-	}
-
-	&.passed {
-		.tl-week { color: $primary-dark; }
-	}
-}
-
-.tl-dot-line {
-	display: flex;
-	align-items: center;
-	width: 100%;
-	height: 20rpx;
-	margin-bottom: 8rpx;
-}
-
-.tl-dot {
-	width: 18rpx;
-	height: 18rpx;
-	border-radius: 50%;
-	background: #ddd;
 	flex-shrink: 0;
-	z-index: 1;
 
 	&.active {
-		background: $primary;
-		width: 22rpx;
-		height: 22rpx;
-		box-shadow: 0 0 0 6rpx $primary-light;
-	}
+		border-color: #91de00;
+		background: #f5fde6;
 
-	&.passed {
-		background: $primary;
+		.date-week { color: #7bc400; }
+		.date-day { color: #7bc400; }
 	}
 }
 
-.tl-line {
-	flex: 1;
-	height: 4rpx;
-	background: #e0e0e0;
-	margin: 0 -4rpx;
-
-	&.active {
-		background: $primary;
-	}
-}
-
-.tl-week {
+.date-week {
 	font-size: 22rpx;
 	color: #999;
 	margin-bottom: 4rpx;
 }
 
-.tl-day {
+.date-day {
 	font-size: 30rpx;
 	font-weight: 700;
 	color: #333;
 	margin-bottom: 2rpx;
 }
 
-.tl-month {
+.date-month {
 	font-size: 20rpx;
 	color: #999;
 }
 
-/* 时段网格 */
-.time-grid {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 12rpx;
+/* 时段选择（时间轴形式） */
+.time-timeline {
+	margin-top: 8rpx;
 }
 
-.time-slot {
-	width: calc(33.33% - 8rpx);
-	text-align: center;
-	padding: 16rpx 0;
-	border-radius: 12rpx;
-	border: 2rpx solid #e8e8e8;
+.time-tl-track {
+	display: flex;
+	align-items: flex-start;
+	gap: 0;
+}
+
+.time-tl-item {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	position: relative;
 
 	&.active {
-		border-color: $primary;
-		background: $primary-bg;
-
-		.time-slot-text {
-			color: $primary-dark;
-			font-weight: 600;
-		}
+		.time-tl-dot { background: #91de00; width: 22rpx; height: 22rpx; box-shadow: 0 0 0 6rpx #e8f5cc; }
+		.time-tl-text { color: #7bc400; font-weight: 600; }
 	}
 
 	&.disabled {
-		border-color: #f0f0f0;
-		background: #fafafa;
-
-		.time-slot-text {
-			color: #ccc;
-		}
+		.time-tl-dot { background: #e0e0e0; }
+		.time-tl-text { color: #ccc; }
 	}
 }
 
-.time-slot-text {
-	font-size: 28rpx;
+.time-tl-dot-wrap {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	justify-content: center;
+	margin-bottom: 12rpx;
+}
+
+.time-tl-dot {
+	width: 18rpx;
+	height: 18rpx;
+	border-radius: 50%;
+	background: #ddd;
+	flex-shrink: 0;
+	z-index: 1;
+	transition: all 0.2s;
+}
+
+.time-tl-line {
+	flex: 1;
+	height: 4rpx;
+	background: #e0e0e0;
+	margin: 0 -12rpx;
+}
+
+.time-tl-text {
+	font-size: 22rpx;
 	color: #333;
+	text-align: center;
+	line-height: 1.4;
 }
 
 /* 服务项目 2x2 */
