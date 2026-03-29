@@ -151,36 +151,54 @@
 					</view>
 				</view>
 
+				<!-- 下一步按钮 -->
+				<view class="next-step-wrap" v-if="!showPaySection">
+					<view class="next-step-btn" @click="goNextStep">
+						<text class="next-step-text">下一步</text>
+					</view>
+				</view>
+
 				<!-- 备注 -->
-				<view class="remark-wrap">
+				<view class="remark-wrap" v-if="showPaySection">
 					<input class="remark-input" v-model="remark" placeholder="请输入备注内容" maxlength="200" />
 				</view>
 
 				<!-- 底部支付栏 -->
-				<view class="popup-bottom">
+				<view class="popup-bottom" v-if="showPaySection">
+					<!-- 账户余额 -->
 					<view class="pay-info-row">
 						<view class="pay-info-item" @click="goWallet">
 							<text class="pi-label">账户余额</text>
 							<text class="pi-value">￥{{ balance }}</text>
 						</view>
-						<view class="pay-info-item" @click="goCouponList">
-							<text class="pi-label">我的卡券</text>
-							<text class="pi-value">({{ couponCount }})</text>
+					</view>
+
+					<!-- 我的卡券（可点击选择优惠券） -->
+					<view class="coupon-section">
+						<view class="coupon-title">我的卡券</view>
+						<view class="coupon-card" @click="pickCoupon">
+							<view class="coupon-left">
+								<text class="coupon-label">选取优惠券</text>
+							</view>
+							<view class="coupon-right">
+								<text class="coupon-amount" v-if="selectedCoupon">-￥{{ selectedCoupon.amount }}</text>
+								<text class="coupon-amount placeholder" v-else>选择优惠券</text>
+								<text class="coupon-arrow">›</text>
+							</view>
 						</view>
 					</view>
-					<view class="pay-method-row">
-						<view class="radio-circle active">
-							<view class="radio-inner"></view>
-						</view>
-						<text class="pay-method-name">微信支付</text>
-					</view>
-					<view class="coupon-row" @click="pickCoupon">
-						<text class="coupon-row-label">选取优惠券</text>
-						<view class="coupon-row-right">
-							<text class="coupon-row-text" v-if="selectedCoupon">-￥{{ selectedCoupon.amount }}</text>
-							<text class="coupon-row-arrow">›</text>
+
+					<!-- 微信支付 -->
+					<view class="pay-method-section">
+						<view class="pay-method-row">
+							<view class="radio-circle active">
+								<view class="radio-inner"></view>
+							</view>
+							<text class="pay-method-name">微信支付</text>
 						</view>
 					</view>
+
+					<!-- 确认下单 -->
 					<view class="submit-btn" @click="onSubmit">
 						<text class="submit-btn-text">确认下单</text>
 					</view>
@@ -286,7 +304,8 @@ const showBookPopup = ref(false)
 const showSuccess = ref(false)
 const selectedDate = ref(0)
 const selectedTime = ref(null)
-const selectedService = ref(0)
+const selectedService = ref(null)
+const showPaySection = ref(false)
 const remark = ref('')
 const balance = ref(5.6)
 const couponCount = ref(3)
@@ -416,14 +435,25 @@ const goStoreList = () => {
 const openBookPopup = () => {
 	selectedDate.value = 0
 	selectedTime.value = null
-	selectedService.value = 0
+	selectedService.value = null
+	showPaySection.value = false
 	remark.value = ''
 	showBookPopup.value = true
+}
+
+/** 点击下一步 */
+const goNextStep = () => {
+	if (selectedService.value === null) {
+		uni.showToast({ title: '请选择服务项目', icon: 'none' })
+		return
+	}
+	showPaySection.value = true
 }
 
 /** 关闭预约弹窗 */
 const closeBookPopup = () => {
 	showBookPopup.value = false
+	showPaySection.value = false
 }
 
 /** 选择优惠券 */
@@ -473,6 +503,7 @@ const onSuccessClick = () => {
 const goHome = () => {
 	showSuccess.value = false
 	showBookPopup.value = false
+	showPaySection.value = false
 }
 </script>
 
@@ -787,7 +818,7 @@ $primary-bg: #f5fde6;
 
 .book-popup {
 	width: 100%;
-	max-height: 75vh;
+	max-height: 85vh;
 	background-color: #fff;
 	border-radius: 32rpx 32rpx 0 0;
 	overflow-y: auto;
@@ -1034,6 +1065,28 @@ $primary-bg: #f5fde6;
 	height: 48rpx;
 }
 
+/* 下一步按钮 */
+.next-step-wrap {
+	margin: 20rpx 24rpx 0;
+}
+
+.next-step-btn {
+	background: $primary;
+	text-align: center;
+	padding: 24rpx 0;
+	border-radius: 999rpx;
+
+	&:active {
+		opacity: 0.85;
+	}
+}
+
+.next-step-text {
+	font-size: 32rpx;
+	font-weight: 700;
+	color: #fff;
+}
+
 /* 底部支付栏 */
 .popup-bottom {
 	margin: 12rpx 24rpx 0;
@@ -1070,11 +1123,73 @@ $primary-bg: #f5fde6;
 	color: $primary-dark;
 }
 
+/* 我的卡券 */
+.coupon-section {
+	margin-bottom: 20rpx;
+}
+
+.coupon-title {
+	font-size: 26rpx;
+	font-weight: 600;
+	color: #222;
+	margin-bottom: 12rpx;
+}
+
+.coupon-card {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 20rpx 24rpx;
+	background: #fff;
+	border: 2rpx solid #e8e8e8;
+	border-radius: 16rpx;
+
+	&:active {
+		background: #fafafa;
+	}
+}
+
+.coupon-left {
+	display: flex;
+	align-items: center;
+}
+
+.coupon-label {
+	font-size: 28rpx;
+	color: #333;
+}
+
+.coupon-right {
+	display: flex;
+	align-items: center;
+}
+
+.coupon-amount {
+	font-size: 28rpx;
+	font-weight: 700;
+	color: #ff4d4f;
+	margin-right: 12rpx;
+
+	&.placeholder {
+		color: #ccc;
+		font-weight: 400;
+	}
+}
+
+.coupon-arrow {
+	font-size: 28rpx;
+	color: #ccc;
+}
+
+/* 微信支付 */
+.pay-method-section {
+	margin-bottom: 20rpx;
+}
+
 .pay-method-row {
 	display: flex;
 	align-items: center;
 	padding: 16rpx 0;
-	border-bottom: 1rpx solid #f5f5f5;
 }
 
 .radio-circle {
@@ -1105,41 +1220,11 @@ $primary-bg: #f5fde6;
 	color: #333;
 }
 
-.coupon-row {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 16rpx 0;
-}
-
-.coupon-row-label {
-	font-size: 28rpx;
-	color: #333;
-}
-
-.coupon-row-right {
-	display: flex;
-	align-items: center;
-}
-
-.coupon-row-text {
-	font-size: 28rpx;
-	font-weight: 700;
-	color: #ff4d4f;
-	margin-right: 8rpx;
-}
-
-.coupon-row-arrow {
-	font-size: 28rpx;
-	color: #ccc;
-}
-
 .submit-btn {
 	background: $primary;
 	text-align: center;
 	padding: 24rpx 0;
 	border-radius: 999rpx;
-	margin-top: 20rpx;
 
 	&:active {
 		opacity: 0.85;
