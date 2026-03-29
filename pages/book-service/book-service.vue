@@ -82,25 +82,29 @@
 					</view>
 				</view>
 
-				<!-- 日期选择 -->
-				<scroll-view scroll-x class="date-scroll-wrap">
-					<view class="date-list">
-						<view
-							:class="['date-item', { active: selectedDate === index }]"
-							v-for="(item, index) in dateList"
-							:key="index"
-							@click="selectedDate = index"
-						>
-							<text class="date-week">{{ item.week }}</text>
-							<text class="date-day">{{ item.day }}</text>
-							<text class="date-month">{{ item.month }}</text>
+				<!-- 预约时间（时间轴形式） -->
+				<view class="timeline-section">
+					<text class="timeline-title">预约时间</text>
+					<scroll-view scroll-x class="timeline-scroll">
+						<view class="timeline-list">
+							<view
+								:class="['timeline-item', { active: selectedDate === index, passed: index < selectedDate }]"
+								v-for="(item, index) in dateList"
+								:key="index"
+								@click="selectedDate = index"
+							>
+								<!-- 圆点 + 连接线 -->
+								<view class="tl-dot-line">
+									<view :class="['tl-dot', { active: selectedDate === index, passed: index <= selectedDate }]"></view>
+									<view class="tl-line" v-if="index < dateList.length - 1" :class="{ active: index < selectedDate }"></view>
+								</view>
+								<text class="tl-week">{{ item.week }}</text>
+								<text class="tl-day">{{ item.day }}</text>
+								<text class="tl-month">{{ item.month }}</text>
+							</view>
 						</view>
-					</view>
-				</scroll-view>
-
-				<!-- 时段选择 -->
-				<view class="time-section">
-					<text class="time-section-title">选择时段</text>
+					</scroll-view>
+					<!-- 时段选择 -->
 					<view class="time-grid">
 						<view
 							:class="['time-slot', { active: selectedTime === item, disabled: item.disabled }]"
@@ -784,65 +788,15 @@ $primary-bg: #f5fde6;
 	color: #999;
 }
 
-/* 日期选择 */
-.date-scroll-wrap {
-	background: #fff;
-	padding: 0 32rpx 20rpx;
-	white-space: nowrap;
-}
-
-.date-list {
-	display: inline-flex;
-	gap: 12rpx;
-}
-
-.date-item {
-	width: 110rpx;
-	padding: 16rpx 0;
-	text-align: center;
-	border-radius: 12rpx;
-	border: 2rpx solid #e8e8e8;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	flex-shrink: 0;
-
-	&.active {
-		border-color: $primary;
-		background: $primary-bg;
-
-		.date-week { color: $primary-dark; }
-		.date-day { color: $primary-dark; }
-	}
-}
-
-.date-week {
-	font-size: 22rpx;
-	color: #999;
-	margin-bottom: 4rpx;
-}
-
-.date-day {
-	font-size: 30rpx;
-	font-weight: 700;
-	color: #222;
-	margin-bottom: 2rpx;
-}
-
-.date-month {
-	font-size: 20rpx;
-	color: #999;
-}
-
-/* 时段选择 */
-.time-section {
+/* 时间轴形式 - 预约时间 */
+.timeline-section {
 	background: #fff;
 	margin: 12rpx 24rpx 0;
 	border-radius: 20rpx;
 	padding: 24rpx;
 }
 
-.time-section-title {
+.timeline-title {
 	font-size: 28rpx;
 	font-weight: 600;
 	color: #222;
@@ -850,6 +804,92 @@ $primary-bg: #f5fde6;
 	margin-bottom: 16rpx;
 }
 
+.timeline-scroll {
+	white-space: nowrap;
+	margin-bottom: 20rpx;
+}
+
+.timeline-list {
+	display: inline-flex;
+	gap: 0;
+}
+
+.timeline-item {
+	width: 120rpx;
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	position: relative;
+
+	&.active {
+		.tl-week { color: $primary-dark; }
+		.tl-day { color: $primary-dark; }
+	}
+
+	&.passed {
+		.tl-week { color: $primary-dark; }
+	}
+}
+
+.tl-dot-line {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	height: 20rpx;
+	margin-bottom: 8rpx;
+}
+
+.tl-dot {
+	width: 18rpx;
+	height: 18rpx;
+	border-radius: 50%;
+	background: #ddd;
+	flex-shrink: 0;
+	z-index: 1;
+
+	&.active {
+		background: $primary;
+		width: 22rpx;
+		height: 22rpx;
+		box-shadow: 0 0 0 6rpx $primary-light;
+	}
+
+	&.passed {
+		background: $primary;
+	}
+}
+
+.tl-line {
+	flex: 1;
+	height: 4rpx;
+	background: #e0e0e0;
+	margin: 0 -4rpx;
+
+	&.active {
+		background: $primary;
+	}
+}
+
+.tl-week {
+	font-size: 22rpx;
+	color: #999;
+	margin-bottom: 4rpx;
+}
+
+.tl-day {
+	font-size: 30rpx;
+	font-weight: 700;
+	color: #333;
+	margin-bottom: 2rpx;
+}
+
+.tl-month {
+	font-size: 20rpx;
+	color: #999;
+}
+
+/* 时段网格 */
 .time-grid {
 	display: flex;
 	flex-wrap: wrap;
