@@ -46,6 +46,10 @@
 					<text class="action-btn-text">到店开门</text>
 				</view>
 			</view>
+			<view class="view-more-device" @click="goMoreDevices">
+				<text class="view-more-text">展开查看其他设备</text>
+				<text class="view-more-arrow">›</text>
+			</view>
 		</view>
 
 		<!-- 优惠充值 -->
@@ -162,6 +166,9 @@ const goLive = () => {
 }
 const goOpen = () => {
 	uni.showToast({ title: '到店开门功能开发中', icon: 'none' })
+}
+const goMoreDevices = () => {
+	uni.switchTab({ url: '/pages/index/index' })
 }
 const goRecharge = (item) => {
 	uni.navigateTo({ url: `/pages/wallet/wallet?amount=${item.amount}` })
@@ -305,6 +312,26 @@ $primary-bg: #f5fde6;
 	margin-top: 24rpx;
 	padding-top: 20rpx;
 	border-top: 1rpx solid #f0f0f0;
+}
+
+.view-more-device {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-top: 20rpx;
+	padding-top: 20rpx;
+	border-top: 1rpx solid #f0f0f0;
+}
+
+.view-more-text {
+	font-size: 26rpx;
+	color: #999;
+	margin-right: 8rpx;
+}
+
+.view-more-arrow {
+	font-size: 28rpx;
+	color: #999;
 }
 
 .action-btn {
