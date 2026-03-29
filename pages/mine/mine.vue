@@ -211,9 +211,12 @@ $primary-bg: #f5fde6;
 .balance-card {
 	display: flex;
 	background: $primary;
-	margin: 24rpx;
+	margin: 0 24rpx;
+	margin-top: -16rpx;
 	border-radius: 20rpx;
 	overflow: hidden;
+	position: relative;
+	z-index: 10;
 }
 
 .balance-left {
@@ -260,7 +263,7 @@ $primary-bg: #f5fde6;
 /* ==================== 菜单列表（上下排列） ==================== */
 .menu-card {
 	background: #fff;
-	margin: 0 24rpx;
+	margin: 16rpx 24rpx 0;
 	border-radius: 20rpx;
 	overflow: hidden;
 }
