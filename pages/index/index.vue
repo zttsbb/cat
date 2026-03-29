@@ -1,18 +1,21 @@
-<!-- pages/book-service/book-service.vue -->
+<!-- pages/index/index.vue -->
 <!-- 门店主页（对齐原型图：门店主页.png） -->
 <!-- 预约到店弹窗（对齐原型图：预约.png）弹出2/3页面 -->
 <!-- 确认预约（对齐原型图：确认预约.png）预约成功叠加弹窗 -->
 <template>
 	<view class="page-store">
 		<!-- ========== 一、门店主页 ========== -->
-		<!-- 门店名称（轮播图上面） -->
-		<view class="store-name-bar">
-			<text class="store-name-bar-text">{{ store.name }}</text>
-			<view class="switch-btn" @click="goStoreList">
-				<text class="switch-text">切换门店</text>
-				<text class="switch-arrow">›</text>
+		<!-- 导航栏（绿色背景） -->
+		<view class="nav-bar" :style="{ paddingTop: statusBarHeight + 'px' }">
+			<view class="nav-content">
+				<view class="nav-placeholder"></view>
+				<text class="nav-title">物沃PET</text>
+				<view class="nav-service">
+					<text class="service-icon">💬</text>
+				</view>
 			</view>
 		</view>
+
 		<!-- 门店大图（轮播图） -->
 		<view class="store-banner">
 			<swiper class="banner-swiper" :autoplay="true" :interval="4000" :circular="true" indicator-dots indicator-active-color="#fff">
@@ -22,8 +25,15 @@
 			</swiper>
 		</view>
 
-		<!-- 门店信息 -->
+		<!-- 门店信息卡片 -->
 		<view class="store-info-card">
+			<view class="store-name-row">
+				<text class="store-name">{{ store.name }}</text>
+				<view class="switch-btn" @click="goStoreList">
+					<text class="switch-text">切换门店</text>
+					<text class="switch-arrow">›</text>
+				</view>
+			</view>
 			<view class="store-addr-row">
 				<text class="store-addr">📍 {{ store.address }}</text>
 			</view>
@@ -235,6 +245,9 @@ import { getStoreDetail, getDeviceList } from '@/api/store.js'
 import { createBookOrder } from '@/api/order.js'
 import { getWalletInfo, getAvailableCoupons } from '@/api/pay.js'
 
+// ==================== 状态栏 ====================
+const statusBarHeight = ref(0)
+
 // ==================== 门店信息 ====================
 /** @type {Object} 门店信息 - 接口: GET /api/store/detail */
 const store = ref({
@@ -242,14 +255,14 @@ const store = ref({
 	name: '物沃宠物洗护中心（南山店）',
 	address: '深圳市南山区科技园南区深南大道9966号',
 	distance: '3.6KM',
-	tags: ['有车位', '有技师', 'WIFI覆盖', '门店图']
+	tags: ['有车位', '有技师', 'WIFI覆盖']
 })
 
 /** @type {Array} 轮播图 - 接口: GET /api/store/banners */
 const bannerList = ref([
-	{ id: 1, image: '/static/banner/banner1.jpg' },
-	{ id: 2, image: '/static/banner/banner2.jpg' },
-	{ id: 3, image: '/static/banner/banner3.jpg' }
+	{ id: 1, image: '/static/bg/bg1.jpg' },
+	{ id: 2, image: '/static/bg/bg2.jpg' },
+	{ id: 3, image: '/static/bg/bg1.jpg' }
 ])
 
 // ==================== 快捷入口 ====================
@@ -329,6 +342,8 @@ const couponList = ref([
 
 // ==================== 页面生命周期 ====================
 onMounted(() => {
+	const sysInfo = uni.getSystemInfoSync()
+	statusBarHeight.value = sysInfo.statusBarHeight || 0
 	loadData()
 })
 
@@ -367,7 +382,6 @@ const onEntryClick = (item) => {
 			openBookPopup()
 			break
 		case 'redeem':
-			// TODO: 打开团购核销弹窗
 			uni.navigateTo({ url: '/pages/coupon-redeem/coupon-redeem' })
 			break
 		case 'orders':
@@ -377,7 +391,6 @@ const onEntryClick = (item) => {
 			uni.navigateTo({ url: '/pages/wallet/wallet' })
 			break
 		case 'share':
-			// TODO: 分享有礼
 			uni.showToast({ title: '分享有礼功能开发中', icon: 'none' })
 			break
 	}
@@ -450,35 +463,20 @@ const onSubmit = () => {
 	const service = serviceList.value[selectedService.value]
 
 	// TODO: 调用创建预约订单接口
-	// createBookOrder({
-	// 	date: dateInfo.dateStr,
-	// 	time: selectedTime.value.label,
-	// 	serviceId: service.id,
-	// 	remark: remark.value,
-	// 	payMethod: 'wechat',
-	// 	couponId: selectedCoupon.value?.id || ''
-	// }).then(res => {
-	// 	bookOrderId.value = res.orderId
-	// 	showSuccess.value = true
-	// })
-
-	// Mock: 直接显示预约成功
 	showSuccess.value = true
 }
 
-/** 预约成功弹窗点击背景不关闭 */
 const onSuccessClick = () => {
-	// 不做任何操作，必须点按钮关闭
+	// 不做任何操作
 }
 
-/** 返回首页（关闭所有弹窗，已在首页无需跳转） */
 const goHome = () => {
 	showSuccess.value = false
 	showBookPopup.value = false
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 /* ==================== 主题变量 ==================== */
 $primary: #91de00;
 $primary-dark: #7bc400;
@@ -491,50 +489,47 @@ $primary-bg: #f5fde6;
 	background: #f7f7f7;
 }
 
-/* ==================== 一、门店主页 ==================== */
+/* ==================== 导航栏 ==================== */
+.nav-bar {
+	background: $primary;
+	padding: 0 32rpx 20rpx;
+}
 
-/* 门店名称栏（轮播图上面） */
-.store-name-bar {
-	background: #fff;
-	padding: 24rpx 32rpx;
+.nav-content {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	height: 88rpx;
 }
 
-.store-name-bar-text {
-	font-size: 34rpx;
+.nav-placeholder {
+	width: 60rpx;
+}
+
+.nav-title {
+	font-size: 36rpx;
 	font-weight: 700;
-	color: #222;
+	color: #fff;
 }
 
-.switch-btn {
+.nav-service {
+	width: 60rpx;
+	height: 60rpx;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.3);
 	display: flex;
 	align-items: center;
-	padding: 8rpx 20rpx;
-	background: #f5f5f5;
-	border-radius: 999rpx;
-
-	&:active {
-		background: #eee;
-	}
+	justify-content: center;
 }
 
-.switch-text {
-	font-size: 24rpx;
-	color: #666;
+.service-icon {
+	font-size: 32rpx;
 }
 
-.switch-arrow {
-	font-size: 28rpx;
-	color: #666;
-	margin-left: 4rpx;
-}
-
-/* 门店大图（轮播图） */
+/* ==================== 门店大图（轮播图） ==================== */
 .store-banner {
 	width: 100%;
-	height: 320rpx;
+	height: 360rpx;
 	overflow: hidden;
 }
 
@@ -548,15 +543,50 @@ $primary-bg: #f5fde6;
 	height: 100%;
 }
 
-/* 门店信息卡片 */
+/* ==================== 门店信息卡片 ==================== */
 .store-info-card {
 	background: #fff;
-	margin: 0 24rpx;
-	margin-top: -20rpx;
+	margin: -24rpx 24rpx 0;
 	border-radius: 20rpx;
 	padding: 28rpx 32rpx;
 	position: relative;
-	z-index: 1;
+	z-index: 2;
+}
+
+.store-name-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 12rpx;
+}
+
+.store-name {
+	font-size: 32rpx;
+	font-weight: 700;
+	color: #222;
+}
+
+.switch-btn {
+	display: flex;
+	align-items: center;
+	padding: 8rpx 20rpx;
+	background: $primary-bg;
+	border-radius: 999rpx;
+
+	&:active {
+		background: #e8f0d6;
+	}
+}
+
+.switch-text {
+	font-size: 24rpx;
+	color: $primary-dark;
+}
+
+.switch-arrow {
+	font-size: 28rpx;
+	color: $primary-dark;
+	margin-left: 4rpx;
 }
 
 .store-addr-row {
@@ -596,7 +626,7 @@ $primary-bg: #f5fde6;
 	color: $primary-dark;
 }
 
-/* 快捷入口 */
+/* ==================== 快捷入口 ==================== */
 .quick-entry {
 	background: #fff;
 	margin: 20rpx 24rpx 0;
@@ -637,7 +667,7 @@ $primary-bg: #f5fde6;
 	color: #333;
 }
 
-/* 设备列表 */
+/* ==================== 设备列表 ==================== */
 .device-section {
 	margin: 20rpx 24rpx;
 }
@@ -708,31 +738,27 @@ $primary-bg: #f5fde6;
 }
 
 .device-price {
-	display: flex;
-	align-items: baseline;
+	font-size: 24rpx;
+	color: #666;
 }
 
 .price-label {
-	font-size: 24rpx;
-	color: #666;
 	margin-right: 8rpx;
 }
 
 .price-num {
-	font-size: 32rpx;
-	font-weight: 700;
-	color: #222;
+	font-size: 28rpx;
+	font-weight: 600;
+	color: $primary-dark;
 }
 
 .price-unit {
-	font-size: 22rpx;
-	color: #666;
 	margin-left: 4rpx;
 }
 
 .device-btn {
 	background: $primary;
-	padding: 12rpx 36rpx;
+	padding: 12rpx 32rpx;
 	border-radius: 999rpx;
 
 	&:active {
@@ -746,48 +772,38 @@ $primary-bg: #f5fde6;
 	color: #fff;
 }
 
-/* ==================== 二、预约到店弹窗（2/3页面） ==================== */
+/* ==================== 预约弹窗（2/3页面） ==================== */
 .book-mask {
 	position: fixed;
 	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: rgba(0, 0, 0, 0.5);
-	z-index: 999;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 100;
 	display: flex;
 	align-items: flex-end;
-	justify-content: center;
 }
 
 .book-popup {
 	width: 100%;
-	height: 75vh;
-	background: #f7f7f7;
+	max-height: 75vh;
+	background-color: #fff;
 	border-radius: 32rpx 32rpx 0 0;
-	display: flex;
-	flex-direction: column;
-	animation: slideUp 0.3s ease-out;
-	overflow: hidden;
+	overflow-y: auto;
+	padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
 }
 
-@keyframes slideUp {
-	from { transform: translateY(100%); }
-	to { transform: translateY(0); }
-}
-
-/* 弹窗头部 */
 .popup-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 28rpx 32rpx 20rpx;
-	background: #fff;
-	border-radius: 32rpx 32rpx 0 0;
+	padding: 32rpx 32rpx 20rpx;
+	border-bottom: 1rpx solid #f5f5f5;
 }
 
 .popup-title {
-	font-size: 34rpx;
+	font-size: 36rpx;
 	font-weight: 700;
 	color: #222;
 }
@@ -796,7 +812,7 @@ $primary-bg: #f5fde6;
 	width: 56rpx;
 	height: 56rpx;
 	border-radius: 50%;
-	background: #f5f5f5;
+	background-color: #f5f5f5;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -809,10 +825,7 @@ $primary-bg: #f5fde6;
 
 /* 预约时间 */
 .timeline-section {
-	background: #fff;
-	margin: 12rpx 24rpx 0;
-	border-radius: 20rpx;
-	padding: 24rpx;
+	padding: 24rpx 24rpx 0;
 }
 
 .timeline-title {
@@ -823,114 +836,132 @@ $primary-bg: #f5fde6;
 	margin-bottom: 16rpx;
 }
 
-/* 日期选择（普通横向滚动） */
 .date-scroll-wrap {
 	white-space: nowrap;
-	margin-bottom: 20rpx;
 }
 
 .date-list {
-	display: inline-flex;
+	display: flex;
 	gap: 12rpx;
+	padding-bottom: 16rpx;
 }
 
 .date-item {
-	width: 110rpx;
-	padding: 16rpx 0;
+	min-width: 100rpx;
+	padding: 16rpx 12rpx;
+	border-radius: 16rpx;
+	background: #fafafa;
 	text-align: center;
-	border-radius: 12rpx;
-	border: 2rpx solid #e8e8e8;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	flex-shrink: 0;
+	border: 2rpx solid transparent;
 
 	&.active {
-		border-color: #91de00;
-		background: #f5fde6;
-
-		.date-week { color: #7bc400; }
-		.date-day { color: #7bc400; }
+		background: $primary-bg;
+		border-color: $primary;
 	}
 }
 
 .date-week {
 	font-size: 22rpx;
 	color: #999;
-	margin-bottom: 4rpx;
+	display: block;
+	margin-bottom: 6rpx;
+}
+
+.active .date-week {
+	color: $primary-dark;
 }
 
 .date-day {
-	font-size: 30rpx;
+	font-size: 32rpx;
 	font-weight: 700;
 	color: #333;
-	margin-bottom: 2rpx;
+	display: block;
+	margin-bottom: 4rpx;
+}
+
+.active .date-day {
+	color: $primary-dark;
 }
 
 .date-month {
 	font-size: 20rpx;
 	color: #999;
+	display: block;
 }
 
-/* 时段选择（时间轴形式） */
+.active .date-month {
+	color: $primary-dark;
+}
+
 .time-timeline {
-	margin-top: 8rpx;
+	padding: 20rpx 0 10rpx;
 }
 
 .time-tl-track {
 	display: flex;
 	align-items: flex-start;
-	gap: 0;
 }
 
 .time-tl-item {
 	flex: 1;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
 	position: relative;
 
-	&.active {
-		.time-tl-dot { background: #91de00; width: 22rpx; height: 22rpx; box-shadow: 0 0 0 6rpx #e8f5cc; }
-		.time-tl-text { color: #7bc400; font-weight: 600; }
-	}
-
 	&.disabled {
-		.time-tl-dot { background: #e0e0e0; }
-		.time-tl-text { color: #ccc; }
+		opacity: 0.4;
 	}
 }
 
 .time-tl-dot-wrap {
 	display: flex;
 	align-items: center;
-	width: 100%;
 	justify-content: center;
-	margin-bottom: 12rpx;
+	height: 48rpx;
+	margin-bottom: 8rpx;
 }
 
 .time-tl-dot {
-	width: 18rpx;
-	height: 18rpx;
+	width: 20rpx;
+	height: 20rpx;
 	border-radius: 50%;
-	background: #ddd;
-	flex-shrink: 0;
-	z-index: 1;
-	transition: all 0.2s;
+	background: #e0e0e0;
+	border: 4rpx solid #fff;
+	box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+
+	&.active {
+		background: $primary;
+	}
+
+	&.disabled {
+		background: #e0e0e0;
+	}
 }
 
 .time-tl-line {
 	flex: 1;
 	height: 4rpx;
 	background: #e0e0e0;
-	margin: 0 -12rpx;
+	margin-left: -4rpx;
+
+	.time-tl-item.active + .time-tl-item &,
+	.time-tl-item.active & {
+		background: $primary;
+	}
 }
 
 .time-tl-text {
 	font-size: 22rpx;
-	color: #333;
+	color: #666;
 	text-align: center;
-	line-height: 1.4;
+	display: block;
+
+	&.active {
+		color: $primary-dark;
+		font-weight: 600;
+	}
+
+	&.disabled {
+		color: #ccc;
+	}
 }
 
 /* 服务项目 2x2 */
@@ -998,59 +1029,59 @@ $primary-bg: #f5fde6;
 }
 
 .remark-input {
-	width: 100%;
 	font-size: 28rpx;
 	color: #333;
-	background: #f5f5f5;
-	border-radius: 12rpx;
-	padding: 16rpx 20rpx;
-	box-sizing: border-box;
+	height: 48rpx;
 }
 
 /* 底部支付栏 */
 .popup-bottom {
-	margin-top: auto;
+	margin: 12rpx 24rpx 0;
 	background: #fff;
-	padding: 20rpx 32rpx;
-	padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
-	border-top: 1rpx solid #f0f0f0;
+	border-radius: 20rpx;
+	padding: 24rpx;
 }
 
 .pay-info-row {
 	display: flex;
-	align-items: center;
-	margin-bottom: 12rpx;
+	gap: 20rpx;
+	margin-bottom: 20rpx;
 }
 
 .pay-info-item {
 	flex: 1;
 	display: flex;
+	flex-direction: column;
 	align-items: center;
+	padding: 16rpx;
+	background: $primary-bg;
+	border-radius: 16rpx;
 }
 
 .pi-label {
-	font-size: 26rpx;
+	font-size: 22rpx;
 	color: #666;
-	margin-right: 8rpx;
+	margin-bottom: 6rpx;
 }
 
 .pi-value {
-	font-size: 26rpx;
-	color: #333;
-	font-weight: 600;
+	font-size: 28rpx;
+	font-weight: 700;
+	color: $primary-dark;
 }
 
 .pay-method-row {
 	display: flex;
 	align-items: center;
-	margin-bottom: 12rpx;
+	padding: 16rpx 0;
+	border-bottom: 1rpx solid #f5f5f5;
 }
 
 .radio-circle {
 	width: 36rpx;
 	height: 36rpx;
 	border-radius: 50%;
-	border: 2rpx solid #ddd;
+	border: 3rpx solid #e0e0e0;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1069,6 +1100,7 @@ $primary-bg: #f5fde6;
 }
 
 .pay-method-name {
+	flex: 1;
 	font-size: 28rpx;
 	color: #333;
 }
@@ -1077,13 +1109,11 @@ $primary-bg: #f5fde6;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 12rpx 0;
-	border-top: 1rpx solid #f0f0f0;
-	margin-bottom: 16rpx;
+	padding: 16rpx 0;
 }
 
 .coupon-row-label {
-	font-size: 26rpx;
+	font-size: 28rpx;
 	color: #333;
 }
 
@@ -1093,21 +1123,23 @@ $primary-bg: #f5fde6;
 }
 
 .coupon-row-text {
-	font-size: 26rpx;
+	font-size: 28rpx;
+	font-weight: 700;
 	color: #ff4d4f;
 	margin-right: 8rpx;
 }
 
 .coupon-row-arrow {
-	font-size: 32rpx;
+	font-size: 28rpx;
 	color: #ccc;
 }
 
 .submit-btn {
 	background: $primary;
-	border-radius: 999rpx;
-	padding: 24rpx 0;
 	text-align: center;
+	padding: 24rpx 0;
+	border-radius: 999rpx;
+	margin-top: 20rpx;
 
 	&:active {
 		opacity: 0.85;
@@ -1120,64 +1152,58 @@ $primary-bg: #f5fde6;
 	color: #fff;
 }
 
-/* ==================== 三、预约成功叠加弹窗 ==================== */
+/* ==================== 预约成功叠加弹窗 ==================== */
 .success-mask {
 	position: fixed;
 	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: rgba(0, 0, 0, 0.6);
-	z-index: 1001;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 200;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
 
 .success-popup {
-	width: 560rpx;
+	width: 600rpx;
 	background: #fff;
-	border-radius: 32rpx;
-	padding: 60rpx 40rpx 40rpx;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	animation: popIn 0.3s ease-out;
-}
-
-@keyframes popIn {
-	from { transform: scale(0.8); opacity: 0; }
-	to { transform: scale(1); opacity: 1; }
+	border-radius: 24rpx;
+	padding: 48rpx 32rpx;
+	text-align: center;
 }
 
 .success-icon-wrap {
-	margin-bottom: 24rpx;
+	width: 160rpx;
+	height: 160rpx;
+	margin: 0 auto 32rpx;
 }
 
 .success-icon-img {
-	width: 140rpx;
-	height: 140rpx;
+	width: 100%;
+	height: 100%;
 }
 
 .success-title {
 	font-size: 40rpx;
 	font-weight: 700;
-	color: $primary-dark;
+	color: #222;
+	display: block;
 	margin-bottom: 12rpx;
 }
 
 .success-desc {
-	font-size: 28rpx;
+	font-size: 26rpx;
 	color: #999;
+	display: block;
 	margin-bottom: 40rpx;
 }
 
 .success-btn {
-	width: 100%;
 	background: $primary;
-	border-radius: 999rpx;
 	padding: 24rpx 0;
-	text-align: center;
+	border-radius: 999rpx;
 
 	&:active {
 		opacity: 0.85;
@@ -1197,32 +1223,31 @@ $primary-bg: #f5fde6;
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: rgba(0, 0, 0, 0.5);
-	z-index: 1002;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 150;
 	display: flex;
-	align-items: flex-end;
+	align-items: center;
 	justify-content: center;
 }
 
 .coupon-popup {
-	width: 100%;
+	width: 650rpx;
 	max-height: 70vh;
 	background: #fff;
-	border-radius: 32rpx 32rpx 0 0;
-	display: flex;
-	flex-direction: column;
-	animation: slideUp 0.3s ease-out;
+	border-radius: 24rpx;
+	overflow: hidden;
 }
 
 .coupon-popup-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 28rpx 32rpx 16rpx;
+	padding: 32rpx;
+	border-bottom: 1rpx solid #f5f5f5;
 }
 
 .coupon-popup-title {
-	font-size: 34rpx;
+	font-size: 32rpx;
 	font-weight: 700;
 	color: #222;
 }
@@ -1240,107 +1265,91 @@ $primary-bg: #f5fde6;
 }
 
 .coupon-popup-list {
-	flex: 1;
-	padding: 12rpx 24rpx;
-	padding-bottom: env(safe-area-inset-bottom);
+	max-height: 500rpx;
 }
 
 .cp-item {
 	display: flex;
 	align-items: center;
-	padding: 24rpx;
-	margin-bottom: 16rpx;
-	border-radius: 16rpx;
-	border: 2rpx solid #e8e8e8;
-	background: #fff;
+	padding: 24rpx 32rpx;
+	border-bottom: 1rpx solid #f5f5f5;
 
 	&.active {
-		border-color: $primary;
 		background: $primary-bg;
 	}
 
 	&.disabled {
-		opacity: 0.5;
+		opacity: 0.4;
 	}
 }
 
 .cp-left {
-	display: flex;
-	align-items: baseline;
+	width: 120rpx;
 	padding-right: 20rpx;
-	border-right: 2rpx dashed #e0e0e0;
-	margin-right: 20rpx;
-	min-width: 120rpx;
-	justify-content: center;
+	border-right: 1rpx solid #f0f0f0;
+	text-align: center;
 }
 
 .cp-sym {
 	font-size: 24rpx;
-	color: #ff6b35;
-	font-weight: 600;
+	color: #ff4d4f;
 }
 
 .cp-num {
-	font-size: 44rpx;
-	color: #ff6b35;
+	font-size: 40rpx;
 	font-weight: 700;
+	color: #ff4d4f;
 }
 
 .cp-right {
 	flex: 1;
-	display: flex;
-	flex-direction: column;
+	padding-left: 20rpx;
 }
 
 .cp-name {
-	font-size: 26rpx;
+	font-size: 28rpx;
 	font-weight: 600;
-	color: #222;
-	margin-bottom: 4rpx;
+	color: #333;
+	display: block;
+	margin-bottom: 6rpx;
 }
 
 .cp-scope {
 	font-size: 22rpx;
 	color: #999;
-	margin-bottom: 2rpx;
+	display: block;
+	margin-bottom: 4rpx;
 }
 
 .cp-expire {
 	font-size: 20rpx;
 	color: #ccc;
+	display: block;
 }
 
 .cp-check {
-	width: 36rpx;
-	height: 36rpx;
+	width: 40rpx;
+	height: 40rpx;
 	border-radius: 50%;
 	background: $primary;
 	color: #fff;
-	font-size: 22rpx;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	margin-left: 12rpx;
-	flex-shrink: 0;
+	font-size: 24rpx;
 }
 
 .cp-no-use {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 28rpx;
-	border-radius: 16rpx;
-	border: 2rpx dashed #ddd;
-	margin-bottom: 16rpx;
+	padding: 20rpx 32rpx;
+	text-align: center;
 
 	&.active {
-		border-color: $primary;
 		background: $primary-bg;
 	}
 }
 
 .cp-no-use-text {
 	font-size: 28rpx;
-	color: #333;
+	color: #666;
 }
 </style>
