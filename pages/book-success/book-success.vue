@@ -76,7 +76,7 @@ const shareBtn = () => {
 }
 
 .nav-bar {
-	background: $primary;
+	background: #91de00;
 	padding: 0 24rpx;
 	display: flex;
 	align-items: center;
