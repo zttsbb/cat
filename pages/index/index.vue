@@ -647,6 +647,7 @@ $primary-bg: #f5fde6;
 .page-store {
 	min-height: 100vh;
 	background: #f7f7f7;
+	padding-bottom: 20rpx;
 }
 
 /* ==================== 导航栏 ==================== */
@@ -706,7 +707,7 @@ $primary-bg: #f5fde6;
 /* ==================== 门店信息卡片 ==================== */
 .store-info-card {
 	background: #fff;
-	margin: 20rpx 24rpx 0;
+	margin: 20rpx 24rpx 20rpx;
 	border-radius: 20rpx;
 	padding: 28rpx 32rpx;
 }
@@ -787,7 +788,7 @@ $primary-bg: #f5fde6;
 /* ==================== 快捷入口 ==================== */
 .quick-entry {
 	background: #fff;
-	margin: 20rpx 24rpx 0;
+	margin: 0 24rpx 20rpx;
 	border-radius: 20rpx;
 	padding: 28rpx 16rpx;
 	display: flex;
@@ -827,7 +828,7 @@ $primary-bg: #f5fde6;
 
 /* ==================== 设备列表 ==================== */
 .device-section {
-	margin: 20rpx 24rpx;
+	margin: 0 24rpx;
 }
 
 .section-title {
