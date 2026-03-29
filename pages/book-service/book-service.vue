@@ -48,24 +48,19 @@
 					</view>
 				</view>
 
-				<!-- 服务项目（卡片切换形式） -->
+				<!-- 服务项目 2x2 -->
 				<view class="svc-section">
 					<text class="svc-section-title">服务项目</text>
-					<view class="svc-card-container">
-						<view :class="['svc-card', { active: selectedService === index }]" v-for="(item, index) in serviceList" :key="index">
+					<view class="svc-grid">
+						<view
+							:class="['svc-card', { active: selectedService === index }]"
+							v-for="(item, index) in serviceList"
+							:key="index"
+							@click="selectedService = index"
+						>
 							<text class="svc-name">{{ item.name }}</text>
 							<text class="svc-price">￥{{ item.price.toFixed(2) }}</text>
 							<text class="svc-desc">{{ item.desc }}</text>
-						</view>
-					</view>
-					<!-- 下一步按钮 -->
-					<view class="next-btn-row">
-						<view class="prev-btn" :class="{ disabled: selectedService === 0 }" @click="onServicePrev">
-							<text class="nav-btn-text">‹</text>
-						</view>
-						<view class="nav-btn-desc">左右切换</view>
-						<view class="next-btn" :class="{ disabled: selectedService === serviceList.length - 1 }" @click="onServiceNext">
-							<text class="nav-btn-text">›</text>
 						</view>
 					</view>
 				</view>
@@ -75,28 +70,8 @@
 					<input class="remark-input" v-model="remark" placeholder="请输入备注内容" maxlength="200" />
 				</view>
 
-				<!-- 底部支付栏（上下排列） -->
+				<!-- 底部确认下单按钮 -->
 				<view class="popup-bottom">
-					<!-- 账户余额 -->
-					<view class="pay-row" @click="goWallet">
-						<text class="pay-label">账户余额</text>
-						<text class="pay-value">￥{{ balance }}</text>
-					</view>
-					<!-- 我的卡券（选取优惠券） -->
-					<view class="pay-row" @click="pickCoupon">
-						<text class="pay-label">选取优惠券</text>
-						<view class="pay-right">
-							<text class="pay-value" v-if="selectedCoupon">-￥{{ selectedCoupon.amount }}</text>
-							<text class="pay-arrow">›</text>
-						</view>
-					</view>
-					<!-- 微信支付 -->
-					<view class="pay-row wechat-row">
-						<view class="radio-circle active">
-							<view class="radio-inner"></view>
-						</view>
-						<text class="pay-method-name">微信支付</text>
-					</view>
 					<view class="submit-btn" @click="onSubmit">
 						<text class="submit-btn-text">确认下单</text>
 					</view>
@@ -114,6 +89,65 @@
 				<text class="success-desc">您的预约已提交成功，请按时到店</text>
 				<view class="success-btn" @click="goHome">
 					<text class="success-btn-text">返回首页</text>
+				</view>
+			</view>
+		</view>
+
+		<!-- ========== 支付方式选择弹窗 ========== -->
+		<view class="pay-mask" v-if="showPayPopup" @click="closePayPopup">
+			<view class="pay-popup" @click.stop>
+				<view class="pay-popup-header">
+					<text class="pay-popup-title">选择支付方式</text>
+					<view class="pay-popup-close" @click="closePayPopup">
+						<text>✕</text>
+					</view>
+				</view>
+				<view class="pay-amount">
+					<text class="pay-amount-label">应付金额</text>
+					<text class="pay-amount-value">￥{{ totalAmount }}</text>
+				</view>
+				<view class="pay-popup-body">
+					<!-- 账户余额 -->
+					<view class="pay-option" @click="onPaySelect('balance')">
+						<view class="pay-option-icon">
+							<text>💰</text>
+						</view>
+						<view class="pay-option-info">
+							<text class="pay-option-text">账户余额</text>
+							<text class="pay-option-desc">可用余额￥{{ balance }}</text>
+						</view>
+						<view class="pay-option-radio" :class="{ active: selectedPayMethod === 'balance' }">
+							<text class="radio-dot" v-if="selectedPayMethod === 'balance'"></text>
+						</view>
+					</view>
+					<!-- 我的卡券 -->
+					<view class="pay-option" @click="pickCoupon">
+						<view class="pay-option-icon">
+							<text>🎫</text>
+						</view>
+						<view class="pay-option-info">
+							<text class="pay-option-text">我的卡券</text>
+							<text class="pay-option-desc" v-if="selectedCoupon">-￥{{ selectedCoupon.amount }}</text>
+							<text class="pay-option-desc" v-else>选择优惠券</text>
+						</view>
+						<text class="pay-option-arrow">›</text>
+					</view>
+					<!-- 微信支付 -->
+					<view class="pay-option" @click="onPaySelect('wechat')">
+						<view class="pay-option-icon">
+							<text>🟢</text>
+						</view>
+						<view class="pay-option-info">
+							<text class="pay-option-text">微信支付</text>
+							<text class="pay-option-desc">推荐使用</text>
+						</view>
+						<view class="pay-option-radio" :class="{ active: selectedPayMethod === 'wechat' }">
+							<text class="radio-dot" v-if="selectedPayMethod === 'wechat'"></text>
+						</view>
+					</view>
+				</view>
+				<view class="pay-confirm-btn" @click="confirmPay">
+					<text class="pay-confirm-text">确认支付</text>
 				</view>
 			</view>
 		</view>
@@ -156,20 +190,33 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { createBookOrder } from '@/api/order.js'
 import { getWalletInfo, getAvailableCoupons } from '@/api/pay.js'
 
 // ==================== 预约弹窗 ====================
 const showBookPopup = ref(true)
 const showSuccess = ref(false)
+const showPayPopup = ref(false)
+const showCouponPicker = ref(false)
+
 const selectedDate = ref(0)
 const selectedTime = ref(null)
 const selectedService = ref(0)
 const remark = ref('')
 const balance = ref(5.6)
 const selectedCoupon = ref(null)
-const showCouponPicker = ref(false)
+const selectedPayMethod = ref('wechat')
+
+// 计算总金额
+const totalAmount = computed(() => {
+	const service = serviceList.value[selectedService.value]
+	let amount = service.price
+	if (selectedCoupon.value) {
+		amount -= selectedCoupon.value.amount
+	}
+	return Math.max(0, amount).toFixed(2)
+})
 
 // 日期列表
 const dateList = ref([])
@@ -218,19 +265,6 @@ const couponList = ref([
 	{ id: 4, name: '过期次卡', amount: 15, scope: '适用于:洗宠机', expireText: '已到期', disabled: true }
 ])
 
-// 服务项目切换
-const onServicePrev = () => {
-	if (selectedService.value > 0) {
-		selectedService.value--
-	}
-}
-
-const onServiceNext = () => {
-	if (selectedService.value < serviceList.value.length - 1) {
-		selectedService.value++
-	}
-}
-
 // ==================== 预约弹窗交互 ====================
 
 /** 关闭预约弹窗 */
@@ -248,12 +282,20 @@ const onSelectCoupon = (c) => {
 	showCouponPicker.value = false
 }
 
-const goWallet = () => {
-	uni.navigateTo({ url: '/pages/wallet/wallet' })
+/** 选择支付方式 */
+const onPaySelect = (method) => {
+	if (method === 'wechat') {
+		selectedPayMethod.value = 'wechat'
+	}
+}
+
+/** 关闭支付弹窗 */
+const closePayPopup = () => {
+	showPayPopup.value = false
 }
 
 /**
- * 提交预约订单
+ * 提交预约订单 - 打开支付方式选择弹窗
  * 接口: POST /api/order/book/create
  */
 const onSubmit = () => {
@@ -264,20 +306,33 @@ const onSubmit = () => {
 	const dateInfo = dateList.value[selectedDate.value]
 	const service = serviceList.value[selectedService.value]
 
+	// 打开支付方式选择弹窗
+	showPayPopup.value = true
+}
+
+/**
+ * 确认支付
+ * 接口: POST /api/order/book/create
+ */
+const confirmPay = () {
+	const dateInfo = dateList.value[selectedDate.value]
+	const service = serviceList.value[selectedService.value]
+
 	// TODO: 调用创建预约订单接口
 	// createBookOrder({
 	// 	date: dateInfo.dateStr,
 	// 	time: selectedTime.value.label,
 	// 	serviceId: service.id,
 	// 	remark: remark.value,
-	// 	payMethod: 'wechat',
+	// 	payMethod: selectedPayMethod.value,
 	// 	couponId: selectedCoupon.value?.id || ''
 	// }).then(res => {
-	// 	bookOrderId.value = res.orderId
+	// 	showPayPopup.value = false
 	// 	showSuccess.value = true
 	// })
 
 	// Mock: 直接显示预约成功
+	showPayPopup.value = false
 	showSuccess.value = true
 }
 
@@ -508,7 +563,7 @@ $primary-bg: #f5fde6;
 	color: #333;
 }
 
-/* 服务项目（卡片切换形式） */
+/* 服务项目 2x2 */
 .svc-section {
 	background: #fff;
 	margin: 12rpx 24rpx 0;
@@ -524,18 +579,17 @@ $primary-bg: #f5fde6;
 	margin-bottom: 16rpx;
 }
 
-.svc-card-container {
+.svc-grid {
 	display: flex;
-	flex-direction: column;
+	flex-wrap: wrap;
 	gap: 12rpx;
-	margin-bottom: 16rpx;
 }
 
 .svc-card {
-	padding: 24rpx;
+	width: calc(50% - 6rpx);
+	padding: 20rpx;
 	border-radius: 16rpx;
 	border: 2rpx solid #e8e8e8;
-	transition: all 0.3s;
 
 	&.active {
 		border-color: $primary;
@@ -544,7 +598,7 @@ $primary-bg: #f5fde6;
 }
 
 .svc-name {
-	font-size: 28rpx;
+	font-size: 26rpx;
 	font-weight: 600;
 	color: #222;
 	display: block;
@@ -552,7 +606,7 @@ $primary-bg: #f5fde6;
 }
 
 .svc-price {
-	font-size: 36rpx;
+	font-size: 32rpx;
 	font-weight: 700;
 	color: #ff4d4f;
 	display: block;
@@ -560,46 +614,9 @@ $primary-bg: #f5fde6;
 }
 
 .svc-desc {
-	font-size: 24rpx;
+	font-size: 22rpx;
 	color: #999;
 	display: block;
-}
-
-/* 下一步按钮行 */
-.next-btn-row {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 0 24rpx;
-}
-
-.prev-btn, .next-btn {
-	width: 64rpx;
-	height: 64rpx;
-	border-radius: 50%;
-	background: #fff;
-	border: 2rpx solid #e8e8e8;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-
-	&:active {
-		background: #f5f5f5;
-	}
-
-	&.disabled {
-		opacity: 0.3;
-	}
-}
-
-.nav-btn-text {
-	font-size: 40rpx;
-	color: #666;
-}
-
-.nav-btn-desc {
-	font-size: 24rpx;
-	color: #999;
 }
 
 /* 备注 */
@@ -620,7 +637,7 @@ $primary-bg: #f5fde6;
 	box-sizing: border-box;
 }
 
-/* 底部支付栏（上下排列） */
+/* 底部确认下单按钮 */
 .popup-bottom {
 	margin-top: auto;
 	background: #fff;
@@ -629,78 +646,11 @@ $primary-bg: #f5fde6;
 	border-top: 1rpx solid #f0f0f0;
 }
 
-.pay-row {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 16rpx 0;
-	border-bottom: 1rpx solid #f0f0f0;
-
-	&:last-child {
-		border-bottom: none;
-	}
-}
-
-.pay-label {
-	font-size: 28rpx;
-	color: #333;
-}
-
-.pay-value {
-	font-size: 28rpx;
-	color: #333;
-	font-weight: 600;
-}
-
-.pay-right {
-	display: flex;
-	align-items: center;
-}
-
-.pay-arrow {
-	font-size: 32rpx;
-	color: #ccc;
-}
-
-.wechat-row {
-	display: flex;
-	align-items: center;
-	justify-content: flex-start;
-}
-
-.radio-circle {
-	width: 40rpx;
-	height: 40rpx;
-	border-radius: 50%;
-	border: 2rpx solid #ddd;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	margin-right: 16rpx;
-
-	&.active {
-		border-color: $primary;
-	}
-}
-
-.radio-inner {
-	width: 22rpx;
-	height: 22rpx;
-	border-radius: 50%;
-	background: $primary;
-}
-
-.pay-method-name {
-	font-size: 28rpx;
-	color: #333;
-}
-
 .submit-btn {
 	background: $primary;
 	border-radius: 999rpx;
 	padding: 24rpx 0;
 	text-align: center;
-	margin-top: 20rpx;
 
 	&:active {
 		opacity: 0.85;
@@ -781,6 +731,159 @@ $primary-bg: #f5fde6;
 	font-size: 32rpx;
 	font-weight: 700;
 	color: #fff;
+}
+
+/* ==================== 支付方式选择弹窗 ==================== */
+.pay-mask {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 1000;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+}
+
+.pay-popup {
+	width: 100%;
+	background: #fff;
+	border-radius: 32rpx 32rpx 0 0;
+	display: flex;
+	flex-direction: column;
+	animation: slideUp 0.3s ease-out;
+	padding-bottom: calc(env(safe-area-inset-bottom));
+}
+
+.pay-popup-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 28rpx 32rpx 20rpx;
+}
+
+.pay-popup-title {
+	font-size: 36rpx;
+	font-weight: 700;
+	color: #333;
+}
+
+.pay-popup-close {
+	width: 56rpx;
+	height: 56rpx;
+	border-radius: 50%;
+	background: #f5f5f5;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 32rpx;
+	color: #999;
+}
+
+.pay-amount {
+	text-align: center;
+	padding: 20rpx 0 32rpx;
+}
+
+.pay-amount-label {
+	font-size: 28rpx;
+	color: #999;
+	margin-right: 12rpx;
+}
+
+.pay-amount-value {
+	font-size: 56rpx;
+	font-weight: 700;
+	color: #333;
+}
+
+.pay-popup-body {
+	padding: 0 32rpx;
+}
+
+.pay-option {
+	display: flex;
+	align-items: center;
+	padding: 32rpx 0;
+	border-bottom: 1rpx solid #f5f5f5;
+
+	&:last-child {
+		border-bottom: none;
+	}
+}
+
+.pay-option-icon {
+	width: 72rpx;
+	height: 72rpx;
+	border-radius: 16rpx;
+	background: #f5f5f5;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-right: 24rpx;
+	font-size: 36rpx;
+}
+
+.pay-option-info {
+	flex: 1;
+}
+
+.pay-option-text {
+	font-size: 30rpx;
+	color: #333;
+	display: block;
+	margin-bottom: 4rpx;
+}
+
+.pay-option-desc {
+	font-size: 24rpx;
+	color: #999;
+}
+
+.pay-option-arrow {
+	font-size: 36rpx;
+	color: #ccc;
+}
+
+.pay-option-radio {
+	width: 44rpx;
+	height: 44rpx;
+	border-radius: 50%;
+	border: 2rpx solid #ddd;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	&.active {
+		border-color: $primary;
+	}
+}
+
+.radio-dot {
+	width: 24rpx;
+	height: 24rpx;
+	border-radius: 50%;
+	background: $primary;
+}
+
+.pay-confirm-btn {
+	background: $primary;
+	margin: 16rpx 32rpx 32rpx;
+	border-radius: 99rpx;
+	padding: 28rpx 0;
+	text-align: center;
+
+	&:active {
+		opacity: 0.85;
+	}
+}
+
+.pay-confirm-text {
+	font-size: 32rpx;
+	color: #fff;
+	font-weight: 600;
 }
 
 /* ==================== 优惠券选择弹窗 ==================== */
