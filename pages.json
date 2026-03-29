@@ -144,7 +144,7 @@
 	"globalStyle": {
 		"navigationBarTextStyle": "white",
 		"navigationBarTitleText": "物沃PET",
-		"navigationBarBackgroundColor": "#07C160",
+		"navigationBarBackgroundColor": "#91de00",
 		"backgroundColor": "#F5F5F5",
 		"app-plus": {
 			"titleNView": false
@@ -152,7 +152,7 @@
 	},
 	"tabBar": {
 		"color": "#999999",
-		"selectedColor": "#07C160",
+		"selectedColor": "#91de00",
 		"borderStyle": "black",
 		"backgroundColor": "#ffffff",
 		"list": [
