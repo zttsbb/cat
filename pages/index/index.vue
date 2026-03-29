@@ -255,6 +255,71 @@
 				</scroll-view>
 			</view>
 		</view>
+
+		<!-- ========== 团购核销弹窗 ========== -->
+		<view class="redeem-mask" v-if="showRedeemPopup" @click="closeRedeemPopup">
+			<view class="redeem-popup" @click.stop>
+				<!-- 第一层：平台选择 -->
+				<view v-if="!selectedPlatform">
+					<view class="redeem-header">
+						<text class="redeem-title">选择核销平台</text>
+						<view class="redeem-close" @click="closeRedeemPopup">
+							<text>✕</text>
+						</view>
+					</view>
+					<view class="platform-grid">
+						<view class="platform-item" v-for="(p, idx) in platforms" :key="idx" @click="selectPlatform(p)">
+							<image class="platform-icon" :src="p.icon" mode="aspectFit" />
+							<text class="platform-label">{{ p.label }}</text>
+						</view>
+					</view>
+				</view>
+
+				<!-- 第二层：输入核销码 -->
+				<view v-else-if="!showRedeemSuccess">
+					<view class="redeem-header">
+						<text class="redeem-title">输入核销码</text>
+						<view class="redeem-back" @click="selectedPlatform = null">
+							<text class="back-arrow">‹</text>
+						</view>
+					</view>
+					<view class="redeem-input-wrap">
+						<input class="redeem-input" v-model="redeemCode" placeholder="请输入核销码" maxlength="20" />
+					</view>
+					<view class="redeem-confirm-btn" @click="onConfirmRedeem">
+						<text class="redeem-confirm-text">确认核销</text>
+					</view>
+				</view>
+
+				<!-- 第三层：核销成功 -->
+				<view v-else class="redeem-success-content">
+					<view class="redeem-success-icon">✓</view>
+					<text class="redeem-success-title">核销成功</text>
+					<view class="redeem-card">
+						<text class="rc-name">{{ redeemSuccessInfo.name }}</text>
+						<view class="rc-item">
+							<text class="rc-label">适用于:</text>
+							<text class="rc-value">{{ redeemSuccessInfo.scope }}</text>
+						</view>
+						<view class="rc-item">
+							<text class="rc-label">金额:</text>
+							<text class="rc-value">{{ redeemSuccessInfo.amount }}元</text>
+						</view>
+						<view class="rc-item">
+							<text class="rc-label">/单次可用:</text>
+							<text class="rc-value">{{ redeemSuccessInfo.singleUse }}次</text>
+						</view>
+						<view class="rc-item">
+							<text class="rc-label">有效时间:</text>
+							<text class="rc-value">{{ redeemSuccessInfo.validDays }}天</text>
+						</view>
+					</view>
+					<view class="redeem-continue-btn" @click="onContinueOrder">
+						<text class="redeem-continue-text">继续下单</text>
+					</view>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -312,6 +377,27 @@ const balance = ref(5.6)
 const couponCount = ref(3)
 const selectedCoupon = ref(null)
 const showCouponPicker = ref(false)
+
+// ==================== 团购核销弹窗 ====================
+const showRedeemPopup = ref(false)
+const selectedPlatform = ref(null)
+const redeemCode = ref('')
+const showRedeemSuccess = ref(false)
+
+const platforms = [
+	{ label: '抖音', icon: '/static/icon/douyin.png', value: 'douyin' },
+	{ label: '美团', icon: '/static/icon/meituan.png', value: 'meituan' },
+	{ label: '系统', icon: '/static/icon/xitong.png', value: 'system' }
+]
+
+// 核销成功信息
+const redeemSuccessInfo = ref({
+	name: '美团·次卡',
+	scope: '洗宠机',
+	amount: 20,
+	singleUse: 3,
+	validDays: 60
+})
 
 // 日期列表
 const dateList = ref([])
@@ -402,7 +488,7 @@ const onEntryClick = (item) => {
 			openBookPopup()
 			break
 		case 'redeem':
-			uni.navigateTo({ url: '/pages/coupon-redeem/coupon-redeem' })
+			openRedeemPopup()
 			break
 		case 'orders':
 			uni.switchTab({ url: '/pages/wash-order-list/wash-order-list' })
@@ -505,6 +591,50 @@ const goHome = () => {
 	showSuccess.value = false
 	showBookPopup.value = false
 	showPaySection.value = false
+}
+
+// ==================== 团购核销弹窗交互 ====================
+
+/** 打开团购核销弹窗 */
+const openRedeemPopup = () => {
+	selectedPlatform.value = null
+	redeemCode.value = ''
+	showRedeemSuccess.value = false
+	showRedeemPopup.value = true
+}
+
+/** 关闭团购核销弹窗 */
+const closeRedeemPopup = () => {
+	showRedeemPopup.value = false
+	selectedPlatform.value = null
+	redeemCode.value = ''
+	showRedeemSuccess.value = false
+}
+
+/** 选择平台 */
+const selectPlatform = (p) => {
+	selectedPlatform.value = p.value
+}
+
+/** 确认核销 */
+const onConfirmRedeem = () => {
+	if (!redeemCode.value.trim()) {
+		uni.showToast({ title: '请输入核销码', icon: 'none' })
+		return
+	}
+	// TODO: 调用核销接口
+	// Mock: 直接显示核销成功
+	showRedeemSuccess.value = true
+}
+
+/** 继续下单 */
+const onContinueOrder = () => {
+	showRedeemPopup.value = false
+	showRedeemSuccess.value = false
+	selectedPlatform.value = null
+	redeemCode.value = ''
+	// 打开预约弹窗
+	openBookPopup()
 }
 </script>
 
@@ -1437,5 +1567,217 @@ $primary-bg: #f5fde6;
 .cp-no-use-text {
 	font-size: 28rpx;
 	color: #666;
+}
+
+/* ==================== 团购核销弹窗 ==================== */
+.redeem-mask {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 150;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.redeem-popup {
+	width: 650rpx;
+	background: #fff;
+	border-radius: 32rpx;
+	overflow: hidden;
+	padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+}
+
+/* 平台选择 */
+.redeem-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 32rpx;
+	border-bottom: 1rpx solid #f5f5f5;
+}
+
+.redeem-title {
+	font-size: 36rpx;
+	font-weight: 700;
+	color: #222;
+}
+
+.redeem-close {
+	width: 56rpx;
+	height: 56rpx;
+	border-radius: 50%;
+	background: #f5f5f5;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 32rpx;
+	color: #999;
+
+	&:active {
+		background: #eee;
+	}
+}
+
+.redeem-back {
+	width: 60rpx;
+	height: 60rpx;
+	border-radius: 50%;
+	background: #f5f5f5;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	&:active {
+		background: #eee;
+	}
+}
+
+.back-arrow {
+	font-size: 44rpx;
+	color: #666;
+	font-weight: 300;
+}
+
+.platform-grid {
+	display: flex;
+	justify-content: space-around;
+	padding: 48rpx 32rpx;
+}
+
+.platform-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	&:active {
+		opacity: 0.7;
+	}
+}
+
+.platform-icon {
+	width: 120rpx;
+	height: 120rpx;
+	border-radius: 24rpx;
+	background: #f5f5f5;
+	margin-bottom: 16rpx;
+}
+
+.platform-label {
+	font-size: 28rpx;
+	color: #333;
+}
+
+/* 核销码输入 */
+.redeem-input-wrap {
+	padding: 48rpx 32rpx;
+}
+
+.redeem-input {
+	width: 100%;
+	height: 100rpx;
+	background: #f5f5f5;
+	border-radius: 20rpx;
+	padding: 0 32rpx;
+	font-size: 32rpx;
+	color: #333;
+}
+
+.redeem-confirm-btn {
+	margin: 0 32rpx 32rpx;
+	background: $primary;
+	text-align: center;
+	padding: 24rpx 0;
+	border-radius: 999rpx;
+
+	&:active {
+		opacity: 0.85;
+	}
+}
+
+.redeem-confirm-text {
+	font-size: 32rpx;
+	font-weight: 700;
+	color: #fff;
+}
+
+/* 核销成功 */
+.redeem-success-content {
+	padding: 48rpx 32rpx;
+	text-align: center;
+}
+
+.redeem-success-icon {
+	width: 120rpx;
+	height: 120rpx;
+	border-radius: 50%;
+	background: $primary;
+	color: #fff;
+	font-size: 80rpx;
+	font-weight: 300;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 auto 24rpx;
+}
+
+.redeem-success-title {
+	font-size: 40rpx;
+	font-weight: 700;
+	color: #222;
+	display: block;
+	margin-bottom: 40rpx;
+}
+
+.redeem-card {
+	background: $primary-bg;
+	border-radius: 20rpx;
+	padding: 32rpx;
+	margin-bottom: 40rpx;
+}
+
+.rc-name {
+	font-size: 32rpx;
+	font-weight: 700;
+	color: $primary-dark;
+	display: block;
+	margin-bottom: 20rpx;
+}
+
+.rc-item {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 16rpx;
+}
+
+.rc-label {
+	font-size: 26rpx;
+	color: #666;
+}
+
+.rc-value {
+	font-size: 26rpx;
+	font-weight: 600;
+	color: #333;
+}
+
+.redeem-continue-btn {
+	background: $primary;
+	text-align: center;
+	padding: 24rpx 0;
+	border-radius: 999rpx;
+
+	&:active {
+		opacity: 0.85;
+	}
+}
+
+.redeem-continue-text {
+	font-size: 32rpx;
+	font-weight: 700;
+	color: #fff;
 }
 </style>
