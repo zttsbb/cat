@@ -314,7 +314,7 @@ const onSubmit = () => {
  * 确认支付
  * 接口: POST /api/order/book/create
  */
-const confirmPay = () {
+const confirmPay = () => {
 	const dateInfo = dateList.value[selectedDate.value]
 	const service = serviceList.value[selectedService.value]
 
