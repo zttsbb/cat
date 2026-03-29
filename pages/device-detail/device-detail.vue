@@ -241,11 +241,9 @@ $primary-bg: #f5fde6;
 /* 设备信息卡片 */
 .device-info-card {
 	background: #fff;
-	margin: -24rpx 24rpx 0;
+	margin: 20rpx 24rpx 0;
 	border-radius: 20rpx;
 	padding: 28rpx 32rpx;
-	position: relative;
-	z-index: 2;
 }
 
 .device-header {
@@ -438,6 +436,10 @@ $primary-bg: #f5fde6;
 	&.active {
 		border-color: $primary;
 		background: $primary-bg;
+	}
+
+	&:active {
+		opacity: 0.8;
 	}
 }
 
