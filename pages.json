@@ -11,6 +11,7 @@
 		{
 			"path": "pages/store-list/store-list",
 			"style": {
+				"navigationStyle": "custom",
 				"navigationBarTitleText": "门店列表"
 			}
 		},
@@ -163,10 +164,10 @@
 				"selectedIconPath": "static/icons/home-active.png"
 			},
 			{
-				"pagePath": "pages/wash-order-list/wash-order-list",
-				"text": "订单",
-				"iconPath": "static/icons/order.png",
-				"selectedIconPath": "static/icons/order-active.png"
+				"pagePath": "pages/store-list/store-list",
+				"text": "门店",
+				"iconPath": "static/icons/store.png",
+				"selectedIconPath": "static/icons/store-active.png"
 			},
 			{
 				"pagePath": "pages/scan/scan",
