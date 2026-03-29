@@ -3,7 +3,7 @@
 <!-- 预约到店弹窗（对齐原型图：预约.png）弹出2/3页面 -->
 <!-- 确认预约（对齐原型图：确认预约.png）预约成功叠加弹窗 -->
 <template>
-	<view class="page-store">
+		<view class="page-store">
 		<!-- ========== 一、门店主页 ========== -->
 		<!-- 导航栏（绿色背景） -->
 		<view class="nav-bar" :style="{ paddingTop: statusBarHeight + 'px' }">
@@ -56,6 +56,7 @@
 				</view>
 				<text class="entry-label">{{ item.text }}</text>
 			</view>
+		</view>
 		</view>
 
 		<!-- 设备列表 -->
