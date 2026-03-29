@@ -100,7 +100,7 @@ const onRedeem = async () => {
 	transition: all 0.3s;
 
 	&:focus-within {
-		border-color: #07C160;
+		border-color: #91de00;
 	}
 }
 
@@ -127,7 +127,7 @@ const onRedeem = async () => {
 }
 
 .confirm-btn {
-	background: linear-gradient(135deg, #07C160, #38d976);
+	background: linear-gradient(135deg, #91de00, #a5e830);
 	color: #fff;
 	font-size: 32rpx;
 	font-weight: 600;

@@ -133,7 +133,7 @@ const onCancel = (order) => {
 
 /* 自定义导航栏 */
 .nav-bar {
-	background: linear-gradient(135deg, #07C160, #38d976);
+	background: linear-gradient(135deg, #91de00, #a5e830);
 	padding: 0 24rpx;
 	display: flex;
 	align-items: center;
@@ -182,7 +182,7 @@ const onCancel = (order) => {
 	position: relative;
 
 	&.active {
-		color: #07C160;
+		color: #91de00;
 		font-weight: 600;
 
 		&::after {
@@ -193,7 +193,7 @@ const onCancel = (order) => {
 			transform: translateX(-50%);
 			width: 60rpx;
 			height: 4rpx;
-			background-color: #07C160;
+			background-color: #91de00;
 			border-radius: 999rpx;
 		}
 	}
@@ -238,7 +238,7 @@ const onCancel = (order) => {
 
 .status-done {
 	background-color: #e8f8ee;
-	color: #07C160;
+	color: #91de00;
 }
 
 .status-cancel {

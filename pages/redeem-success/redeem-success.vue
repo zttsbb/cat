@@ -102,7 +102,7 @@ const goScanOrder = () => {
 }
 
 .bg-nav-bar {
-	background: linear-gradient(135deg, #07C160, #38d976);
+	background: linear-gradient(135deg, #91de00, #a5e830);
 	padding: 0 32rpx;
 	padding-top: var(--status-bar-height, 44px);
 	height: calc(var(--status-bar-height, 44px) + 88rpx);
@@ -170,7 +170,7 @@ const goScanOrder = () => {
 	width: 100rpx;
 	height: 100rpx;
 	border-radius: 50%;
-	background-color: #07C160;
+	background-color: #91de00;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -243,7 +243,7 @@ const goScanOrder = () => {
 
 .coupon-remain {
 	font-size: 26rpx;
-	color: #07C160;
+	color: #91de00;
 	margin-bottom: 8rpx;
 }
 
@@ -255,7 +255,7 @@ const goScanOrder = () => {
 /* 扫码下单按钮 */
 .scan-order-btn {
 	width: 100%;
-	background: linear-gradient(135deg, #07C160, #38d976);
+	background: linear-gradient(135deg, #91de00, #a5e830);
 	border-radius: 999rpx;
 	padding: 28rpx 0;
 	display: flex;

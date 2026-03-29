@@ -245,7 +245,7 @@ const onSubmit = async () => {
 	bottom: 40rpx;
 	left: 24rpx;
 	right: 24rpx;
-	background: linear-gradient(135deg, #07C160, #38d976);
+	background: linear-gradient(135deg, #91de00, #a5e830);
 	color: #fff;
 	font-size: 32rpx;
 	font-weight: 600;

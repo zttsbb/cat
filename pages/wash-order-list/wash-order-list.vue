@@ -74,7 +74,7 @@ const goBack = () => {
 
 /* 自定义导航栏 */
 .nav-bar {
-	background: linear-gradient(135deg, #07C160, #38d976);
+	background: linear-gradient(135deg, #91de00, #a5e830);
 	padding: 0 24rpx;
 	display: flex;
 	align-items: center;

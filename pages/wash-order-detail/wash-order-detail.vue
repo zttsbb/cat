@@ -155,7 +155,7 @@ const onEmergencyStop = () => {
 	padding: 48rpx 32rpx;
 }
 
-.bg-green { background-color: #e8f8ee; }
+.bg-green { background-color: #f5fde6; }
 .bg-orange { background-color: #fff3e8; }
 .bg-gray { background-color: #f5f5f5; }
 .bg-red { background-color: #ffe8e8; }
@@ -208,7 +208,7 @@ const onEmergencyStop = () => {
 	color: #333;
 
 	&.price { color: #ff4d4f; font-weight: 600; }
-	&.refund { color: #07C160; font-weight: 600; }
+	&.refund { color: #91de00; font-weight: 600; }
 }
 
 .detail-header,

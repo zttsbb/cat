@@ -219,11 +219,11 @@ const goWithdraw = () => {
 .picker-title { font-size: 34rpx; font-weight: 700; color: #333; }
 .picker-close { width: 56rpx; height: 56rpx; border-radius: 50%; background-color: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 32rpx; color: #999; }
 .picker-list { flex: 1; padding: 0 24rpx; max-height: 50vh; }
-.picker-item { display: flex; align-items: center; justify-content: space-between; padding: 24rpx; margin-bottom: 12rpx; border-radius: 16rpx; border: 2rpx solid #e0e0e0; &.active { border-color: #07C160; background-color: #f8fff9; } }
+.picker-item { display: flex; align-items: center; justify-content: space-between; padding: 24rpx; margin-bottom: 12rpx; border-radius: 16rpx; border: 2rpx solid #e0e0e0; &.active { border-color: #91de00; background-color: #f8fff9; } }
 .picker-item-info { display: flex; flex-direction: column; }
 .picker-item-name { font-size: 28rpx; font-weight: 600; color: #333; margin-bottom: 4rpx; }
 .picker-item-desc { font-size: 22rpx; color: #999; }
-.picker-item-check { width: 36rpx; height: 36rpx; border-radius: 50%; background-color: #07C160; color: #fff; font-size: 22rpx; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.picker-item-check { width: 36rpx; height: 36rpx; border-radius: 50%; background-color: #91de00; color: #fff; font-size: 22rpx; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
 /* 空状态 */
 .empty-tip { padding: 60rpx 0; text-align: center; }
@@ -231,7 +231,7 @@ const goWithdraw = () => {
 
 /* 设备banner卡片（对齐原型图） */
 .device-banner {
-	background: linear-gradient(135deg, #07C160, #38d976);
+	background: linear-gradient(135deg, #91de00, #a5e830);
 	margin: 24rpx 24rpx 0;
 	border-radius: 24rpx;
 	padding: 32rpx;
@@ -307,7 +307,7 @@ const goWithdraw = () => {
 
 .withdraw-btn {
 	padding: 12rpx 32rpx;
-	background: linear-gradient(135deg, #07C160, #38d976);
+	background: linear-gradient(135deg, #91de00, #a5e830);
 	border-radius: 999rpx;
 
 	&:active {
@@ -390,7 +390,7 @@ const goWithdraw = () => {
 
 .amount-tag {
 	font-size: 22rpx;
-	color: #07C160;
+	color: #91de00;
 }
 
 /* 分账比例条 */
@@ -417,7 +417,7 @@ const goWithdraw = () => {
 
 .ratio-fill {
 	height: 100%;
-	background: linear-gradient(135deg, #07C160, #38d976);
+	background: linear-gradient(135deg, #91de00, #a5e830);
 	border-radius: 999rpx;
 }
 

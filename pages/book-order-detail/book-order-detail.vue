@@ -165,7 +165,7 @@ const onCancelOrder = () => {
 }
 
 .bg-orange { background-color: #fff3e8; }
-.bg-green { background-color: #e8f8ee; }
+.bg-green { background-color: #f5fde6; }
 .bg-gray { background-color: #f5f5f5; }
 
 .status-text {
@@ -243,7 +243,7 @@ const onCancelOrder = () => {
 	}
 
 	&.active {
-		background-color: #07C160;
+		background-color: #91de00;
 	}
 }
 

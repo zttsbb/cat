@@ -122,7 +122,7 @@ const onWithdraw = async () => {
 }
 
 .balance-card {
-	background: linear-gradient(135deg, #07C160, #38d976);
+	background: linear-gradient(135deg, #91de00, #a5e830);
 	border-radius: 24rpx;
 	padding: 40rpx 32rpx;
 	margin-bottom: 24rpx;
@@ -171,9 +171,9 @@ const onWithdraw = async () => {
 
 .input-all {
 	font-size: 26rpx;
-	color: #07C160;
+	color: #91de00;
 	padding: 8rpx 20rpx;
-	border: 1rpx solid #07C160;
+	border: 1rpx solid #91de00;
 	border-radius: 999rpx;
 }
 
@@ -187,7 +187,7 @@ const onWithdraw = async () => {
 }
 
 .submit-btn {
-	background: linear-gradient(135deg, #07C160, #38d976);
+	background: linear-gradient(135deg, #91de00, #a5e830);
 	color: #fff;
 	font-size: 32rpx;
 	font-weight: 600;
@@ -279,7 +279,7 @@ const onWithdraw = async () => {
 	border-radius: 999rpx;
 
 	&.processing { color: #ff9500; background-color: #fff3e8; }
-	&.done { color: #07C160; background-color: #e8f8ee; }
+	&.done { color: #91de00; background-color: #e8f8ee; }
 	&.rejected { color: #ff4d4f; background-color: #ffe8e8; }
 }
 

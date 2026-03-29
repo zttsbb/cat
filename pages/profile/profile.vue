@@ -111,7 +111,7 @@ const onSave = () => {
 	height: 160rpx;
 	border-radius: 50%;
 	overflow: hidden;
-	border: 4rpx solid #07C160;
+	border: 4rpx solid #91de00;
 }
 
 .avatar-img {
@@ -136,7 +136,7 @@ const onSave = () => {
 	width: 48rpx;
 	height: 48rpx;
 	border-radius: 50%;
-	background-color: #07C160;
+	background-color: #91de00;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -194,7 +194,7 @@ const onSave = () => {
 }
 
 .save-btn {
-	background: linear-gradient(135deg, #07C160, #38d976);
+	background: linear-gradient(135deg, #91de00, #a5e830);
 	border-radius: 999rpx;
 	padding: 24rpx 0;
 	text-align: center;

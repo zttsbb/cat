@@ -3,7 +3,7 @@
 <template>
 	<view class="page-store-detail">
 		<!-- 轮播图 -->
-		<swiper class="store-swiper" indicator-dots indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#07C160">
+		<swiper class="store-swiper" indicator-dots indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#91de00">
 			<swiper-item v-for="(img, index) in storeDetail.images" :key="index">
 				<image class="swiper-image" :src="img" mode="aspectFill" />
 			</swiper-item>
@@ -160,8 +160,8 @@ const sharePage = () => {
 
 .switch-store-btn {
 	font-size: 24rpx;
-	color: #07C160;
-	border: 1rpx solid #07C160;
+	color: #91de00;
+	border: 1rpx solid #91de00;
 	padding: 8rpx 24rpx;
 	border-radius: 999rpx;
 }
@@ -174,7 +174,7 @@ const sharePage = () => {
 
 .tag-item {
 	font-size: 22rpx;
-	color: #07C160;
+	color: #91de00;
 	background-color: #e8f8ee;
 	padding: 6rpx 16rpx;
 	border-radius: 8rpx;
