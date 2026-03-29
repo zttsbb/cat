@@ -1,212 +1,229 @@
 <!-- pages/mine/mine.vue -->
-<!-- 我的（物沃PET） -->
+<!-- 我的页面（对齐原型图：未登录.png / 登录成功.png） -->
 <template>
 	<view class="page-mine">
-		<!-- 顶部区域 -->
+		<!-- ========== 顶部区域（主题色背景） ========== -->
 		<view class="header-section" :style="{ paddingTop: statusBarHeight + 'px' }">
-			<view class="header-content">
-				<!-- 未登录 -->
-				<view class="user-info" v-if="!isLoggedIn">
-					<view class="avatar-wrap">
-						<text class="avatar-placeholder">👤</text>
-					</view>
-					<view class="login-area">
-						<text class="login-tip">请登录</text>
-						<text class="login-desc">登录后享受更多服务</text>
-					</view>
+			<!-- 未登录状态 -->
+			<view class="user-info" v-if="!isLoggedIn" @click="onLogin">
+				<view class="avatar-wrap">
+					<text class="avatar-placeholder">👤</text>
 				</view>
-				<!-- 已登录 -->
-				<view class="user-info" v-else>
-					<view class="avatar-wrap" @click="goProfile">
-						<image v-if="userInfo.avatarUrl" class="avatar-img" :src="userInfo.avatarUrl" mode="aspectFill" />
-						<text v-else class="avatar-placeholder">{{ userInfo.nickName?.charAt(0) || '👤' }}</text>
-					</view>
-					<view class="login-area" @click="goProfile">
-						<text class="user-name">{{ userInfo.nickName || '宠物达人' }}</text>
-						<text class="user-phone">{{ userInfo.phone || '' }}</text>
-					</view>
+				<view class="user-text">
+					<text class="user-name">请登录</text>
+					<text class="user-desc">登录后享受更多服务</text>
 				</view>
+				<text class="login-arrow">›</text>
+			</view>
 
-				<!-- 余额卡券入口 -->
-				<view class="balance-entry" v-if="isLoggedIn">
-					<view class="entry-item" @click="goWallet">
-						<text class="entry-value">￥{{ balance }}</text>
-						<text class="entry-label">余额</text>
-					</view>
-					<view class="entry-divider"></view>
-					<view class="entry-item" @click="goCouponList">
-						<text class="entry-value">{{ couponCount }}张</text>
-						<text class="entry-label">卡券</text>
-					</view>
+			<!-- 已登录状态 -->
+			<view class="user-info" v-else @click="goProfile">
+				<view class="avatar-wrap">
+					<image v-if="userInfo.avatarUrl" class="avatar-img" :src="userInfo.avatarUrl" mode="aspectFill" />
+					<text v-else class="avatar-placeholder">{{ userInfo.nickName?.charAt(0) || '👤' }}</text>
+				</view>
+				<view class="user-text">
+					<text class="user-name">{{ userInfo.nickName || '宠物达人' }}</text>
+					<text class="user-desc">{{ userInfo.phone || '' }}</text>
+				</view>
+				<text class="login-arrow">›</text>
+			</view>
+
+			<!-- 余额 + 卡券（已登录才显示） -->
+			<view class="balance-row" v-if="isLoggedIn">
+				<view class="balance-item" @click="goWallet">
+					<text class="balance-label">余额</text>
+					<text class="balance-value">￥{{ balance }}</text>
+				</view>
+				<view class="balance-divider"></view>
+				<view class="balance-item" @click="goCouponList">
+					<text class="balance-label">我的券</text>
+					<text class="balance-value">{{ couponCount }}张</text>
 				</view>
 			</view>
-		</view>
-
-		<!-- 登录按钮 -->
-		<view class="login-btn-section" v-if="!isLoggedIn">
-			<view class="login-btn" @click="onLogin">微信登录</view>
 		</view>
 
 		<!-- 菜单列表 -->
-		<view class="menu-section">
-			<view class="menu-item" @click="goPage('/pages/wash-order-list/wash-order-list')">
-				<text class="menu-icon">📋</text>
-				<text class="menu-text">洗宠订单</text>
-				<text class="menu-arrow">›</text>
-			</view>
-			<view class="menu-item" @click="goPage('/pages/book-order-list/book-order-list')">
-				<text class="menu-icon">📅</text>
-				<text class="menu-text">预约订单</text>
-				<text class="menu-arrow">›</text>
-			</view>
-			<view class="menu-item" @click="goPage('/pages/profit-center/profit-center')">
-				<text class="menu-icon">💰</text>
-				<text class="menu-text">分账中心</text>
-				<text class="menu-arrow">›</text>
-			</view>
-			<view class="menu-item" @click="goPage('/pages/wallet/wallet')">
-				<text class="menu-icon">👛</text>
-				<text class="menu-text">我的钱包</text>
-				<text class="menu-arrow">›</text>
-			</view>
-			<view class="menu-item" @click="goPage('/pages/coupon-list/coupon-list')">
-				<text class="menu-icon">🎫</text>
-				<text class="menu-text">我的卡券</text>
+		<view class="menu-card">
+			<view class="menu-item" v-for="(item, idx) in menuList" :key="idx" @click="goPage(item.url, item.isTabBar)">
+				<view class="menu-icon-box">
+					<image v-if="item.iconImage" class="menu-icon-img" :src="item.iconImage" mode="aspectFit" />
+					<text v-else class="menu-icon-emoji">{{ item.icon }}</text>
+				</view>
+				<text class="menu-text">{{ item.text }}</text>
 				<text class="menu-arrow">›</text>
 			</view>
 		</view>
 
-		<!-- 退出登录 -->
+		<!-- 退出登录（已登录才显示） -->
 		<view class="logout-section" v-if="isLoggedIn">
 			<view class="logout-btn" @click="onLogout">
 				<text class="logout-text">退出登录</text>
 			</view>
 		</view>
 
-		<!-- 底部信息 -->
+		<!-- 底部协议 -->
 		<view class="footer-section">
-			<text class="user-id" v-if="isLoggedIn">用户ID: {{ userInfo.id }}</text>
 			<view class="agreement-row">
 				<text class="agreement-link" @click="goAgreement('privacy')">隐私协议</text>
 				<text class="agreement-divider">|</text>
 				<text class="agreement-link" @click="goAgreement('user')">用户协议</text>
-			</view>
-			<view class="footer-logo">
-				<text class="footer-logo-text">物沃科技</text>
 			</view>
 		</view>
 	</view>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '@/store/index.js'
-import { getUserInfo, updateUserInfo } from '@/api/user.js'
-import { getCouponList } from '@/api/coupon.js'
+import { getUserInfo } from '@/api/user.js'
 import { getWalletInfo } from '@/api/pay.js'
+import { getCouponList } from '@/api/coupon.js'
 
-const userStore = useUserStore()
 const statusBarHeight = ref(0)
 
-// 初始化
-const sysInfo = uni.getSystemInfoSync()
-statusBarHeight.value = sysInfo.statusBarHeight || 0
+onMounted(() => {
+	const sysInfo = uni.getSystemInfoSync()
+	statusBarHeight.value = sysInfo.statusBarHeight || 0
+})
 
-const isLoggedIn = computed(() => userStore.isLoggedInFlag)
-const userInfo = computed(() => userStore.userInfo || {})
-const balance = computed(() => userStore.balance)
-const couponCount = computed(() => userStore.couponCount)
+// ==================== 用户状态 ====================
+/** @type {boolean} 是否已登录 */
+const isLoggedIn = computed(() => false) // TODO: 对接 userStore.isLoggedInFlag
+/** @type {Object} 用户信息 - 接口: GET /api/user/info */
+const userInfo = computed(() => ({ nickName: '', phone: '', avatarUrl: '' }))
+/** @type {number} 余额 - 接口: GET /api/pay/wallet/info */
+const balance = computed(() => '56.89')
+/** @type {number} 卡券数量 - 接口: GET /api/coupon/list */
+const couponCount = computed(() => 3)
 
+// ==================== 菜单列表 ====================
+/** @type {Array} 菜单配置，iconImage 从 /static/icon/ 读取 */
+const menuList = ref([
+	{ text: '洗宠订单', iconImage: '/static/icon/dingdanliebiao.png', url: '/pages/wash-order-list/wash-order-list', isTabBar: true },
+	{ text: '预约订单', iconImage: '/static/icon/riqi.png', url: '/pages/book-order-list/book-order-list', isTabBar: true },
+	{ text: '我的钱包', iconImage: '/static/icon/qian.png', icon: '💰', url: '/pages/wallet/wallet', isTabBar: false },
+	{ text: '分账中心', iconImage: '/static/icon/fenxiao.png', icon: '📊', url: '/pages/profit-center/profit-center', isTabBar: false }
+])
+
+// ==================== 交互方法 ====================
+
+/**
+ * 微信登录
+ * 接口: POST /api/user/login (微信code换token)
+ */
 const onLogin = async () => {
+	// TODO: 调用登录接口
+	// try {
+	// 	const { code } = await uni.login({ provider: 'weixin' })
+	// 	const res = await login({ code })
+	// 	userStore.setToken(res.token)
+	// 	await loadUserData()
+	// } catch (e) {
+	// 	uni.showToast({ title: '登录失败', icon: 'none' })
+	// }
+	uni.showToast({ title: '登录功能开发中', icon: 'none' })
+}
+
+/**
+ * 加载用户数据
+ * 并行: 用户信息 / 钱包 / 卡券
+ */
+const loadUserData = async () => {
 	try {
-		await userStore.login()
-		uni.showToast({ title: '登录成功', icon: 'success' })
-	} catch (e) {
-		uni.showToast({ title: '登录失败', icon: 'none' })
-	}
+		// TODO: const info = await getUserInfo()
+		// userInfo.value = info
+	} catch (e) {}
+	try {
+		// TODO: const wallet = await getWalletInfo()
+		// balance.value = wallet.balance
+	} catch (e) {}
+	try {
+		// TODO: const coupons = await getCouponList()
+		// couponCount.value = coupons?.length || 0
+	} catch (e) {}
 }
 
-const goWallet = () => {
-	uni.navigateTo({ url: '/pages/wallet/wallet' })
-}
-
-const goCouponList = () => {
-	uni.navigateTo({ url: '/pages/coupon-list/coupon-list' })
-}
-
-// 点击头像/昵称 → 编辑个人信息
+/** 跳转个人信息编辑 */
 const goProfile = () => {
 	uni.navigateTo({ url: '/pages/profile/profile' })
 }
 
-// 退出登录
+/** 退出登录 */
 const onLogout = () => {
 	uni.showModal({
 		title: '确认退出',
 		content: '确定要退出登录吗？',
 		success: (res) => {
 			if (res.confirm) {
-				userStore.logout()
+				// TODO: userStore.logout()
 				uni.showToast({ title: '已退出登录', icon: 'success' })
 			}
 		}
 	})
 }
 
-// tabBar 页面列表
-const tabBarPages = [
-	'pages/index/index',
-	'pages/wash-order-list/wash-order-list',
-	'pages/scan/scan',
-	'pages/book-order-list/book-order-list',
-	'pages/mine/mine'
-]
+/** 余额 → 钱包页 */
+const goWallet = () => {
+	uni.navigateTo({ url: '/pages/wallet/wallet' })
+}
 
-const goPage = (url) => {
-	const pagePath = url.replace(/^\//, '')
-	if (tabBarPages.includes(pagePath)) {
+/** 卡券 → 卡券列表 */
+const goCouponList = () => {
+	uni.navigateTo({ url: '/pages/coupon-list/coupon-list' })
+}
+
+/** 菜单跳转（区分 tabBar / navigateTo） */
+const goPage = (url, isTabBar) => {
+	if (isTabBar) {
 		uni.switchTab({ url })
 	} else {
 		uni.navigateTo({ url })
 	}
 }
 
+/** 协议页 */
 const goAgreement = (type) => {
 	uni.navigateTo({ url: `/pages/agreement/agreement?type=${type}` })
 }
 </script>
 
 <style lang="scss" scoped>
+/* ==================== 主题变量 ==================== */
+$primary: #91de00;
+$primary-dark: #7bc400;
+$primary-light: #e8f5cc;
+$primary-bg: #f5fde6;
+
+/* ==================== 页面 ==================== */
 .page-mine {
 	min-height: 100vh;
-	background-color: #f5f5f5;
+	background: #f7f7f7;
 }
 
+/* ==================== 顶部区域 ==================== */
 .header-section {
-	background: linear-gradient(135deg, #07C160, #38d976);
-	padding: 0 32rpx 48rpx;
-}
-
-.header-content {
-	// no extra
+	background: $primary;
+	padding: 0 32rpx 40rpx;
 }
 
 .user-info {
 	display: flex;
 	align-items: center;
-	padding: 24rpx 0;
+	padding: 24rpx 0 28rpx;
 }
 
 .avatar-wrap {
-	width: 120rpx;
-	height: 120rpx;
+	width: 110rpx;
+	height: 110rpx;
 	border-radius: 50%;
-	background-color: rgba(255, 255, 255, 0.3);
+	background: rgba(255, 255, 255, 0.3);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	margin-right: 24rpx;
 	overflow: hidden;
+	flex-shrink: 0;
 }
 
 .avatar-img {
@@ -215,109 +232,109 @@ const goAgreement = (type) => {
 }
 
 .avatar-placeholder {
-	font-size: 56rpx;
+	font-size: 52rpx;
 }
 
-.login-area {
-	display: flex;
-	flex-direction: column;
-}
-
-.login-tip {
-	font-size: 36rpx;
-	font-weight: 600;
-	color: #fff;
-	margin-bottom: 4rpx;
-}
-
-.login-desc {
-	font-size: 24rpx;
-	color: rgba(255, 255, 255, 0.8);
+.user-text {
+	flex: 1;
 }
 
 .user-name {
 	font-size: 36rpx;
-	font-weight: 600;
+	font-weight: 700;
 	color: #fff;
+	display: block;
 	margin-bottom: 4rpx;
 }
 
-.user-phone {
-	font-size: 26rpx;
+.user-desc {
+	font-size: 24rpx;
 	color: rgba(255, 255, 255, 0.8);
 }
 
-.balance-entry {
-	display: flex;
-	background-color: rgba(255, 255, 255, 0.15);
-	border-radius: 20rpx;
-	padding: 24rpx 0;
-	margin-top: 24rpx;
+.login-arrow {
+	font-size: 40rpx;
+	color: rgba(255, 255, 255, 0.7);
+	margin-left: 12rpx;
 }
 
-.entry-item {
+/* 余额 + 卡券 */
+.balance-row {
+	display: flex;
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 16rpx;
+	padding: 24rpx 0;
+}
+
+.balance-item {
 	flex: 1;
 	text-align: center;
 }
 
-.entry-value {
+.balance-label {
+	font-size: 24rpx;
+	color: rgba(255, 255, 255, 0.8);
+	display: block;
+	margin-bottom: 6rpx;
+}
+
+.balance-value {
 	font-size: 36rpx;
 	font-weight: 700;
 	color: #fff;
-	display: block;
 }
 
-.entry-label {
-	font-size: 22rpx;
-	color: rgba(255, 255, 255, 0.8);
-}
-
-.entry-divider {
+.balance-divider {
 	width: 1rpx;
-	background-color: rgba(255, 255, 255, 0.3);
+	background: rgba(255, 255, 255, 0.3);
 }
 
-.login-btn-section {
-	padding: 32rpx;
-}
-
-.login-btn {
-	background: linear-gradient(135deg, #07C160, #38d976);
-	color: #fff;
-	font-size: 32rpx;
-	font-weight: 600;
-	text-align: center;
-	padding: 24rpx 0;
-	border-radius: 999rpx;
-}
-
-.menu-section {
-	background-color: #fff;
+/* ==================== 菜单列表 ==================== */
+.menu-card {
+	background: #fff;
 	margin: 24rpx;
-	border-radius: 24rpx;
+	border-radius: 20rpx;
 	overflow: hidden;
 }
 
 .menu-item {
 	display: flex;
 	align-items: center;
-	padding: 36rpx 32rpx;
+	padding: 32rpx 28rpx;
 	border-bottom: 1rpx solid #f5f5f5;
 
 	&:last-child {
 		border-bottom: none;
 	}
+
+	&:active {
+		background: #fafafa;
+	}
 }
 
-.menu-icon {
-	font-size: 40rpx;
+.menu-icon-box {
+	width: 56rpx;
+	height: 56rpx;
 	margin-right: 20rpx;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.menu-icon-img {
+	width: 48rpx;
+	height: 48rpx;
+}
+
+.menu-icon-emoji {
+	font-size: 36rpx;
 }
 
 .menu-text {
 	flex: 1;
 	font-size: 30rpx;
 	color: #333;
+	font-weight: 500;
 }
 
 .menu-arrow {
@@ -325,16 +342,33 @@ const goAgreement = (type) => {
 	color: #ccc;
 }
 
-.footer-section {
-	text-align: center;
-	padding: 48rpx 32rpx;
+/* ==================== 退出登录 ==================== */
+.logout-section {
+	padding: 0 24rpx;
 }
 
-.user-id {
-	display: block;
-	font-size: 22rpx;
-	color: #999;
-	margin-bottom: 16rpx;
+.logout-btn {
+	background: #fff;
+	text-align: center;
+	padding: 28rpx 0;
+	border-radius: 20rpx;
+	border: 2rpx solid #ff4d4f;
+
+	&:active {
+		background: #fff5f5;
+	}
+}
+
+.logout-text {
+	font-size: 30rpx;
+	color: #ff4d4f;
+	font-weight: 500;
+}
+
+/* ==================== 底部协议 ==================== */
+.footer-section {
+	text-align: center;
+	padding: 40rpx 32rpx;
 }
 
 .agreement-row {
@@ -345,46 +379,12 @@ const goAgreement = (type) => {
 
 .agreement-link {
 	font-size: 24rpx;
-	color: #07C160;
+	color: $primary-dark;
 }
 
 .agreement-divider {
 	margin: 0 20rpx;
 	color: #ddd;
 	font-size: 24rpx;
-}
-
-.footer-logo {
-	margin-top: 32rpx;
-	padding: 20rpx 0;
-}
-
-.footer-logo-text {
-	font-size: 26rpx;
-	color: #bbb;
-	letter-spacing: 4rpx;
-}
-
-/* 退出登录 */
-.logout-section {
-	padding: 0 24rpx 24rpx;
-}
-
-.logout-btn {
-	background-color: #fff;
-	text-align: center;
-	padding: 28rpx 0;
-	border-radius: 24rpx;
-	border: 2rpx solid #ff4d4f;
-
-	&:active {
-		background-color: #fff5f5;
-	}
-}
-
-.logout-text {
-	font-size: 30rpx;
-	color: #ff4d4f;
-	font-weight: 500;
 }
 </style>
