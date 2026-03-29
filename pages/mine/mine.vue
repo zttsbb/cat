@@ -2,7 +2,7 @@
 <!-- 我的页面（对齐原型图：未登录.png / 登录成功.png） -->
 <template>
 	<view class="page-mine">
-		<!-- ========== 顶部主题色大背景 ========== -->
+		<!-- ========== 顶部白色背景 ========== -->
 		<view class="header-section" :style="{ paddingTop: statusBarHeight + 'px' }">
 			<!-- 用户信息行 -->
 			<view class="user-info" @click="isLoggedIn ? goProfile() : onLogin()">
@@ -16,29 +16,29 @@
 				</view>
 				<text class="login-arrow">›</text>
 			</view>
+		</view>
 
-			<!-- 余额 + 卡券（已登录显示） -->
-			<view class="balance-row" v-if="isLoggedIn">
-				<view class="balance-left" @click="goWallet">
-					<text class="balance-label">余额</text>
-					<text class="balance-amount">￥{{ balance }}</text>
-				</view>
-				<view class="balance-right" @click="goCouponList">
-					<text class="balance-label">我的券</text>
-					<text class="balance-count">{{ couponCount }}</text>
-				</view>
+		<!-- ========== 余额卡券卡片（主题色，左右一分二） ========== -->
+		<view class="balance-card" v-if="isLoggedIn">
+			<view class="balance-left" @click="goWallet">
+				<text class="balance-label">账户余额</text>
+				<text class="balance-amount">￥{{ balance }}</text>
+			</view>
+			<view class="balance-divider"></view>
+			<view class="balance-right" @click="goCouponList">
+				<text class="balance-label">我的券</text>
+				<text class="balance-count">({{ couponCount }})</text>
 			</view>
 		</view>
 
-		<!-- ========== 功能入口 2x2 网格 ========== -->
-		<view class="func-card">
-			<view class="func-grid">
-				<view class="func-item" v-for="(item, idx) in funcList" :key="idx" @click="goPage(item.url, item.isTabBar)">
-					<view class="func-icon-box">
-						<image class="func-icon-img" :src="item.iconImage" mode="aspectFit" />
-					</view>
-					<text class="func-text">{{ item.text }}</text>
+		<!-- ========== 菜单列表（上下排列） ========== -->
+		<view class="menu-card">
+			<view class="menu-item" v-for="(item, idx) in menuList" :key="idx" @click="goPage(item.url, item.isTabBar)">
+				<view class="menu-icon-box">
+					<image class="menu-icon-img" :src="item.iconImage" mode="aspectFit" />
 				</view>
+				<text class="menu-text">{{ item.text }}</text>
+				<text class="menu-arrow">›</text>
 			</view>
 		</view>
 
@@ -61,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { getUserInfo } from '@/api/user.js'
 import { getWalletInfo } from '@/api/pay.js'
 import { getCouponList } from '@/api/coupon.js'
@@ -74,17 +74,13 @@ onMounted(() => {
 })
 
 // ==================== 用户状态 ====================
-/** @type {boolean} 是否已登录 */
 const isLoggedIn = ref(false)
-/** @type {Object} 用户信息 - 接口: GET /api/user/info */
 const userInfo = ref({ nickName: '', phone: '', avatarUrl: '' })
-/** @type {string} 余额 - 接口: GET /api/pay/wallet/info */
 const balance = ref('56.89')
-/** @type {number} 卡券数量 - 接口: GET /api/coupon/list */
 const couponCount = ref(3)
 
-// ==================== 功能入口 ====================
-const funcList = ref([
+// ==================== 菜单列表 ====================
+const menuList = ref([
 	{ text: '洗宠订单', iconImage: '/static/icon/dingdanliebiao.png', url: '/pages/wash-order-list/wash-order-list', isTabBar: true },
 	{ text: '预约订单', iconImage: '/static/icon/riqi.png', url: '/pages/book-order-list/book-order-list', isTabBar: true },
 	{ text: '我的钱包', iconImage: '/static/icon/qian.png', url: '/pages/wallet/wallet', isTabBar: false },
@@ -96,11 +92,9 @@ const funcList = ref([
 /**
  * 微信登录
  * 接口: POST /api/user/login
- * @param {string} code - 微信登录code
  */
 const onLogin = async () => {
-	// TODO: 调用登录接口
-	// const { code } = await uni.login({ provider: 'weixin' })
+	// TODO: const { code } = await uni.login({ provider: 'weixin' })
 	// const res = await login({ code })
 	// isLoggedIn.value = true
 	// await loadUserData()
@@ -112,38 +106,18 @@ const onLogin = async () => {
  * 并行: 用户信息 / 钱包余额 / 卡券数量
  */
 const loadUserData = async () => {
-	try {
-		// TODO: const info = await getUserInfo()
-		// userInfo.value = info
-	} catch (e) {}
-	try {
-		// TODO: const wallet = await getWalletInfo()
-		// balance.value = wallet.balance
-	} catch (e) {}
-	try {
-		// TODO: const coupons = await getCouponList()
-		// couponCount.value = coupons?.length || 0
-	} catch (e) {}
+	// TODO: const info = await getUserInfo()
+	// TODO: const wallet = await getWalletInfo()
+	// TODO: const coupons = await getCouponList()
 }
 
-const goProfile = () => {
-	uni.navigateTo({ url: '/pages/profile/profile' })
-}
-
-const goWallet = () => {
-	uni.navigateTo({ url: '/pages/wallet/wallet' })
-}
-
-const goCouponList = () => {
-	uni.navigateTo({ url: '/pages/coupon-list/coupon-list' })
-}
+const goProfile = () => { uni.navigateTo({ url: '/pages/profile/profile' }) }
+const goWallet = () => { uni.navigateTo({ url: '/pages/wallet/wallet' }) }
+const goCouponList = () => { uni.navigateTo({ url: '/pages/coupon-list/coupon-list' }) }
 
 const goPage = (url, isTabBar) => {
-	if (isTabBar) {
-		uni.switchTab({ url })
-	} else {
-		uni.navigateTo({ url })
-	}
+	if (isTabBar) { uni.switchTab({ url }) }
+	else { uni.navigateTo({ url }) }
 }
 
 const onLogout = () => {
@@ -165,7 +139,6 @@ const goAgreement = (type) => {
 </script>
 
 <style lang="scss" scoped>
-/* ==================== 主题变量 ==================== */
 $primary: #91de00;
 $primary-dark: #7bc400;
 $primary-light: #e8f5cc;
@@ -176,13 +149,12 @@ $primary-bg: #f5fde6;
 	background: #f7f7f7;
 }
 
-/* ==================== 顶部大背景 ==================== */
+/* ==================== 顶部白色背景 ==================== */
 .header-section {
-	background: $primary;
-	padding: 0 32rpx 48rpx;
+	background: #fff;
+	padding: 0 32rpx 28rpx;
 }
 
-/* 用户信息 */
 .user-info {
 	display: flex;
 	align-items: center;
@@ -193,7 +165,7 @@ $primary-bg: #f5fde6;
 	width: 120rpx;
 	height: 120rpx;
 	border-radius: 50%;
-	background: rgba(255, 255, 255, 0.3);
+	background: #f0f0f0;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -218,54 +190,57 @@ $primary-bg: #f5fde6;
 .user-name {
 	font-size: 38rpx;
 	font-weight: 700;
-	color: #fff;
+	color: #222;
 	display: block;
 	margin-bottom: 6rpx;
 }
 
 .user-desc {
 	font-size: 24rpx;
-	color: rgba(255, 255, 255, 0.75);
+	color: #999;
 	display: block;
 }
 
 .login-arrow {
 	font-size: 44rpx;
-	color: rgba(255, 255, 255, 0.6);
+	color: #ccc;
 	margin-left: 12rpx;
 }
 
-/* 余额 + 我的券 */
-.balance-row {
+/* ==================== 余额卡券卡片（主题色，左右一分二） ==================== */
+.balance-card {
 	display: flex;
-	align-items: stretch;
-	background: rgba(255, 255, 255, 0.18);
+	background: $primary;
+	margin: 24rpx;
 	border-radius: 20rpx;
-	margin-top: 8rpx;
 	overflow: hidden;
 }
 
 .balance-left {
 	flex: 1;
-	padding: 24rpx 28rpx;
+	padding: 32rpx 28rpx;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
+}
+
+.balance-divider {
+	width: 1rpx;
+	background: rgba(255, 255, 255, 0.3);
 }
 
 .balance-right {
 	flex: 1;
-	padding: 24rpx 28rpx;
+	padding: 32rpx 28rpx;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	align-items: flex-end;
-	border-left: 1rpx solid rgba(255, 255, 255, 0.25);
+	align-items: center;
 }
 
 .balance-label {
 	font-size: 24rpx;
-	color: rgba(255, 255, 255, 0.75);
+	color: rgba(255, 255, 255, 0.8);
 	display: block;
 	margin-bottom: 8rpx;
 }
@@ -277,62 +252,62 @@ $primary-bg: #f5fde6;
 }
 
 .balance-count {
-	font-size: 42rpx;
+	font-size: 36rpx;
 	font-weight: 700;
 	color: #fff;
 }
 
-/* ==================== 功能入口 2x2 ==================== */
-.func-card {
+/* ==================== 菜单列表（上下排列） ==================== */
+.menu-card {
 	background: #fff;
-	margin: 24rpx;
+	margin: 0 24rpx;
 	border-radius: 20rpx;
-	padding: 28rpx 16rpx;
+	overflow: hidden;
 }
 
-.func-grid {
+.menu-item {
 	display: flex;
-	flex-wrap: wrap;
-}
-
-.func-item {
-	width: 50%;
-	display: flex;
-	flex-direction: column;
 	align-items: center;
-	padding: 20rpx 0;
+	padding: 32rpx 28rpx;
+	border-bottom: 1rpx solid #f5f5f5;
+
+	&:last-child {
+		border-bottom: none;
+	}
 
 	&:active {
-		opacity: 0.7;
+		background: #fafafa;
 	}
 }
 
-.func-icon-box {
-	width: 88rpx;
-	height: 88rpx;
-	border-radius: 22rpx;
-	background: $primary-bg;
+.menu-icon-box {
+	width: 56rpx;
+	height: 56rpx;
+	margin-right: 20rpx;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	margin-bottom: 12rpx;
 }
 
-.func-icon-img {
-	width: 56rpx;
-	height: 56rpx;
+.menu-icon-img {
+	width: 44rpx;
+	height: 44rpx;
 }
 
-.func-text {
-	font-size: 26rpx;
+.menu-text {
+	flex: 1;
+	font-size: 30rpx;
 	color: #333;
-	font-weight: 500;
+}
+
+.menu-arrow {
+	font-size: 36rpx;
+	color: #ccc;
 }
 
 /* ==================== 退出登录 ==================== */
 .logout-section {
-	padding: 0 24rpx;
-	margin-top: 24rpx;
+	padding: 24rpx 24rpx 0;
 }
 
 .logout-btn {
@@ -342,9 +317,7 @@ $primary-bg: #f5fde6;
 	border-radius: 20rpx;
 	border: 2rpx solid #ff4d4f;
 
-	&:active {
-		background: #fff5f5;
-	}
+	&:active { background: #fff5f5; }
 }
 
 .logout-text {
@@ -367,7 +340,7 @@ $primary-bg: #f5fde6;
 
 .agreement-link {
 	font-size: 24rpx;
-	color: $primary-dark;
+	color: #7bc400;
 }
 
 .agreement-divider {
