@@ -1,62 +1,71 @@
 <!-- pages/index/index.vue -->
-<!-- 默认主页（原型图-默认主页.png）扫码后进入的设备使用页 -->
+<!-- 默认主页（对齐原型图：默认主页.png） -->
+<!-- 扫码后进入的设备使用页，包含设备信息、快捷入口、服务项目、底部支付栏 -->
 <template>
 	<view class="page-home">
-		<!-- 顶部装饰 - 四分之一圆弧 -->
+		<!-- 左上角四分之一圆弧装饰 -->
 		<view class="top-arc"></view>
 
 		<!-- 自定义导航栏 -->
 		<view class="nav-bar" :style="{ paddingTop: statusBarHeight + 'px' }">
 			<view class="nav-content">
+				<view class="nav-back" @click="goBack">
+					<text class="back-arrow">‹</text>
+				</view>
 				<text class="nav-title">物沃PET</text>
-				<view class="nav-right" @click="goMine">
-					<text class="nav-avatar-text">我的</text>
+				<view class="nav-service" @click="onContactService">
+					<text class="service-icon">💬</text>
 				</view>
 			</view>
 		</view>
 
 		<!-- 设备信息卡片 -->
 		<view class="device-card">
-			<view class="device-card-top">
-				<view class="device-name-row">
-					<text class="device-name">{{ device.name }}</text>
-					<view :class="['device-status', device.status === 1 ? 'status-green' : 'status-gray']">
-						{{ device.statusText }}
-					</view>
+			<view class="device-name-row">
+				<text class="device-name">{{ device.name }}</text>
+				<view :class="['device-status', device.status === 1 ? 'status-green' : 'status-gray']">
+					{{ device.statusText }}
 				</view>
-				<view class="device-addr">
-					<text class="addr-icon">📍</text>
-					<text class="addr-text">{{ device.address }}</text>
-				</view>
-				<view class="device-distance">
-					<text class="distance-text">距我 {{ device.distance }}</text>
-				</view>
+			</view>
+			<view class="device-addr-row">
+				<text class="device-addr">{{ device.address }}</text>
+			</view>
+			<view class="device-dist-row">
+				<text class="device-dist">距我 {{ device.distance }}</text>
 			</view>
 		</view>
 
-		<!-- 使用指引 -->
-		<view class="guide-section">
-			<view class="guide-title-row">
-				<text class="guide-title">使用指引</text>
-			</view>
-			<view class="guide-list">
-				<view class="guide-item" v-for="(item, index) in guideList" :key="index">
-					<view class="guide-step">
-						<text class="step-num">{{ index + 1 }}</text>
-					</view>
-					<view class="guide-content">
-						<text class="guide-name">{{ item.name }}</text>
-						<text class="guide-desc">{{ item.desc }}</text>
-					</view>
+		<!-- 快捷入口 -->
+		<view class="quick-entry">
+			<view class="entry-item" @click="goBookService">
+				<view class="entry-icon-box">
+					<text class="entry-icon-text">📅</text>
 				</view>
+				<text class="entry-label">预约到店</text>
+			</view>
+			<view class="entry-item" @click="goRedeem">
+				<view class="entry-icon-box">
+					<text class="entry-icon-text">🎫</text>
+				</view>
+				<text class="entry-label">团购核销</text>
+			</view>
+			<view class="entry-item" @click="goOrderList">
+				<view class="entry-icon-box">
+					<text class="entry-icon-text">📋</text>
+				</view>
+				<text class="entry-label">我的订单</text>
+			</view>
+			<view class="entry-item" @click="goRecharge">
+				<view class="entry-icon-box">
+					<text class="entry-icon-text">💰</text>
+				</view>
+				<text class="entry-label">优惠充值</text>
 			</view>
 		</view>
 
-		<!-- 服务卡片 -->
+		<!-- 服务项目 -->
 		<view class="service-section">
-			<view class="service-title-row">
-				<text class="service-title">服务项目</text>
-			</view>
+			<text class="section-title">服务项目</text>
 			<view class="service-grid">
 				<view
 					:class="['service-card', { active: selectedService === index }]"
@@ -64,42 +73,48 @@
 					:key="index"
 					@click="selectService(index)"
 				>
-					<text class="service-name">{{ item.name }}</text>
-					<text class="service-price">￥{{ item.price }}</text>
-					<text class="service-desc">{{ item.desc }}</text>
+					<text class="svc-name">{{ item.name }}</text>
+					<view class="svc-price-row">
+						<text class="svc-price-symbol">￥</text>
+						<text class="svc-price-num">{{ item.price }}</text>
+					</view>
+					<text class="svc-desc">{{ item.desc }}</text>
 				</view>
-			</view>
-		</view>
-
-		<!-- 温馨提示 -->
-		<view class="tips-section">
-			<view class="tips-row" v-for="(tip, idx) in tipsList" :key="idx">
-				<text class="tips-icon">💡</text>
-				<text class="tips-text">{{ tip }}</text>
 			</view>
 		</view>
 
 		<!-- 底部支付栏 -->
 		<view class="bottom-bar">
-			<view class="price-info">
-				<text class="price-label">预估费用</text>
-				<view class="price-value-row">
-					<text class="price-symbol">￥</text>
-					<text class="price-amount">{{ totalPrice }}</text>
+			<view class="bar-left">
+				<text class="bar-label">预估费用</text>
+				<view class="bar-price">
+					<text class="bar-price-symbol">￥</text>
+					<text class="bar-price-num">{{ totalPrice }}</text>
 				</view>
 			</view>
-			<view class="pay-btn" @click="goPayConfirm">
-				<text class="pay-btn-text">立即支付</text>
+			<view class="bar-btn" @click="goPayConfirm">
+				<text class="bar-btn-text">立即支付</text>
 			</view>
 		</view>
 	</view>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onLoad } from 'vue'
+import { scanQRCode } from '@/api/store.js'
+import { getAvailableCoupons } from '@/api/pay.js'
 
+// ==================== 页面参数 ====================
+/** @type {number} 设备ID - 通过扫码或页面跳转传入 */
+const deviceId = ref('')
+/** @type {string} 扫码结果 */
+const scanCode = ref('')
+
+// ==================== 状态栏 ====================
 const statusBarHeight = ref(0)
 
+// ==================== 设备信息 ====================
+/** @type {Object} 设备信息 - 接口: GET /api/device/detail */
 const device = ref({
 	id: 101,
 	name: '智能洗宠机A1',
@@ -109,348 +124,393 @@ const device = ref({
 	distance: '3.6KM'
 })
 
-const guideList = ref([
-	{ name: '扫码开启设备', desc: '使用微信扫一扫设备上的二维码' },
-	{ name: '放入宠物', desc: '将宠物放入设备并关好舱门' },
-	{ name: '选择服务', desc: '选择洗宠服务项目并支付' },
-	{ name: '等待完成', desc: '设备自动运行，结束后取回宠物' }
-])
-
+// ==================== 服务项目 ====================
+/** @type {Array} 服务列表 - 接口: GET /api/device/services */
 const serviceList = ref([
-	{ name: '标准洗宠', price: '30', desc: '30分钟·基础清洁' },
-	{ name: '精致洗护', price: '50', desc: '45分钟·深层清洁+护毛' },
-	{ name: '豪华洗护', price: '80', desc: '60分钟·全套护理' },
-	{ name: '烘干服务', price: '20', desc: '15分钟·快速烘干' }
+	{ id: 1, name: '标准洗宠', price: 30, desc: '30分钟 · 基础清洁' },
+	{ id: 2, name: '精致洗护', price: 50, desc: '45分钟 · 深层清洁+护毛' },
+	{ id: 3, name: '豪华洗护', price: 80, desc: '60分钟 · 全套护理' },
+	{ id: 4, name: '烘干服务', price: 20, desc: '15分钟 · 快速烘干' }
 ])
 
 const selectedService = ref(0)
-
 const totalPrice = computed(() => {
-	if (selectedService.value !== null) {
-		return serviceList.value[selectedService.value].price
-	}
-	return '0'
+	return selectedService.value !== null ? serviceList.value[selectedService.value].price : 0
 })
 
-const tipsList = ref([
-	'本设备需预支付费用，结算后原路退回',
-	'使用过程中如遇问题请联系门店客服'
-])
+// ==================== 页面生命周期 ====================
+onMounted(() => {
+	const sysInfo = uni.getSystemInfoSync()
+	statusBarHeight.value = sysInfo.statusBarHeight || 0
+	loadDeviceData()
+})
 
+/**
+ * 加载设备数据
+ * 接口: GET /api/scan/parse (扫码) → GET /api/device/detail (设备详情)
+ */
+const loadDeviceData = async () => {
+	try {
+		// 如果有扫码code，先解析
+		if (scanCode.value) {
+			const scanRes = await scanQRCode(scanCode.value)
+			if (scanRes && scanRes.deviceId) {
+				deviceId.value = scanRes.deviceId
+			}
+		}
+		// TODO: 调用设备详情接口
+		// const detail = await getDeviceDetail(deviceId.value)
+		// if (detail) device.value = detail
+	} catch (e) {
+		console.error('加载设备数据失败:', e)
+	}
+}
+
+// ==================== 交互方法 ====================
 const selectService = (index) => {
 	selectedService.value = index
 }
 
+/**
+ * 跳转确认付款页
+ * 页面: /pages/pay-confirm/pay-confirm
+ * 参数: { deviceId, serviceId, price }
+ */
 const goPayConfirm = () => {
+	const svc = serviceList.value[selectedService.value]
 	uni.navigateTo({
-		url: `/pages/pay-confirm/pay-confirm?deviceId=${device.value.id}&serviceIndex=${selectedService.value}`
+		url: `/pages/pay-confirm/pay-confirm?deviceId=${device.value.id}&serviceId=${svc.id}&price=${svc.price}`
 	})
 }
 
-const goMine = () => {
-	uni.switchTab({ url: '/pages/mine/mine' })
+const goBookService = () => {
+	uni.switchTab({ url: '/pages/book-order-list/book-order-list' })
 }
 
-onMounted(() => {
-	const sysInfo = uni.getSystemInfoSync()
-	statusBarHeight.value = sysInfo.statusBarHeight || 0
-})
+const goRedeem = () => {
+	// TODO: 跳转团购核销
+	uni.navigateTo({ url: '/pages/coupon-redeem/coupon-redeem' })
+}
+
+const goOrderList = () => {
+	uni.switchTab({ url: '/pages/wash-order-list/wash-order-list' })
+}
+
+const goRecharge = () => {
+	uni.navigateTo({ url: '/pages/wallet/wallet' })
+}
+
+const goBack = () => {
+	uni.navigateBack({ delta: 1 })
+}
+
+const onContactService = () => {
+	// TODO: 接入客服系统
+	uni.showToast({ title: '客服功能开发中', icon: 'none' })
+}
 </script>
 
 <style lang="scss" scoped>
-/* 主题色 */
+/* ==================== 主题变量 ==================== */
 $primary: #91de00;
 $primary-dark: #7bc400;
 $primary-light: #e8f5cc;
 $primary-bg: #f5fde6;
 
+/* ==================== 页面容器 ==================== */
 .page-home {
 	min-height: 100vh;
-	background-color: #f5f5f5;
+	background-color: #f7f7f7;
 	padding-bottom: 160rpx;
 	position: relative;
 	overflow: hidden;
 }
 
-/* 左上角四分之一圆弧装饰 */
+/* ==================== 左上角1/4圆弧装饰 ==================== */
 .top-arc {
 	position: absolute;
-	top: -200rpx;
-	left: -200rpx;
-	width: 400rpx;
-	height: 400rpx;
-	background-color: $primary;
+	top: -180rpx;
+	left: -180rpx;
+	width: 360rpx;
+	height: 360rpx;
+	background: $primary;
 	border-radius: 50%;
-	opacity: 0.15;
+	opacity: 0.12;
 	z-index: 0;
 }
 
-/* 导航栏 */
+/* ==================== 导航栏 ==================== */
 .nav-bar {
 	background: $primary;
-	padding: 20rpx 32rpx 24rpx;
+	padding: 0 32rpx 20rpx;
 	position: relative;
 	z-index: 1;
 }
+
 .nav-content {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 16rpx 0;
+	height: 88rpx;
 }
+
+.nav-back {
+	width: 60rpx;
+	height: 60rpx;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.3);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.back-arrow {
+	font-size: 44rpx;
+	color: #fff;
+	font-weight: 300;
+	line-height: 1;
+}
+
 .nav-title {
 	font-size: 36rpx;
 	font-weight: 700;
 	color: #fff;
 }
-.nav-right {
-	padding: 8rpx 20rpx;
-	background-color: rgba(255,255,255,0.25);
-	border-radius: 999rpx;
-}
-.nav-avatar-text {
-	font-size: 26rpx;
-	color: #fff;
+
+.nav-service {
+	width: 60rpx;
+	height: 60rpx;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.3);
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
-/* 设备信息卡片 */
+.service-icon {
+	font-size: 32rpx;
+}
+
+/* ==================== 设备信息卡片 ==================== */
 .device-card {
-	background-color: #fff;
-	margin: 24rpx;
-	border-radius: 24rpx;
-	padding: 32rpx;
-	box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.06);
+	background: #fff;
+	margin: 24rpx 24rpx 0;
+	border-radius: 20rpx;
+	padding: 28rpx 32rpx;
 	position: relative;
 	z-index: 1;
 }
-.device-card-top {}
+
 .device-name-row {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: 16rpx;
+	margin-bottom: 12rpx;
 }
+
 .device-name {
 	font-size: 34rpx;
 	font-weight: 700;
-	color: #333;
+	color: #222;
 }
+
 .device-status {
 	font-size: 22rpx;
-	padding: 6rpx 20rpx;
-	border-radius: 999rpx;
+	padding: 4rpx 18rpx;
+	border-radius: 20rpx;
+	font-weight: 500;
 }
+
 .status-green {
-	background-color: $primary-light;
+	background: $primary-light;
 	color: $primary-dark;
 }
+
 .status-gray {
-	background-color: #f0f0f0;
+	background: #f0f0f0;
 	color: #999;
 }
-.device-addr {
-	display: flex;
-	align-items: center;
+
+.device-addr-row {
 	margin-bottom: 8rpx;
 }
-.addr-icon {
-	font-size: 24rpx;
-	margin-right: 8rpx;
-}
-.addr-text {
+
+.device-addr {
 	font-size: 26rpx;
 	color: #666;
 }
-.device-distance {
-	margin-top: 4rpx;
-}
-.distance-text {
+
+.device-dist-row {}
+
+.device-dist {
 	font-size: 24rpx;
 	color: #999;
 }
 
-/* 使用指引 */
-.guide-section {
-	background-color: #fff;
-	margin: 0 24rpx 24rpx;
-	border-radius: 24rpx;
-	padding: 32rpx;
+/* ==================== 快捷入口 ==================== */
+.quick-entry {
+	display: flex;
+	justify-content: space-around;
+	background: #fff;
+	margin: 20rpx 24rpx 0;
+	border-radius: 20rpx;
+	padding: 28rpx 16rpx;
 	position: relative;
 	z-index: 1;
 }
-.guide-title-row {
-	margin-bottom: 24rpx;
-}
-.guide-title {
-	font-size: 30rpx;
-	font-weight: 600;
-	color: #333;
-}
-.guide-list {
+
+.entry-item {
 	display: flex;
 	flex-direction: column;
-}
-.guide-item {
-	display: flex;
 	align-items: center;
-	margin-bottom: 20rpx;
-	&:last-child { margin-bottom: 0; }
 }
-.guide-step {
-	width: 56rpx;
-	height: 56rpx;
-	border-radius: 50%;
-	background-color: $primary-light;
+
+.entry-icon-box {
+	width: 80rpx;
+	height: 80rpx;
+	border-radius: 20rpx;
+	background: $primary-bg;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	margin-right: 20rpx;
-	flex-shrink: 0;
-}
-.step-num {
-	font-size: 28rpx;
-	font-weight: 700;
-	color: $primary-dark;
-}
-.guide-content {
-	display: flex;
-	flex-direction: column;
-}
-.guide-name {
-	font-size: 28rpx;
-	font-weight: 600;
-	color: #333;
-	margin-bottom: 4rpx;
-}
-.guide-desc {
-	font-size: 24rpx;
-	color: #999;
+	margin-bottom: 10rpx;
 }
 
-/* 服务卡片 */
+.entry-icon-text {
+	font-size: 36rpx;
+}
+
+.entry-label {
+	font-size: 24rpx;
+	color: #333;
+}
+
+/* ==================== 服务项目 ==================== */
 .service-section {
-	background-color: #fff;
-	margin: 0 24rpx 24rpx;
-	border-radius: 24rpx;
-	padding: 32rpx;
+	background: #fff;
+	margin: 20rpx 24rpx 0;
+	border-radius: 20rpx;
+	padding: 28rpx 32rpx;
 	position: relative;
 	z-index: 1;
 }
-.service-title-row {
-	margin-bottom: 24rpx;
-}
-.service-title {
+
+.section-title {
 	font-size: 30rpx;
 	font-weight: 600;
-	color: #333;
+	color: #222;
+	display: block;
+	margin-bottom: 20rpx;
 }
+
 .service-grid {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 16rpx;
 }
+
 .service-card {
 	width: calc(50% - 8rpx);
-	padding: 28rpx 24rpx;
-	border-radius: 20rpx;
-	border: 2rpx solid #e8e8e8;
+	background: #fafafa;
+	border-radius: 16rpx;
+	padding: 24rpx;
+	border: 3rpx solid transparent;
 	box-sizing: border-box;
-	transition: all 0.2s;
+
 	&.active {
 		border-color: $primary;
-		background-color: $primary-bg;
+		background: $primary-bg;
 	}
 }
-.service-name {
+
+.svc-name {
 	font-size: 28rpx;
 	font-weight: 600;
-	color: #333;
+	color: #222;
 	display: block;
 	margin-bottom: 8rpx;
 }
-.service-price {
+
+.svc-price-row {
+	display: flex;
+	align-items: baseline;
+	margin-bottom: 6rpx;
+}
+
+.svc-price-symbol {
+	font-size: 24rpx;
+	font-weight: 700;
+	color: #ff4d4f;
+}
+
+.svc-price-num {
 	font-size: 36rpx;
 	font-weight: 700;
 	color: #ff4d4f;
-	display: block;
-	margin-bottom: 4rpx;
 }
-.service-desc {
+
+.svc-desc {
 	font-size: 22rpx;
 	color: #999;
 	display: block;
 }
 
-/* 温馨提示 */
-.tips-section {
-	margin: 0 24rpx 24rpx;
-	position: relative;
-	z-index: 1;
-}
-.tips-row {
-	display: flex;
-	align-items: flex-start;
-	margin-bottom: 12rpx;
-	&:last-child { margin-bottom: 0; }
-}
-.tips-icon {
-	font-size: 24rpx;
-	margin-right: 8rpx;
-	flex-shrink: 0;
-}
-.tips-text {
-	font-size: 24rpx;
-	color: #999;
-	line-height: 1.6;
-}
-
-/* 底部支付栏 */
+/* ==================== 底部支付栏 ==================== */
 .bottom-bar {
 	position: fixed;
 	bottom: 0;
 	left: 0;
 	right: 0;
-	background-color: #fff;
-	padding: 16rpx 32rpx;
-	padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+	height: 120rpx;
+	background: #fff;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	box-shadow: 0 -4rpx 20rpx rgba(0,0,0,0.08);
+	padding: 0 32rpx;
+	padding-bottom: env(safe-area-inset-bottom);
+	box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.06);
 	z-index: 100;
 }
-.price-info {
+
+.bar-left {
 	display: flex;
 	flex-direction: column;
 }
-.price-label {
+
+.bar-label {
 	font-size: 24rpx;
 	color: #999;
 	margin-bottom: 4rpx;
 }
-.price-value-row {
+
+.bar-price {
 	display: flex;
 	align-items: baseline;
 }
-.price-symbol {
-	font-size: 28rpx;
+
+.bar-price-symbol {
+	font-size: 26rpx;
 	font-weight: 700;
 	color: #ff4d4f;
 }
-.price-amount {
+
+.bar-price-num {
 	font-size: 44rpx;
 	font-weight: 700;
 	color: #ff4d4f;
 }
-.pay-btn {
+
+.bar-btn {
 	background: $primary;
-	padding: 24rpx 64rpx;
-	border-radius: 999rpx;
+	padding: 22rpx 56rpx;
+	border-radius: 48rpx;
+
 	&:active {
 		opacity: 0.85;
 	}
 }
-.pay-btn-text {
+
+.bar-btn-text {
 	font-size: 32rpx;
 	font-weight: 700;
 	color: #fff;
