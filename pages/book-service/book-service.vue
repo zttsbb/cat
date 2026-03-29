@@ -1,77 +1,9 @@
 <!-- pages/book-service/book-service.vue -->
-<!-- 门店主页（对齐原型图：门店主页.png） -->
 <!-- 预约到店弹窗（对齐原型图：预约.png）弹出2/3页面 -->
 <!-- 确认预约（对齐原型图：确认预约.png）预约成功叠加弹窗 -->
 <template>
 	<view class="page-store">
-		<!-- ========== 一、门店主页 ========== -->
-		<!-- 门店大图 -->
-		<view class="store-banner">
-			<image class="banner-img" :src="store.banner" mode="aspectFill" />
-		</view>
-
-		<!-- 门店信息 -->
-		<view class="store-info-card">
-			<view class="store-top-row">
-				<text class="store-name">{{ store.name }}</text>
-				<view class="switch-btn" @click="goStoreList">
-					<text class="switch-text">切换门店</text>
-					<text class="switch-arrow">›</text>
-				</view>
-			</view>
-			<view class="store-addr-row">
-				<text class="store-addr">📍 {{ store.address }}</text>
-			</view>
-			<view class="store-dist-row">
-				<text class="store-dist">距我 {{ store.distance }}</text>
-			</view>
-			<view class="store-tags">
-				<view class="tag" v-for="(t, i) in store.tags" :key="i">
-					<text class="tag-text">{{ t }}</text>
-				</view>
-			</view>
-		</view>
-
-		<!-- 快捷入口 -->
-		<view class="quick-entry">
-			<view class="entry-item" v-for="(item, idx) in quickEntries" :key="idx" @click="onEntryClick(item)">
-				<view class="entry-icon-box">
-					<image v-if="item.iconImage" class="entry-icon-img" :src="item.iconImage" mode="aspectFit" />
-					<text v-else class="entry-icon-text">{{ item.icon }}</text>
-				</view>
-				<text class="entry-label">{{ item.text }}</text>
-			</view>
-		</view>
-
-		<!-- 设备列表 -->
-		<view class="device-section">
-			<text class="section-title">可用设备</text>
-			<view class="device-list">
-				<view class="device-card" v-for="(d, idx) in deviceList" :key="idx" @click="goDeviceDetail(d)">
-					<view class="device-card-top">
-						<text class="device-card-name">{{ d.name }}</text>
-						<view :class="['device-card-status', d.status === 1 ? 'st-green' : 'st-gray']">
-							{{ d.statusText }}
-						</view>
-					</view>
-					<view class="device-card-addr">
-						<text>{{ d.address }}</text>
-					</view>
-					<view class="device-card-bottom">
-						<view class="device-price">
-							<text class="price-label">每分钟</text>
-							<text class="price-num">{{ d.priceRange }}</text>
-							<text class="price-unit">元</text>
-						</view>
-						<view class="device-btn" @click.stop="onBookDevice(d)">
-							<text class="device-btn-text">预约</text>
-						</view>
-					</view>
-				</view>
-			</view>
-		</view>
-
-		<!-- ========== 二、预约到店弹窗（2/3页面） ========== -->
+		<!-- ========== 预约到店弹窗（2/3页面） ========== -->
 		<view class="book-mask" v-if="showBookPopup" @click="closeBookPopup">
 			<view class="book-popup" @click.stop>
 				<!-- 弹窗头部 -->
@@ -93,7 +25,6 @@
 								:key="index"
 								@click="selectedDate = index"
 							>
-								<!-- 圆点 + 连接线 -->
 								<view class="tl-dot-line">
 									<view :class="['tl-dot', { active: selectedDate === index, passed: index <= selectedDate }]"></view>
 									<view class="tl-line" v-if="index < dateList.length - 1" :class="{ active: index < selectedDate }"></view>
@@ -117,19 +48,24 @@
 					</view>
 				</view>
 
-				<!-- 服务项目 2x2 -->
+				<!-- 服务项目（卡片切换形式） -->
 				<view class="svc-section">
 					<text class="svc-section-title">服务项目</text>
-					<view class="svc-grid">
-						<view
-							:class="['svc-card', { active: selectedService === index }]"
-							v-for="(item, index) in serviceList"
-							:key="index"
-							@click="selectedService = index"
-						>
+					<view class="svc-card-container">
+						<view :class="['svc-card', { active: selectedService === index }]" v-for="(item, index) in serviceList" :key="index">
 							<text class="svc-name">{{ item.name }}</text>
 							<text class="svc-price">￥{{ item.price.toFixed(2) }}</text>
 							<text class="svc-desc">{{ item.desc }}</text>
+						</view>
+					</view>
+					<!-- 下一步按钮 -->
+					<view class="next-btn-row">
+						<view class="prev-btn" :class="{ disabled: selectedService === 0 }" @click="onServicePrev">
+							<text class="nav-btn-text">‹</text>
+						</view>
+						<view class="nav-btn-desc">左右切换</view>
+						<view class="next-btn" :class="{ disabled: selectedService === serviceList.length - 1 }" @click="onServiceNext">
+							<text class="nav-btn-text">›</text>
 						</view>
 					</view>
 				</view>
@@ -139,30 +75,27 @@
 					<input class="remark-input" v-model="remark" placeholder="请输入备注内容" maxlength="200" />
 				</view>
 
-				<!-- 底部支付栏 -->
+				<!-- 底部支付栏（上下排列） -->
 				<view class="popup-bottom">
-					<view class="pay-info-row">
-						<view class="pay-info-item" @click="goWallet">
-							<text class="pi-label">账户余额</text>
-							<text class="pi-value">￥{{ balance }}</text>
-						</view>
-						<view class="pay-info-item" @click="goCouponList">
-							<text class="pi-label">我的卡券</text>
-							<text class="pi-value">({{ couponCount }})</text>
+					<!-- 账户余额 -->
+					<view class="pay-row" @click="goWallet">
+						<text class="pay-label">账户余额</text>
+						<text class="pay-value">￥{{ balance }}</text>
+					</view>
+					<!-- 我的卡券（选取优惠券） -->
+					<view class="pay-row" @click="pickCoupon">
+						<text class="pay-label">选取优惠券</text>
+						<view class="pay-right">
+							<text class="pay-value" v-if="selectedCoupon">-￥{{ selectedCoupon.amount }}</text>
+							<text class="pay-arrow">›</text>
 						</view>
 					</view>
-					<view class="pay-method-row">
+					<!-- 微信支付 -->
+					<view class="pay-row wechat-row">
 						<view class="radio-circle active">
 							<view class="radio-inner"></view>
 						</view>
 						<text class="pay-method-name">微信支付</text>
-					</view>
-					<view class="coupon-row" @click="pickCoupon">
-						<text class="coupon-row-label">选取优惠券</text>
-						<view class="coupon-row-right">
-							<text class="coupon-row-text" v-if="selectedCoupon">-￥{{ selectedCoupon.amount }}</text>
-							<text class="coupon-row-arrow">›</text>
-						</view>
 					</view>
 					<view class="submit-btn" @click="onSubmit">
 						<text class="submit-btn-text">确认下单</text>
@@ -171,7 +104,7 @@
 			</view>
 		</view>
 
-		<!-- ========== 三、预约成功叠加弹窗（背景=预约页面） ========== -->
+		<!-- ========== 预约成功叠加弹窗（背景=预约页面） ========== -->
 		<view class="success-mask" v-if="showSuccess" @click="onSuccessClick">
 			<view class="success-popup" @click.stop>
 				<view class="success-icon-wrap">
@@ -224,46 +157,17 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getStoreDetail, getDeviceList } from '@/api/store.js'
 import { createBookOrder } from '@/api/order.js'
 import { getWalletInfo, getAvailableCoupons } from '@/api/pay.js'
 
-// ==================== 门店信息 ====================
-/** @type {Object} 门店信息 - 接口: GET /api/store/detail */
-const store = ref({
-	id: 1,
-	name: '物沃宠物洗护中心（南山店）',
-	banner: '/static/banner/banner1.jpg',
-	address: '深圳市南山区科技园南区深南大道9966号',
-	distance: '3.6KM',
-	tags: ['有车位', '有技师', 'WIFI覆盖', '门店图']
-})
-
-// ==================== 快捷入口 ====================
-const quickEntries = ref([
-	{ iconImage: '/static/icon/qiandao.png', text: '预约到店', action: 'book' },
-	{ iconImage: '/static/icon/saomahexiao.png', text: '团购核销', action: 'redeem' },
-	{ iconImage: '/static/icon/qianbao.png', text: '我的订单', action: 'orders' },
-	{ iconImage: '/static/icon/youhuichognzhi.png', text: '优惠充值', action: 'recharge' },
-	{ iconImage: '/static/icon/fenxiang.png', text: '分享有礼', action: 'share' }
-])
-
-// ==================== 设备列表 ====================
-/** @type {Array} 设备列表 - 接口: GET /api/device/list */
-const deviceList = ref([
-	{ id: 101, name: '智能洗宠机A1', address: '深圳市南山区科技园南区深南大道9966号', status: 1, statusText: '可使用', priceRange: '0.8-1.2', storeId: 1 },
-	{ id: 102, name: '智能洗宠机A2', address: '深圳市南山区科技园南区深南大道9966号', status: 2, statusText: '使用中', priceRange: '0.8-1.2', storeId: 1 }
-])
-
 // ==================== 预约弹窗 ====================
-const showBookPopup = ref(false)
+const showBookPopup = ref(true)
 const showSuccess = ref(false)
 const selectedDate = ref(0)
 const selectedTime = ref(null)
 const selectedService = ref(0)
 const remark = ref('')
 const balance = ref(5.6)
-const couponCount = ref(3)
 const selectedCoupon = ref(null)
 const showCouponPicker = ref(false)
 
@@ -314,86 +218,20 @@ const couponList = ref([
 	{ id: 4, name: '过期次卡', amount: 15, scope: '适用于:洗宠机', expireText: '已到期', disabled: true }
 ])
 
-// ==================== 页面生命周期 ====================
-onMounted(() => {
-	loadData()
-})
-
-/**
- * 加载页面数据
- * 并行: 门店详情 / 设备列表 / 钱包 / 优惠券
- */
-const loadData = async () => {
-	try {
-		// TODO: const res = await getStoreDetail(1)
-		// if (res) store.value = res
-	} catch (e) {}
-
-	try {
-		// TODO: const list = await getDeviceList({ storeId: 1 })
-		// if (list?.length) deviceList.value = list
-	} catch (e) {}
-
-	try {
-		// TODO: const wallet = await getWalletInfo()
-		// if (wallet) balance.value = wallet.balance
-	} catch (e) {}
-
-	try {
-		// TODO: const coupons = await getAvailableCoupons({ type: 'book' })
-		// if (coupons) { couponCount.value = coupons.length; couponList.value = coupons }
-	} catch (e) {}
-}
-
-// ==================== 门店主页交互 ====================
-
-/** 快捷入口点击 */
-const onEntryClick = (item) => {
-	switch (item.action) {
-		case 'book':
-			openBookPopup()
-			break
-		case 'redeem':
-			// TODO: 打开团购核销弹窗
-			uni.navigateTo({ url: '/pages/coupon-redeem/coupon-redeem' })
-			break
-		case 'orders':
-			uni.switchTab({ url: '/pages/wash-order-list/wash-order-list' })
-			break
-		case 'recharge':
-			uni.navigateTo({ url: '/pages/wallet/wallet' })
-			break
-		case 'share':
-			// TODO: 分享有礼
-			uni.showToast({ title: '分享有礼功能开发中', icon: 'none' })
-			break
+// 服务项目切换
+const onServicePrev = () => {
+	if (selectedService.value > 0) {
+		selectedService.value--
 	}
 }
 
-/** 设备卡片点击 → 设备详情 */
-const goDeviceDetail = (d) => {
-	uni.navigateTo({ url: `/pages/device-detail/device-detail?deviceId=${d.id}` })
-}
-
-/** 设备卡片"预约"按钮 → 打开预约弹窗 */
-const onBookDevice = (d) => {
-	openBookPopup()
-}
-
-const goStoreList = () => {
-	uni.navigateTo({ url: '/pages/store-list/store-list' })
+const onServiceNext = () => {
+	if (selectedService.value < serviceList.value.length - 1) {
+		selectedService.value++
+	}
 }
 
 // ==================== 预约弹窗交互 ====================
-
-/** 打开预约弹窗 */
-const openBookPopup = () => {
-	selectedDate.value = 0
-	selectedTime.value = null
-	selectedService.value = 0
-	remark.value = ''
-	showBookPopup.value = true
-}
 
 /** 关闭预约弹窗 */
 const closeBookPopup = () => {
@@ -414,19 +252,9 @@ const goWallet = () => {
 	uni.navigateTo({ url: '/pages/wallet/wallet' })
 }
 
-const goCouponList = () => {
-	uni.navigateTo({ url: '/pages/coupon-list/coupon-list' })
-}
-
 /**
  * 提交预约订单
  * 接口: POST /api/order/book/create
- * @param {string} date - 预约日期
- * @param {string} time - 预约时段
- * @param {string} serviceId - 服务项目ID
- * @param {string} remark - 备注
- * @param {string} payMethod - 支付方式
- * @param {string} couponId - 优惠券ID
  */
 const onSubmit = () => {
 	if (!selectedTime.value) {
@@ -479,255 +307,7 @@ $primary-bg: #f5fde6;
 	background: #f7f7f7;
 }
 
-/* ==================== 一、门店主页 ==================== */
-
-/* 门店大图 */
-.store-banner {
-	width: 100%;
-	height: 400rpx;
-	overflow: hidden;
-}
-
-.banner-img {
-	width: 100%;
-	height: 100%;
-}
-
-/* 门店信息卡片 */
-.store-info-card {
-	background: #fff;
-	margin: 0 24rpx;
-	margin-top: -40rpx;
-	border-radius: 20rpx;
-	padding: 28rpx 32rpx;
-	position: relative;
-	z-index: 1;
-}
-
-.store-top-row {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 12rpx;
-}
-
-.store-name {
-	font-size: 34rpx;
-	font-weight: 700;
-	color: #222;
-}
-
-.switch-btn {
-	display: flex;
-	align-items: center;
-	padding: 8rpx 20rpx;
-	background: #f5f5f5;
-	border-radius: 999rpx;
-
-	&:active {
-		background: #eee;
-	}
-}
-
-.switch-text {
-	font-size: 24rpx;
-	color: #666;
-}
-
-.switch-arrow {
-	font-size: 28rpx;
-	color: #666;
-	margin-left: 4rpx;
-}
-
-.store-addr-row {
-	margin-bottom: 8rpx;
-}
-
-.store-addr {
-	font-size: 26rpx;
-	color: #666;
-}
-
-.store-dist-row {
-	margin-bottom: 12rpx;
-}
-
-.store-dist {
-	font-size: 24rpx;
-	color: #999;
-}
-
-.store-tags {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 12rpx;
-	padding-top: 12rpx;
-	border-top: 1rpx solid #f0f0f0;
-}
-
-.tag {
-	background: $primary-bg;
-	border-radius: 8rpx;
-	padding: 4rpx 16rpx;
-}
-
-.tag-text {
-	font-size: 22rpx;
-	color: $primary-dark;
-}
-
-/* 快捷入口 */
-.quick-entry {
-	background: #fff;
-	margin: 20rpx 24rpx 0;
-	border-radius: 20rpx;
-	padding: 28rpx 16rpx;
-	display: flex;
-	justify-content: space-around;
-}
-
-.entry-item {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-}
-
-.entry-icon-box {
-	width: 80rpx;
-	height: 80rpx;
-	border-radius: 20rpx;
-	background: $primary-bg;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	margin-bottom: 10rpx;
-}
-
-.entry-icon-img {
-	width: 48rpx;
-	height: 48rpx;
-}
-
-.entry-icon-text {
-	font-size: 36rpx;
-}
-
-.entry-label {
-	font-size: 22rpx;
-	color: #333;
-}
-
-/* 设备列表 */
-.device-section {
-	margin: 20rpx 24rpx;
-}
-
-.section-title {
-	font-size: 30rpx;
-	font-weight: 600;
-	color: #222;
-	display: block;
-	margin-bottom: 16rpx;
-}
-
-.device-list {
-	display: flex;
-	flex-direction: column;
-	gap: 16rpx;
-}
-
-.device-card {
-	background: #fff;
-	border-radius: 20rpx;
-	padding: 28rpx 32rpx;
-
-	&:active {
-		background: #fafafa;
-	}
-}
-
-.device-card-top {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 10rpx;
-}
-
-.device-card-name {
-	font-size: 30rpx;
-	font-weight: 600;
-	color: #222;
-}
-
-.device-card-status {
-	font-size: 22rpx;
-	padding: 4rpx 18rpx;
-	border-radius: 20rpx;
-}
-
-.st-green {
-	background: $primary-light;
-	color: $primary-dark;
-}
-
-.st-gray {
-	background: #f0f0f0;
-	color: #999;
-}
-
-.device-card-addr {
-	font-size: 24rpx;
-	color: #999;
-	margin-bottom: 16rpx;
-}
-
-.device-card-bottom {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-}
-
-.device-price {
-	display: flex;
-	align-items: baseline;
-}
-
-.price-label {
-	font-size: 24rpx;
-	color: #666;
-	margin-right: 8rpx;
-}
-
-.price-num {
-	font-size: 32rpx;
-	font-weight: 700;
-	color: #222;
-}
-
-.price-unit {
-	font-size: 22rpx;
-	color: #666;
-	margin-left: 4rpx;
-}
-
-.device-btn {
-	background: $primary;
-	padding: 12rpx 36rpx;
-	border-radius: 999rpx;
-
-	&:active {
-		opacity: 0.85;
-	}
-}
-
-.device-btn-text {
-	font-size: 26rpx;
-	font-weight: 600;
-	color: #fff;
-}
-
-/* ==================== 二、预约到店弹窗（2/3页面） ==================== */
+/* ==================== 预约到店弹窗（2/3页面） ==================== */
 .book-mask {
 	position: fixed;
 	top: 0;
@@ -928,7 +508,7 @@ $primary-bg: #f5fde6;
 	color: #333;
 }
 
-/* 服务项目 2x2 */
+/* 服务项目（卡片切换形式） */
 .svc-section {
 	background: #fff;
 	margin: 12rpx 24rpx 0;
@@ -944,17 +524,18 @@ $primary-bg: #f5fde6;
 	margin-bottom: 16rpx;
 }
 
-.svc-grid {
+.svc-card-container {
 	display: flex;
-	flex-wrap: wrap;
+	flex-direction: column;
 	gap: 12rpx;
+	margin-bottom: 16rpx;
 }
 
 .svc-card {
-	width: calc(50% - 6rpx);
-	padding: 20rpx;
+	padding: 24rpx;
 	border-radius: 16rpx;
 	border: 2rpx solid #e8e8e8;
+	transition: all 0.3s;
 
 	&.active {
 		border-color: $primary;
@@ -963,7 +544,7 @@ $primary-bg: #f5fde6;
 }
 
 .svc-name {
-	font-size: 26rpx;
+	font-size: 28rpx;
 	font-weight: 600;
 	color: #222;
 	display: block;
@@ -971,7 +552,7 @@ $primary-bg: #f5fde6;
 }
 
 .svc-price {
-	font-size: 32rpx;
+	font-size: 36rpx;
 	font-weight: 700;
 	color: #ff4d4f;
 	display: block;
@@ -979,9 +560,46 @@ $primary-bg: #f5fde6;
 }
 
 .svc-desc {
-	font-size: 22rpx;
+	font-size: 24rpx;
 	color: #999;
 	display: block;
+}
+
+/* 下一步按钮行 */
+.next-btn-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 24rpx;
+}
+
+.prev-btn, .next-btn {
+	width: 64rpx;
+	height: 64rpx;
+	border-radius: 50%;
+	background: #fff;
+	border: 2rpx solid #e8e8e8;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	&:active {
+		background: #f5f5f5;
+	}
+
+	&.disabled {
+		opacity: 0.3;
+	}
+}
+
+.nav-btn-text {
+	font-size: 40rpx;
+	color: #666;
+}
+
+.nav-btn-desc {
+	font-size: 24rpx;
+	color: #999;
 }
 
 /* 备注 */
@@ -1002,7 +620,7 @@ $primary-bg: #f5fde6;
 	box-sizing: border-box;
 }
 
-/* 底部支付栏 */
+/* 底部支付栏（上下排列） */
 .popup-bottom {
 	margin-top: auto;
 	background: #fff;
@@ -1011,45 +629,54 @@ $primary-bg: #f5fde6;
 	border-top: 1rpx solid #f0f0f0;
 }
 
-.pay-info-row {
+.pay-row {
 	display: flex;
 	align-items: center;
-	margin-bottom: 12rpx;
+	justify-content: space-between;
+	padding: 16rpx 0;
+	border-bottom: 1rpx solid #f0f0f0;
+
+	&:last-child {
+		border-bottom: none;
+	}
 }
 
-.pay-info-item {
-	flex: 1;
-	display: flex;
-	align-items: center;
+.pay-label {
+	font-size: 28rpx;
+	color: #333;
 }
 
-.pi-label {
-	font-size: 26rpx;
-	color: #666;
-	margin-right: 8rpx;
-}
-
-.pi-value {
-	font-size: 26rpx;
+.pay-value {
+	font-size: 28rpx;
 	color: #333;
 	font-weight: 600;
 }
 
-.pay-method-row {
+.pay-right {
 	display: flex;
 	align-items: center;
-	margin-bottom: 12rpx;
+}
+
+.pay-arrow {
+	font-size: 32rpx;
+	color: #ccc;
+}
+
+.wechat-row {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
 }
 
 .radio-circle {
-	width: 36rpx;
-	height: 36rpx;
+	width: 40rpx;
+	height: 40rpx;
 	border-radius: 50%;
 	border: 2rpx solid #ddd;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	margin-right: 12rpx;
+	margin-right: 16rpx;
 
 	&.active {
 		border-color: $primary;
@@ -1057,8 +684,8 @@ $primary-bg: #f5fde6;
 }
 
 .radio-inner {
-	width: 20rpx;
-	height: 20rpx;
+	width: 22rpx;
+	height: 22rpx;
 	border-radius: 50%;
 	background: $primary;
 }
@@ -1068,41 +695,12 @@ $primary-bg: #f5fde6;
 	color: #333;
 }
 
-.coupon-row {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 12rpx 0;
-	border-top: 1rpx solid #f0f0f0;
-	margin-bottom: 16rpx;
-}
-
-.coupon-row-label {
-	font-size: 26rpx;
-	color: #333;
-}
-
-.coupon-row-right {
-	display: flex;
-	align-items: center;
-}
-
-.coupon-row-text {
-	font-size: 26rpx;
-	color: #ff4d4f;
-	margin-right: 8rpx;
-}
-
-.coupon-row-arrow {
-	font-size: 32rpx;
-	color: #ccc;
-}
-
 .submit-btn {
 	background: $primary;
 	border-radius: 999rpx;
 	padding: 24rpx 0;
 	text-align: center;
+	margin-top: 20rpx;
 
 	&:active {
 		opacity: 0.85;
@@ -1115,14 +713,14 @@ $primary-bg: #f5fde6;
 	color: #fff;
 }
 
-/* ==================== 三、预约成功叠加弹窗 ==================== */
+/* ==================== 预约成功叠加弹窗（背景=预约页面） ==================== */
 .success-mask {
 	position: fixed;
 	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: rgba(0, 0, 0, 0.6);
+	background: rgba(0, 0, 0, 0.3);
 	z-index: 1001;
 	display: flex;
 	align-items: center;
