@@ -136,7 +136,7 @@
 				</view>
 
 				<!-- 服务项目 2x2 -->
-				<view class="svc-section">
+				<view class="svc-section" v-if="!showPaySection">
 					<text class="svc-section-title">服务项目</text>
 					<view class="svc-grid">
 						<view
@@ -162,72 +162,65 @@
 				<!-- 备注 -->
 				<view class="remark-wrap" v-if="showPaySection">
 					<input class="remark-input" v-model="remark" placeholder="请输入备注内容" maxlength="200" />
+				<!-- 备注 -->
+				<view class="remark-wrap" v-if="showPaySection">
+					<input class="remark-input" v-model="remark" placeholder="请输入备注内容" maxlength="200" />
 				</view>
 
-			</view>
-		</view>
-
-		<!-- ========== 三、预约支付弹窗（底部弹出） ========== -->
-		<view class="pay-mask" v-if="showPaySection" @click="closePaySection">
-			<view class="pay-popup" @click.stop>
-				<!-- 弹窗头部 -->
-				<view class="pay-popup-header">
-					<text class="pay-popup-title">确认订单</text>
-					<view class="pay-popup-close" @click="closePaySection">
-						<text class="pay-popup-close-text">✕</text>
-					</view>
-				</view>
-
-				<!-- 支付金额显示 -->
-				<view class="pay-amount-display">
-					<text class="pay-total-label">需支付</text>
-					<view class="pay-total-amount">
-						<text class="symbol">￥</text>
-						<text>{{ calcTotalAmount }}</text>
-					</view>
-				</view>
-
-				<!-- 账户余额 -->
-				<view class="pay-info-row">
-					<view class="pay-info-item" @click="goWallet">
-						<text class="pi-label">账户余额</text>
-						<text class="pi-value">￥{{ balance }}</text>
-					</view>
-				</view>
-
-				<!-- 我的卡券（可点击选择优惠券） -->
-				<view class="coupon-section">
-					<view class="coupon-title">我的卡券</view>
-					<view class="coupon-card" @click="pickCoupon">
-						<view class="coupon-left">
-							<text class="coupon-label">选取优惠券</text>
-						</view>
-						<view class="coupon-right">
-							<text class="coupon-amount" v-if="selectedCoupon">-￥{{ selectedCoupon.amount }}</text>
-							<text class="coupon-amount placeholder" v-else>选择优惠券</text>
-							<text class="coupon-arrow">›</text>
+				<!-- 支付区域 -->
+				<view class="pay-section" v-if="showPaySection">
+					<!-- 支付金额显示 -->
+					<view class="pay-amount-display">
+						<text class="pay-total-label">需支付</text>
+						<view class="pay-total-amount">
+							<text class="symbol">￥</text>
+							<text>{{ calcTotalAmount }}</text>
 						</view>
 					</view>
-				</view>
 
-				<!-- 支付方式 -->
-				<view class="pay-method-section">
-					<text class="pay-method-title">支付方式</text>
-					<view class="pay-method-row">
-						<view class="radio-circle active">
-							<view class="radio-inner"></view>
+					<!-- 账户余额 -->
+					<view class="pay-info-row">
+						<view class="pay-info-item" @click="goWallet">
+							<text class="pi-label">账户余额</text>
+							<text class="pi-value">￥{{ balance }}</text>
 						</view>
-						<text class="pay-method-name">微信支付</text>
 					</view>
-				</view>
 
-				<!-- 确认下单 -->
-				<view class="submit-btn" @click="onSubmit">
-					<text class="submit-btn-text">确认下单</text>
+					<!-- 我的卡券（可点击选择优惠券） -->
+					<view class="coupon-section">
+						<view class="coupon-title">我的卡券</view>
+						<view class="coupon-card" @click="pickCoupon">
+							<view class="coupon-left">
+								<text class="coupon-label">选取优惠券</text>
+							</view>
+							<view class="coupon-right">
+								<text class="coupon-amount" v-if="selectedCoupon">-￥{{ selectedCoupon.amount }}</text>
+								<text class="coupon-amount placeholder" v-else>选择优惠券</text>
+								<text class="coupon-arrow">›</text>
+							</view>
+						</view>
+					</view>
+
+					<!-- 支付方式 -->
+					<view class="pay-method-section">
+						<text class="pay-method-title">支付方式</text>
+						<view class="pay-method-row">
+							<view class="radio-circle active">
+								<view class="radio-inner"></view>
+							</view>
+							<text class="pay-method-name">微信支付</text>
+						</view>
+					</view>
+
+					<!-- 确认下单 -->
+					<view class="submit-btn" @click="onSubmit">
+						<text class="submit-btn-text">确认下单</text>
+					</view>
 				</view>
 			</view>
 		</view>
 
+		<!-- ========== 三、预约成功叠加弹窗（背景=预约页面） ========== -->
 		<!-- ========== 四、预约成功叠加弹窗（背景=预约页面） ========== -->
 		<view class="success-mask" v-if="showSuccess" @click="onSuccessClick">
 			<view class="success-popup" @click.stop>
@@ -565,18 +558,12 @@ const goNextStep = () => {
 		uni.showToast({ title: '请选择服务项目', icon: 'none' })
 		return
 	}
-	showBookPopup.value = false
 	showPaySection.value = true
 }
 
 /** 关闭预约弹窗 */
 const closeBookPopup = () => {
 	showBookPopup.value = false
-	showPaySection.value = false
-}
-
-/** 关闭支付弹窗 */
-const closePaySection = () => {
 	showPaySection.value = false
 }
 
@@ -1253,62 +1240,6 @@ $primary-bg: #f5fde6;
 	color: #fff;
 }
 
-/* ========== 预约支付弹窗（底部弹出） ========== */
-.pay-mask {
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: rgba(0, 0, 0, 0.5);
-	z-index: 150;
-	display: flex;
-	align-items: flex-end;
-}
-
-.pay-popup {
-	width: 100%;
-	max-height: 85vh;
-	background: #fff;
-	border-radius: 32rpx 32rpx 0 0;
-	overflow-y: auto;
-	padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
-}
-
-/* 弹窗头部 */
-.pay-popup-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 32rpx 32rpx 20rpx;
-	border-bottom: 1rpx solid #f5f5f5;
-}
-
-.pay-popup-title {
-	font-size: 36rpx;
-	font-weight: 700;
-	color: #222;
-}
-
-.pay-popup-close {
-	width: 56rpx;
-	height: 56rpx;
-	border-radius: 50%;
-	background-color: #f5f5f5;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.pay-popup-close-text {
-	font-size: 32rpx;
-	color: #999;
-}
-
-/* 支付弹窗内容区 */
-.pay-popup-content {
-	padding: 24rpx 32rpx 32rpx;
-}
 
 /* 支付金额显示 */
 .pay-amount-display {
