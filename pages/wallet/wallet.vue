@@ -236,7 +236,7 @@ const goBack = () => {
 }
 
 const goStoreList = () => {
-	uni.navigateTo({ url: '/pages/store-list/store-list' })
+	uni.switchTab({ url: '/pages/store-list/store-list' })
 }
 
 const viewStores = () => {
