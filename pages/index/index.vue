@@ -533,7 +533,7 @@ const onBookDevice = (d) => {
 }
 
 const goStoreList = () => {
-	uni.navigateTo({ url: '/pages/store-list/store-list' })
+	uni.switchTab({ url: '/pages/store-list/store-list' })
 }
 
 // ==================== 预约弹窗交互 ====================
