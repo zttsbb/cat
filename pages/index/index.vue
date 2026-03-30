@@ -85,7 +85,6 @@
 				</view>
 			</view>
 		</view>
-		</view>
 
 		<!-- ========== 二、预约到店弹窗（2/3页面） ========== -->
 		<view class="book-mask" v-if="showBookPopup" @click="closeBookPopup">
