@@ -153,6 +153,8 @@ const loadData = async () => {
 
 	&.coupon-expired {
 		.coupon-amount {
+	line-height: 1;
+	text-shadow: 0 2rpx 6rpx rgba(0,0,0,0.3);
 			color: #999;
 		}
 		.coupon-symbol,
@@ -160,6 +162,7 @@ const loadData = async () => {
 			color: #bbb;
 		}
 		.coupon-remain {
+	text-shadow: 0 1rpx 3rpx rgba(0,0,0,0.3);
 			color: #999;
 		}
 	}
@@ -173,11 +176,11 @@ const loadData = async () => {
 	width: 100%;
 	height: 100%;
 	border-radius: 24rpx;
-	opacity: 0.85;
+	opacity: 0.15;
 }
 
 .coupon-card.coupon-expired .coupon-bg-img {
-	opacity: 0.3;
+	opacity: 0.08;
 }
 
 /* 卡片内容 */
@@ -198,21 +201,24 @@ const loadData = async () => {
 }
 
 .coupon-symbol {
+	text-shadow: 0 2rpx 4rpx rgba(0,0,0,0.3);
 	font-size: 28rpx;
 	font-weight: 600;
 	color: #fff;
 }
 
 .coupon-amount {
+	line-height: 1;
+	text-shadow: 0 2rpx 6rpx rgba(0,0,0,0.3);
 	font-size: 64rpx;
 	font-weight: 700;
 	color: #fff;
-	line-height: 1;
 }
 
 .coupon-per {
 	font-size: 22rpx;
-	color: rgba(255, 255, 255, 0.85);
+	color: #fff;
+	text-shadow: 0 1rpx 3rpx rgba(0,0,0,0.3);
 	margin-left: 4rpx;
 }
 
@@ -245,6 +251,7 @@ const loadData = async () => {
 }
 
 .coupon-source {
+	text-shadow: 0 2rpx 4rpx rgba(0,0,0,0.3);
 	font-size: 28rpx;
 	font-weight: 600;
 	color: #fff;
@@ -253,6 +260,7 @@ const loadData = async () => {
 .coupon-type-badge {
 	font-size: 20rpx;
 	color: #fff;
+	text-shadow: 0 1rpx 3rpx rgba(0,0,0,0.3);
 	background-color: rgba(255, 255, 255, 0.3);
 	padding: 2rpx 12rpx;
 	border-radius: 999rpx;
@@ -261,7 +269,8 @@ const loadData = async () => {
 
 .coupon-scope {
 	font-size: 24rpx;
-	color: rgba(255, 255, 255, 0.8);
+	color: #fff;
+	text-shadow: 0 1rpx 3rpx rgba(0,0,0,0.3);
 	margin-bottom: 12rpx;
 }
 
@@ -272,6 +281,7 @@ const loadData = async () => {
 }
 
 .coupon-remain {
+	text-shadow: 0 1rpx 3rpx rgba(0,0,0,0.3);
 	font-size: 22rpx;
 	color: #fff;
 	font-weight: 500;
@@ -279,7 +289,8 @@ const loadData = async () => {
 
 .coupon-expire {
 	font-size: 22rpx;
-	color: rgba(255, 255, 255, 0.7);
+	color: #fff;
+	text-shadow: 0 1rpx 3rpx rgba(0,0,0,0.3);
 }
 
 /* 状态标签 */

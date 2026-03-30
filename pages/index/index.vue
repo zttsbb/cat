@@ -164,8 +164,17 @@
 					<input class="remark-input" v-model="remark" placeholder="请输入备注内容" maxlength="200" />
 				</view>
 
-				<!-- 底部支付栏 -->
-				<view class="popup-bottom" v-if="showPaySection">
+				<!-- 支付区域（类似优惠充值弹窗风格） -->
+				<view class="pay-section" v-if="showPaySection">
+					<!-- 支付金额显示 -->
+					<view class="pay-amount-display">
+						<text class="pay-total-label">需支付</text>
+						<view class="pay-total-amount">
+							<text class="symbol">￥</text>
+							<text>{{ calcTotalAmount }}</text>
+						</view>
+					</view>
+
 					<!-- 账户余额 -->
 					<view class="pay-info-row">
 						<view class="pay-info-item" @click="goWallet">
@@ -189,8 +198,9 @@
 						</view>
 					</view>
 
-					<!-- 微信支付 -->
+					<!-- 支付方式 -->
 					<view class="pay-method-section">
+						<text class="pay-method-title">支付方式</text>
 						<view class="pay-method-row">
 							<view class="radio-circle active">
 								<view class="radio-inner"></view>
@@ -256,17 +266,23 @@
 			</view>
 		</view>
 
-		<!-- ========== 团购核销弹窗 ========== -->
+		<!-- ========== 团购核销弹窗（底部弹窗形式） ========== -->
 		<view class="redeem-mask" v-if="showRedeemPopup" @click="closeRedeemPopup">
 			<view class="redeem-popup" @click.stop>
-				<!-- 第一层：平台选择 -->
-				<view v-if="!selectedPlatform">
-					<view class="redeem-header">
-						<text class="redeem-title">选择核销平台</text>
-						<view class="redeem-close" @click="closeRedeemPopup">
-							<text>✕</text>
-						</view>
+				<!-- 弹窗头部 -->
+				<view class="redeem-popup-header">
+					<text class="redeem-popup-title">
+						<text v-if="!selectedPlatform">选择核销平台</text>
+						<text v-else-if="!showRedeemSuccess">输入核销码</text>
+						<text v-else>核销成功</text>
+					</text>
+					<view class="redeem-popup-close" @click="closeRedeemPopup">
+						<text class="redeem-popup-close-text">✕</text>
 					</view>
+				</view>
+
+				<!-- 第一层：平台选择 -->
+				<view class="redeem-popup-content" v-if="!selectedPlatform">
 					<view class="platform-grid">
 						<view class="platform-item" v-for="(p, idx) in platforms" :key="idx" @click="selectPlatform(p)">
 							<image class="platform-icon" :src="p.icon" mode="aspectFit" />
@@ -276,13 +292,7 @@
 				</view>
 
 				<!-- 第二层：输入核销码 -->
-				<view v-else-if="!showRedeemSuccess">
-					<view class="redeem-header">
-						<text class="redeem-title">输入核销码</text>
-						<view class="redeem-back" @click="selectedPlatform = null">
-							<text class="back-arrow">‹</text>
-						</view>
-					</view>
+				<view class="redeem-popup-content" v-else-if="!showRedeemSuccess">
 					<view class="redeem-input-wrap">
 						<input class="redeem-input" v-model="redeemCode" placeholder="请输入核销码" maxlength="20" />
 					</view>
@@ -292,30 +302,32 @@
 				</view>
 
 				<!-- 第三层：核销成功 -->
-				<view v-else class="redeem-success-content">
-					<view class="redeem-success-icon">✓</view>
-					<text class="redeem-success-title">核销成功</text>
-					<view class="redeem-card">
-						<text class="rc-name">{{ redeemSuccessInfo.name }}</text>
-						<view class="rc-item">
-							<text class="rc-label">适用于:</text>
-							<text class="rc-value">{{ redeemSuccessInfo.scope }}</text>
+				<view class="redeem-popup-content" v-else>
+					<view class="redeem-success-content">
+						<view class="redeem-success-icon">✓</view>
+						<text class="redeem-success-title">核销成功</text>
+						<view class="redeem-card">
+							<text class="rc-name">{{ redeemSuccessInfo.name }}</text>
+							<view class="rc-item">
+								<text class="rc-label">适用于:</text>
+								<text class="rc-value">{{ redeemSuccessInfo.scope }}</text>
+							</view>
+							<view class="rc-item">
+								<text class="rc-label">金额:</text>
+								<text class="rc-value">{{ redeemSuccessInfo.amount }}元</text>
+							</view>
+							<view class="rc-item">
+								<text class="rc-label">/单次可用:</text>
+								<text class="rc-value">{{ redeemSuccessInfo.singleUse }}次</text>
+							</view>
+							<view class="rc-item">
+								<text class="rc-label">有效时间:</text>
+								<text class="rc-value">{{ redeemSuccessInfo.validDays }}天</text>
+							</view>
 						</view>
-						<view class="rc-item">
-							<text class="rc-label">金额:</text>
-							<text class="rc-value">{{ redeemSuccessInfo.amount }}元</text>
+						<view class="redeem-continue-btn" @click="onContinueOrder">
+							<text class="redeem-continue-text">继续下单</text>
 						</view>
-						<view class="rc-item">
-							<text class="rc-label">/单次可用:</text>
-							<text class="rc-value">{{ redeemSuccessInfo.singleUse }}次</text>
-						</view>
-						<view class="rc-item">
-							<text class="rc-label">有效时间:</text>
-							<text class="rc-value">{{ redeemSuccessInfo.validDays }}天</text>
-						</view>
-					</view>
-					<view class="redeem-continue-btn" @click="onContinueOrder">
-						<text class="redeem-continue-text">继续下单</text>
 					</view>
 				</view>
 			</view>
@@ -323,7 +335,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { getStoreDetail, getDeviceList } from '@/api/store.js'
 import { createBookOrder } from '@/api/order.js'
 import { getWalletInfo, getAvailableCoupons } from '@/api/pay.js'
@@ -445,6 +457,16 @@ const couponList = ref([
 	{ id: 4, name: '过期次卡', amount: 15, scope: '适用于:洗宠机', expireText: '已到期', disabled: true }
 ])
 
+// ==================== 计算属性 ====================
+// 计算总金额（服务价格 - 优惠券）
+const calcTotalAmount = computed(() => {
+	if (selectedService.value === null) return '0.00'
+	const service = serviceList.value[selectedService.value]
+	const couponAmount = selectedCoupon.value ? selectedCoupon.value.amount : 0
+	const total = Math.max(0, service.price - couponAmount)
+	return total.toFixed(2)
+})
+}
 // ==================== 页面生命周期 ====================
 onMounted(() => {
 	const sysInfo = uni.getSystemInfoSync()
@@ -1215,12 +1237,36 @@ $primary-bg: #f5fde6;
 	color: #fff;
 }
 
-/* 底部支付栏 */
-.popup-bottom {
+/* 支付区域（类似优惠充值弹窗风格） */
+.pay-section {
 	margin: 12rpx 24rpx 0;
 	background: #fff;
 	border-radius: 20rpx;
-	padding: 24rpx;
+	padding: 32rpx 24rpx;
+}
+
+/* 支付金额显示 */
+.pay-amount-display {
+	text-align: center;
+	margin-bottom: 32rpx;
+}
+
+.pay-total-label {
+	font-size: 24rpx;
+	color: #999;
+	display: block;
+	margin-bottom: 12rpx;
+}
+
+.pay-total-amount {
+	font-size: 56rpx;
+	font-weight: 700;
+	color: #ff4d4f;
+}
+
+.pay-total-amount .symbol {
+	font-size: 32rpx;
+	margin-right: 8rpx;
 }
 
 .pay-info-row {
@@ -1357,6 +1403,14 @@ $primary-bg: #f5fde6;
 
 /* 微信支付 */
 .pay-method-section {
+	margin-bottom: 20rpx;
+}
+
+.pay-method-title {
+	font-size: 26rpx;
+	font-weight: 600;
+	color: #333;
+	display: block;
 	margin-bottom: 20rpx;
 }
 
@@ -1612,7 +1666,7 @@ $primary-bg: #f5fde6;
 	color: #666;
 }
 
-/* ==================== 团购核销弹窗 ==================== */
+/* ==================== 团购核销弹窗（底部弹窗形式） ==================== */
 .redeem-mask {
 	position: fixed;
 	top: 0;
@@ -1622,73 +1676,57 @@ $primary-bg: #f5fde6;
 	background-color: rgba(0, 0, 0, 0.5);
 	z-index: 150;
 	display: flex;
-	align-items: center;
-	justify-content: center;
+	align-items: flex-end;
 }
 
 .redeem-popup {
-	width: 650rpx;
+	width: 100%;
+	max-height: 85vh;
 	background: #fff;
-	border-radius: 32rpx;
-	overflow: hidden;
+	border-radius: 32rpx 32rpx 0 0;
+	overflow-y: auto;
 	padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
 }
 
-/* 平台选择 */
-.redeem-header {
+/* 弹窗头部 */
+.redeem-popup-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 32rpx;
+	padding: 32rpx 32rpx 20rpx;
 	border-bottom: 1rpx solid #f5f5f5;
 }
 
-.redeem-title {
+.redeem-popup-title {
 	font-size: 36rpx;
 	font-weight: 700;
 	color: #222;
 }
 
-.redeem-close {
+.redeem-popup-close {
 	width: 56rpx;
 	height: 56rpx;
 	border-radius: 50%;
-	background: #f5f5f5;
+	background-color: #f5f5f5;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+}
+
+.redeem-popup-close-text {
 	font-size: 32rpx;
 	color: #999;
-
-	&:active {
-		background: #eee;
-	}
 }
 
-.redeem-back {
-	width: 60rpx;
-	height: 60rpx;
-	border-radius: 50%;
-	background: #f5f5f5;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-
-	&:active {
-		background: #eee;
-	}
-}
-
-.back-arrow {
-	font-size: 44rpx;
-	color: #666;
-	font-weight: 300;
+/* 弹窗内容区 */
+.redeem-popup-content {
+	padding: 24rpx 32rpx 32rpx;
 }
 
 .platform-grid {
 	display: flex;
 	justify-content: space-around;
-	padding: 48rpx 32rpx;
+	padding: 32rpx 16rpx;
 }
 
 .platform-item {
@@ -1716,7 +1754,7 @@ $primary-bg: #f5fde6;
 
 /* 核销码输入 */
 .redeem-input-wrap {
-	padding: 48rpx 32rpx;
+	padding: 32rpx 0;
 }
 
 .redeem-input {
@@ -1730,7 +1768,7 @@ $primary-bg: #f5fde6;
 }
 
 .redeem-confirm-btn {
-	margin: 0 32rpx 32rpx;
+	margin: 32rpx 0;
 	background: $primary;
 	text-align: center;
 	padding: 24rpx 0;
@@ -1749,7 +1787,7 @@ $primary-bg: #f5fde6;
 
 /* 核销成功 */
 .redeem-success-content {
-	padding: 48rpx 32rpx;
+	padding: 32rpx 0;
 	text-align: center;
 }
 
