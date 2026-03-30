@@ -208,9 +208,14 @@
 						</view>
 					</view>
 
-					<!-- 确认下单 -->
-					<view class="submit-btn" @click="onSubmit">
-						<text class="submit-btn-text">确认下单</text>
+					<!-- 底部按钮组 -->
+					<view class="pay-btn-group">
+						<view class="prev-step-btn" @click="prevStep">
+							<text class="prev-step-text">上一步</text>
+						</view>
+						<view class="submit-btn" @click="onSubmit">
+							<text class="submit-btn-text">确认下单</text>
+						</view>
 					</view>
 				</view>
 			</view>
@@ -547,13 +552,18 @@ const openBookPopup = () => {
 	showBookPopup.value = true
 }
 
-/** 点击下一步 → 关闭预约弹窗，打开支付弹窗 */
+/** 点击下一步 */
 const goNextStep = () => {
 	if (selectedService.value === null) {
 		uni.showToast({ title: '请选择服务项目', icon: 'none' })
 		return
 	}
 	showPaySection.value = true
+}
+
+/** 上一步 */
+const prevStep = () => {
+	showPaySection.value = false
 }
 
 /** 关闭预约弹窗 */
@@ -1443,12 +1453,37 @@ $primary-bg: #f5fde6;
 	color: #333;
 }
 
+/* 支付弹窗底部按钮组 */
+.pay-btn-group {
+	display: flex;
+	gap: 16rpx;
+	padding: 0 24rpx 24rpx;
+}
+
+.prev-step-btn {
+	flex: 1;
+	background: #f5f5f5;
+	text-align: center;
+	padding: 24rpx 0;
+	border-radius: 999rpx;
+
+	&:active {
+		opacity: 0.85;
+	}
+}
+
+.prev-step-text {
+	font-size: 32rpx;
+	font-weight: 600;
+	color: #666;
+}
+
 .submit-btn {
+	flex: 1;
 	background: $primary;
 	text-align: center;
 	padding: 24rpx 0;
 	border-radius: 999rpx;
-	margin: 0 24rpx 24rpx;
 
 	&:active {
 		opacity: 0.85;
