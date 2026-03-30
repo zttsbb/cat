@@ -466,7 +466,6 @@ const calcTotalAmount = computed(() => {
 	const total = Math.max(0, service.price - couponAmount)
 	return total.toFixed(2)
 })
-}
 // ==================== 页面生命周期 ====================
 onMounted(() => {
 	const sysInfo = uni.getSystemInfoSync()
