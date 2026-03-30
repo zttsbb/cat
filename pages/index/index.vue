@@ -161,9 +161,6 @@
 				<!-- 备注 -->
 				<view class="remark-wrap" v-if="showPaySection">
 					<input class="remark-input" v-model="remark" placeholder="请输入备注内容" maxlength="200" />
-				<!-- 备注 -->
-				<view class="remark-wrap" v-if="showPaySection">
-					<input class="remark-input" v-model="remark" placeholder="请输入备注内容" maxlength="200" />
 				</view>
 
 				<!-- 支付区域 -->
@@ -219,7 +216,6 @@
 			</view>
 		</view>
 
-		<!-- ========== 三、预约成功叠加弹窗（背景=预约页面） ========== -->
 		<!-- ========== 四、预约成功叠加弹窗（背景=预约页面） ========== -->
 		<view class="success-mask" v-if="showSuccess" @click="onSuccessClick">
 			<view class="success-popup" @click.stop>
